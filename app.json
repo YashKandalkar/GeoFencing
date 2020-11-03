@@ -1,0 +1,12 @@
+{
+  "name": "GeoFencing",
+  "displayName": "GeoFencing",
+  "expo": {
+    "name": "GeoFencing",
+    "slug": "GeoFencing",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
