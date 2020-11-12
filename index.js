@@ -1,13 +1,20 @@
 import React from 'react';
 import { registerRootComponent } from 'expo';
-import { Provider as PaperProvider } from 'react-native-paper';
+import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+import customTheme from "./src/utils/theme";
 
+const theme = {
+  ...DefaultTheme,
+  ...customTheme
+};
+
+console.log(DefaultTheme);
 
 import App from './src/App';
 
 const Main = () => {
     return (
-      <PaperProvider>
+      <PaperProvider theme={theme}>
         <App />
       </PaperProvider>
     );

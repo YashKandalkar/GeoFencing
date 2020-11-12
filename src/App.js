@@ -1,25 +1,47 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Button } from 'react-native-paper';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { withTheme } from 'react-native-paper';
+import LogInScreen from "./screens/LogInScreen";
+import AdminScreen from "./screens/Admin";
 
-export default function App() {
+const Stack = createStackNavigator();
+
+function App(props) {
+  const { colors } = props.theme;
+  const screenOptions = {
+    headerStyle: {
+      backgroundColor: colors.primary,
+    },
+    headerTintColor: '#fff'
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>nice</Text>
-      <Button raised theme={{ roundness: 3 }} mode="contained">
-        Press me
-      </Button>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Login">
+        <Stack.Screen 
+          name="Login"
+          component={LogInScreen} 
+          options={{...screenOptions, title: 'Geo Fencer'}}
+        />
+        <Stack.Screen 
+          name="Admin" 
+          component={AdminScreen} 
+          options={screenOptions}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#fff',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//   },
+// });
+
+
+export default withTheme(App);
