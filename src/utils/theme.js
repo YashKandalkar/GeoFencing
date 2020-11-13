@@ -7,7 +7,7 @@ const customTheme = {
         primary: '#0366d6',
         primaryDark: '#003da4',
         primaryLight: '#6093ff',
-        accent: '#FFFF00',
+        accent: '#DDC955',
         background: '#f6f6f6',
         placeholder: '#ccc'
     },
