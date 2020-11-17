@@ -17,19 +17,28 @@ import {
     Button
 } from 'react-native-paper';
 
-
 import OutlinedContainer from './OutlinedContainer';
 
-const Login = ({ navigation, theme }) => {
-    const [text, setText] = React.useState('');
-    const [pass, setPass] = React.useState('');
-    const { colors } = theme;
+const Login = ({ navigation, logger, setLogger, ...props }) => {
+    const isAdmin = logger == "ADMIN";
+
+    const onLoginAsClick = () => {
+        if(isAdmin) {
+            setLogger('DOCTOR');
+        } else {
+            setLogger('ADMIN');
+        }
+    }
 
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView style={{flex:1,}} contentContainerStyle={styles.scrollViewContent}>
+            <ScrollView style={{ flex:1 }} contentContainerStyle={ styles.scrollViewContent }>
                 <Title style={styles.title}>
-                    {"Sign in as Admin"}
+                    {
+                        isAdmin?
+                            "Sign in as Admin"
+                            :"Sign in as Doctor"
+                    }
                 </Title> 
                 <Surface 
                     style={styles.loginComponent}
@@ -71,9 +80,13 @@ const Login = ({ navigation, theme }) => {
                         uppercase={false}
                         style={{ borderRadius: 6, marginTop: 15 }}
                         contentStyle={{ height: 40 }}
-                        onPress={() => navigation.navigate("Admin")}
+                        onPress={onLoginAsClick}
                     >
-                        {"Login as Doctor"}
+                        {
+                            isAdmin?
+                                "Login as Doctor"
+                                :"Login as Admin"
+                        }
                     </Button>
                     <Button 
                         mode="contained" 

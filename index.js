@@ -1,24 +1,33 @@
 import React from 'react';
 import { registerRootComponent } from 'expo';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+import { createStore, applyMiddleware  } from "redux";
+import { Provider as StoreProvider } from 'react-redux';
+import App from './src/App';
 import customTheme from "./src/utils/theme";
+import reducer from './src/reducers/reducer';
+import thunk from 'redux-thunk';
 
 const theme = {
   ...DefaultTheme,
   ...customTheme
 };
 
-console.log(DefaultTheme);
+const initialState = {
+  LOGIN_AS: 'ADMIN'
+}
 
-import App from './src/App';
+const store = createStore(reducer, initialState, applyMiddleware(thunk));
 
 const Main = () => {
-    return (
-      <PaperProvider theme={theme}>
-        <App />
-      </PaperProvider>
-    );
-  }
+  return (
+    <PaperProvider theme={theme}>
+      <StoreProvider store={store}>
+          <App />
+      </StoreProvider>
+    </PaperProvider>
+  );
+}
 
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);
 // It also ensures that whether you load the app in the Expo client or in a native build,
