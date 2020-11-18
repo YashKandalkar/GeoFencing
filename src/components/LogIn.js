@@ -1,5 +1,8 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { withTheme } from 'react-native-paper';
+
+import { setLoggedIn as setLoggedInAction } from '../utils/actions';
 
 import { 
     StyleSheet, 
@@ -19,15 +22,23 @@ import {
 
 import OutlinedContainer from './OutlinedContainer';
 
-const Login = ({ navigation, logger, setLogger, ...props }) => {
-    const isAdmin = logger == "ADMIN";
+const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn, ...props }) => {
+    const [text, setText] = React.useState('');
+    const [pass, setPass] = React.useState('');
+
+    const isAdmin = loginAs === "ADMIN";
 
     const onLoginAsClick = () => {
         if(isAdmin) {
-            setLogger('DOCTOR');
+            setLoginAs('DOCTOR');
         } else {
-            setLogger('ADMIN');
+            setLoginAs('ADMIN');
         }
+    }
+
+    const onLoginClick = () => {
+        // TODO: implement login logic
+        setLoggedIn(true);
     }
 
     return (
@@ -93,7 +104,7 @@ const Login = ({ navigation, logger, setLogger, ...props }) => {
                         uppercase={false}
                         style={{ borderRadius: 6, marginTop: 15 }}
                         contentStyle={{ height: 40 }}
-                        onPress={() => navigation.navigate("Admin")}
+                        onPress={onLoginClick}
                     >
                         {"Sign in"}
                     </Button>
@@ -149,6 +160,16 @@ const styles = StyleSheet.create({
         borderColor: '#ddd',
         paddingVertical: 16
     },
-  });
+});
 
-export default withTheme(Login);
+const mapStateToProps = (state) => state;
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        setLoggedIn: (loggedIn) => dispatch(setLoggedInAction(loggedIn))
+    }
+};
+
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(withTheme(Login));

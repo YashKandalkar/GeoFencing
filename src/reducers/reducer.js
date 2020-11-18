@@ -1,14 +1,22 @@
 import action_names from "../utils/action_names";
 
-const { LOGIN_AS } = action_names;
-
+const { 
+    SET_LOGIN_AS,
+    SET_LOGGED_IN
+} = action_names;
 
 export default (state, action) => {
     switch (action.type) {
-        case LOGIN_AS:
+        case SET_LOGIN_AS:
             return {
                 ...state,
-                LOGIN_AS: action.logger
+                loginAs: action.loginAs
+            }
+
+        case SET_LOGGED_IN:
+            return {
+                ...state,
+                loggedIn: action.loggedIn
             }
     
         default:

@@ -1,10 +1,16 @@
-import actions from "./action_names";
+import action_names from "./action_names";
 
-const { LOGIN_AS } = actions;
+const { 
+    SET_LOGIN_AS,
+    SET_LOGGED_IN
+} = action_names;
 
-export const setLogger = (logger) => {
-    return {
-        type: LOGIN_AS,
-        logger
-    }
-}
+export const setLoginAs = (loginAs) => ({
+    type: SET_LOGIN_AS,
+    loginAs
+});
+
+export const setLoggedIn = (loggedIn) => ({
+    type: SET_LOGGED_IN,
+    loggedIn
+});

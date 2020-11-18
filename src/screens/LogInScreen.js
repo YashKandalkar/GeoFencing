@@ -2,15 +2,15 @@ import React from 'react';
 import { connect } from "react-redux";
 import LogIn from "../components/LogIn";
 import { StatusBar } from "expo-status-bar";
-import { setLogger } from '../utils/actions';
+import { setLoginAs as setLoginAsAction } from '../utils/actions';
 
-const LogInScreen = ({ navigation, loginAs, setLogger, ...props}) => {
+const LogInScreen = ({ navigation, loginAs, setLoginAs, ...props}) => {
     return (
         <>
             <LogIn 
                 navigation={navigation} 
-                logger={loginAs}
-                setLogger={setLogger}
+                loginAs={loginAs}
+                setLoginAs={setLoginAs}
             />
             <StatusBar style="light"/>
         </>
@@ -19,13 +19,13 @@ const LogInScreen = ({ navigation, loginAs, setLogger, ...props}) => {
 
 const mapStateToProps = state => {
     return {
-        loginAs: state.LOGIN_AS
+        loginAs: state.loginAs
     };
 };
 const mapDispatchToProps = dispatch => {
   return {
-    setLogger: logger => {
-      dispatch(setLogger(logger));
+    setLoginAs: loginAs => {
+      dispatch(setLoginAsAction(loginAs));
     }
   }
 }
