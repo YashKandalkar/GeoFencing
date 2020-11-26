@@ -15,7 +15,8 @@ const theme = {
 
 const initialState = {
   loginAs: 'ADMIN',
-  loggedIn: false
+  loggedIn: false,
+  adminHospitalSetupDone: false
 }
 
 const store = createStore(reducer, initialState, applyMiddleware(thunk));
