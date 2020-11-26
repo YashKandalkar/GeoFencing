@@ -3,9 +3,9 @@ import DoctorListItem from "./DoctorListItem";
 import { Surface } from "react-native-paper";
 import { StyleSheet } from "react-native";
 
-const DoctorList = () => {
+const DoctorList = ({ containerStyle }) => {
     return (
-        <Surface style={styles.container}>
+        <Surface style={{ ...styles.container, ...containerStyle }}>
             <DoctorListItem />
             <DoctorListItem />
             <DoctorListItem />
