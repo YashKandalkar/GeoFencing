@@ -11,61 +11,67 @@ import { setLoggedIn as setLoggedInAction } from "./utils/actions";
 const Stack = createStackNavigator();
 
 function App({ theme, loginAs, loggedIn, setLoggedIn, ...props }) {
-  const { colors } = theme;
-  const screenOptions = {
-    headerStyle: {
-      backgroundColor: colors.primary,
-    },
-    headerTintColor: "#fff",
-  };
+    const { colors } = theme;
+    const screenOptions = {
+        headerStyle: {
+            backgroundColor: colors.primary,
+        },
+        headerTintColor: "#fff",
+    };
 
-  const logoutButton = () => (
-    <IconButton
-      icon="account-arrow-right"
-      color={"#fff"}
-      size={24}
-      onPress={() => setLoggedIn(false)}
-    />
-  );
+    const logoutButton = () => (
+        <IconButton
+            icon="account-arrow-right"
+            color={"#fff"}
+            size={24}
+            onPress={() => setLoggedIn(false)}
+        />
+    );
 
-  return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        {!loggedIn ? (
-          <Stack.Screen
-            name="Login"
-            component={LogInScreen}
-            options={{ ...screenOptions, title: "Geo Fencer" }}
-          />
-        ) : loginAs === "ADMIN" ? (
-          <Stack.Screen
-            name="Admin"
-            component={AdminScreen}
-            options={{ ...screenOptions, headerRight: logoutButton }}
-          />
-        ) : (
-          <Stack.Screen
-            name="Doctor"
-            component={DoctorScreen}
-            options={{ ...screenOptions, headerRight: logoutButton }}
-          />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+    return (
+        <NavigationContainer>
+            <Stack.Navigator>
+                {!loggedIn ? (
+                    <Stack.Screen
+                        name="Login"
+                        component={LogInScreen}
+                        options={{ ...screenOptions, title: "Geo Fencer" }}
+                    />
+                ) : loginAs === "ADMIN" ? (
+                    <Stack.Screen
+                        name="Admin"
+                        component={AdminScreen}
+                        options={{
+                            ...screenOptions,
+                            headerRight: logoutButton,
+                        }}
+                    />
+                ) : (
+                    <Stack.Screen
+                        name="Doctor"
+                        component={DoctorScreen}
+                        options={{
+                            ...screenOptions,
+                            headerRight: logoutButton,
+                        }}
+                    />
+                )}
+            </Stack.Navigator>
+        </NavigationContainer>
+    );
 }
 
 const mapStateToProps = (state) => {
-  return {
-    loginAs: state.loginAs,
-    loggedIn: state.loggedIn,
-  };
+    return {
+        loginAs: state.loginAs,
+        loggedIn: state.loggedIn,
+    };
 };
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    setLoggedIn: (loggedIn) => dispatch(setLoggedInAction(loggedIn)),
-  };
+    return {
+        setLoggedIn: (loggedIn) => dispatch(setLoggedInAction(loggedIn)),
+    };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(withTheme(App));

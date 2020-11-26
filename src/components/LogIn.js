@@ -1,66 +1,60 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { withTheme } from 'react-native-paper';
+import React from "react";
+import { connect } from "react-redux";
+import { withTheme } from "react-native-paper";
 
-import { setLoggedIn as setLoggedInAction } from '../utils/actions';
+import { setLoggedIn as setLoggedInAction } from "../utils/actions";
 
-import { 
-    StyleSheet, 
-    View, 
-    ScrollView,
-    SafeAreaView
-} from 'react-native';
+import { StyleSheet, View, ScrollView, SafeAreaView } from "react-native";
 
-import { 
-    Surface, 
+import {
+    Surface,
     Subheading,
     Text,
     TextInput,
     Title,
-    Button
-} from 'react-native-paper';
+    Button,
+} from "react-native-paper";
 
-import OutlinedContainer from './OutlinedContainer';
+import OutlinedContainer from "./OutlinedContainer";
 
 const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn, ...props }) => {
-    const [text, setText] = React.useState('');
-    const [pass, setPass] = React.useState('');
+    const [text, setText] = React.useState("");
+    const [pass, setPass] = React.useState("");
 
     const isAdmin = loginAs === "ADMIN";
 
     const onLoginAsClick = () => {
-        if(isAdmin) {
-            setLoginAs('DOCTOR');
+        if (isAdmin) {
+            setLoginAs("DOCTOR");
         } else {
-            setLoginAs('ADMIN');
+            setLoginAs("ADMIN");
         }
-    }
+    };
 
     const onLoginClick = () => {
         // TODO: implement login logic
         setLoggedIn(true);
-    }
+    };
 
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView style={{ flex:1 }} contentContainerStyle={ styles.scrollViewContent }>
+            <ScrollView
+                style={{ flex: 1 }}
+                contentContainerStyle={styles.scrollViewContent}
+            >
                 <Title style={styles.title}>
-                    {
-                        isAdmin?
-                            "Sign in as Admin"
-                            :"Sign in as Doctor"
-                    }
-                </Title> 
-                <Surface 
-                    style={styles.loginComponent}
-                >
+                    {isAdmin ? "Sign in as Admin" : "Sign in as Doctor"}
+                </Title>
+                <Surface style={styles.loginComponent}>
                     <View style={styles.formItem}>
-                        <Text style={styles.textFieldHeading}>Email address</Text>
+                        <Text style={styles.textFieldHeading}>
+                            Email address
+                        </Text>
                         <TextInput
                             mode="outlined"
-                            style={{ height: 40, backgroundColor: "#fff"  }}
+                            style={{ height: 40, backgroundColor: "#fff" }}
                             placeholder="email@example.com"
-                            onChangeText={text => setText(text)}
+                            onChangeText={(text) => setText(text)}
                             value={text}
                         />
                     </View>
@@ -72,35 +66,33 @@ const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn, ...props }) => {
                             placeholder="password"
                             textContentType="password"
                             secureTextEntry
-                            onChangeText={text => setPass(text)}
+                            onChangeText={(text) => setPass(text)}
                             value={pass}
-                        /> 
+                        />
                     </View>
 
-                    <Subheading style={{
-                        textAlign: "right",
-                        fontSize: 14,
-                        color: "#0366d6",
-                        fontFamily: 'sans-serif-medium'
-                    }}>
+                    <Subheading
+                        style={{
+                            textAlign: "right",
+                            fontSize: 14,
+                            color: "#0366d6",
+                            fontFamily: "sans-serif-medium",
+                        }}
+                    >
                         {"Forgot password?"}
                     </Subheading>
 
-                    <Button 
-                        mode="outlined" 
+                    <Button
+                        mode="outlined"
                         uppercase={false}
                         style={{ borderRadius: 6, marginTop: 15 }}
                         contentStyle={{ height: 40 }}
                         onPress={onLoginAsClick}
                     >
-                        {
-                            isAdmin?
-                                "Login as Doctor"
-                                :"Login as Admin"
-                        }
+                        {isAdmin ? "Login as Doctor" : "Login as Admin"}
                     </Button>
-                    <Button 
-                        mode="contained" 
+                    <Button
+                        mode="contained"
                         uppercase={false}
                         style={{ borderRadius: 6, marginTop: 15 }}
                         contentStyle={{ height: 40 }}
@@ -110,20 +102,20 @@ const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn, ...props }) => {
                     </Button>
                 </Surface>
                 <OutlinedContainer containerStyle={styles.outlinedContainer}>
-                    <Subheading style={{ fontFamily: 'sans-serif-light' }}>
+                    <Subheading style={{ fontFamily: "sans-serif-light" }}>
                         {"Check our guildlines for patients"}
                     </Subheading>
                 </OutlinedContainer>
             </ScrollView>
         </SafeAreaView>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     title: {
         marginBottom: 48,
-        fontFamily: 'sans-serif-light',
-        fontSize: 30
+        fontFamily: "sans-serif-light",
+        fontSize: 30,
     },
     container: {
         flex: 1,
@@ -131,34 +123,34 @@ const styles = StyleSheet.create({
     scrollViewContent: {
         paddingHorizontal: 8,
         paddingVertical: 8,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#fff',
-        minHeight: '100%'
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#fff",
+        minHeight: "100%",
     },
     loginComponent: {
         padding: 16,
-        width: '80%',
+        width: "80%",
         maxWidth: 400,
         elevation: 1,
-        borderRadius: 6
+        borderRadius: 6,
     },
     textFieldHeading: {
-        fontFamily: 'sans-serif-light',
+        fontFamily: "sans-serif-light",
         fontSize: 16,
     },
     formItem: {
         // marginTop: 10,
-        marginBottom: 15
+        marginBottom: 15,
     },
     outlinedContainer: {
-        width: '80%',
+        width: "80%",
         maxWidth: 400,
         marginTop: 75,
         marginBottom: 16,
-        alignItems: 'center',
-        borderColor: '#ddd',
-        paddingVertical: 16
+        alignItems: "center",
+        borderColor: "#ddd",
+        paddingVertical: 16,
     },
 });
 
@@ -166,10 +158,8 @@ const mapStateToProps = (state) => state;
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        setLoggedIn: (loggedIn) => dispatch(setLoggedInAction(loggedIn))
-    }
+        setLoggedIn: (loggedIn) => dispatch(setLoggedInAction(loggedIn)),
+    };
 };
-
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(withTheme(Login));

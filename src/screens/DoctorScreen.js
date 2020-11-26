@@ -5,14 +5,14 @@ import { View } from "react-native";
 import { Text } from "react-native-paper";
 
 const DoctorScreen = ({ navigation }) => {
-  return (
-    <>
-      <View>
-        <Text>Doctor Screen</Text>
-      </View>
-      <StatusBar style="light" />
-    </>
-  );
+    return (
+        <>
+            <View>
+                <Text>Doctor Screen</Text>
+            </View>
+            <StatusBar style="light" />
+        </>
+    );
 };
 
 export default connect()(DoctorScreen);

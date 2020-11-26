@@ -1,33 +1,33 @@
-import React from 'react';
+import React from "react";
 import { connect } from "react-redux";
 import LogIn from "../components/LogIn";
 import { StatusBar } from "expo-status-bar";
-import { setLoginAs as setLoginAsAction } from '../utils/actions';
+import { setLoginAs as setLoginAsAction } from "../utils/actions";
 
-const LogInScreen = ({ navigation, loginAs, setLoginAs, ...props}) => {
+const LogInScreen = ({ navigation, loginAs, setLoginAs, ...props }) => {
     return (
         <>
-            <LogIn 
-                navigation={navigation} 
+            <LogIn
+                navigation={navigation}
                 loginAs={loginAs}
                 setLoginAs={setLoginAs}
             />
-            <StatusBar style="light"/>
+            <StatusBar style="light" />
         </>
-    )
-}
+    );
+};
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
     return {
-        loginAs: state.loginAs
+        loginAs: state.loginAs,
     };
 };
-const mapDispatchToProps = dispatch => {
-  return {
-    setLoginAs: loginAs => {
-      dispatch(setLoginAsAction(loginAs));
-    }
-  }
-}
+const mapDispatchToProps = (dispatch) => {
+    return {
+        setLoginAs: (loginAs) => {
+            dispatch(setLoginAsAction(loginAs));
+        },
+    };
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(LogInScreen);
