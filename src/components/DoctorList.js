@@ -1,11 +1,25 @@
 import React from "react";
 import DoctorListItem from "./DoctorListItem";
-import { Surface } from "react-native-paper";
+import { Surface, withTheme } from "react-native-paper";
 import { StyleSheet } from "react-native";
 
-const DoctorList = ({ containerStyle }) => {
+const DoctorList = ({ containerStyle, theme }) => {
+    const { colors } = theme;
     return (
-        <Surface style={{ ...styles.container, ...containerStyle }}>
+        <Surface
+            style={{
+                ...styles.container,
+                // backgroundColor: colors.primary,
+                ...containerStyle,
+            }}
+        >
+            <DoctorListItem />
+            <DoctorListItem />
+            <DoctorListItem />
+            <DoctorListItem />
+            <DoctorListItem />
+            <DoctorListItem />
+            <DoctorListItem />
             <DoctorListItem />
             <DoctorListItem />
             <DoctorListItem />
@@ -19,7 +33,8 @@ const styles = StyleSheet.create({
     container: {
         elevation: 2,
         marginHorizontal: 6,
+        borderRadius: 8,
     },
 });
 
-export default DoctorList;
+export default withTheme(DoctorList);

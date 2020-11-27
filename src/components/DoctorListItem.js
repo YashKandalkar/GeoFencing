@@ -5,7 +5,12 @@ import { Text, StyleSheet } from "react-native";
 const DoctorListItem = ({ theme }) => {
     const { colors } = theme;
     return (
-        <Surface style={styles.item}>
+        <Surface
+            style={{
+                ...styles.item,
+                // backgroundColor: colors.primaryLight
+            }}
+        >
             <Text>This is a doctor</Text>
         </Surface>
     );
@@ -16,6 +21,7 @@ const styles = StyleSheet.create({
         margin: 16,
         elevation: 1,
         padding: 8,
+        borderRadius: 8,
     },
 });
 
