@@ -14,9 +14,9 @@ function App({ theme, loginAs, loggedIn, setLoggedIn, ...props }) {
     const { colors } = theme;
     const screenOptions = {
         headerStyle: {
-            backgroundColor: colors.primary,
+            backgroundColor: colors.primary
         },
-        headerTintColor: "#fff",
+        headerTintColor: "#fff"
     };
 
     const logoutButton = () => (
@@ -43,7 +43,7 @@ function App({ theme, loginAs, loggedIn, setLoggedIn, ...props }) {
                         component={AdminScreen}
                         options={{
                             ...screenOptions,
-                            headerRight: logoutButton,
+                            headerRight: logoutButton
                         }}
                     />
                 ) : (
@@ -52,7 +52,7 @@ function App({ theme, loginAs, loggedIn, setLoggedIn, ...props }) {
                         component={DoctorScreen}
                         options={{
                             ...screenOptions,
-                            headerRight: logoutButton,
+                            headerRight: logoutButton
                         }}
                     />
                 )}
@@ -62,15 +62,12 @@ function App({ theme, loginAs, loggedIn, setLoggedIn, ...props }) {
 }
 
 const mapStateToProps = (state) => {
-    return {
-        loginAs: state.loginAs,
-        loggedIn: state.loggedIn,
-    };
+    return state;
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        setLoggedIn: (loggedIn) => dispatch(setLoggedInAction(loggedIn)),
+        setLoggedIn: (loggedIn) => dispatch(setLoggedInAction(loggedIn))
     };
 };
 

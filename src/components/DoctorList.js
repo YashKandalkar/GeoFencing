@@ -1,6 +1,6 @@
 import React from "react";
 import DoctorListItem from "./DoctorListItem";
-import { Surface, withTheme } from "react-native-paper";
+import { Surface, withTheme, Button, Title } from "react-native-paper";
 import { StyleSheet } from "react-native";
 
 const doctors = [
@@ -26,16 +26,33 @@ const doctors = [
     }
 ];
 
-const DoctorList = ({ containerStyle, theme }) => {
+const DoctorList = ({ containerStyle, addDoctor, theme }) => {
     const { colors } = theme;
     return (
         <Surface
             style={{
                 ...styles.container,
-                // backgroundColor: colors.primary,
                 ...containerStyle
             }}
         >
+            <Surface
+                style={{
+                    ...styles.topBar,
+                    backgroundColor: colors.primary
+                }}
+            >
+                <Title style={{ color: "#fff" }}>Doctor List</Title>
+                <Button
+                    compact
+                    icon={"plus"}
+                    mode="contained"
+                    color={colors.background}
+                    labelStyle={{ color: colors.primary, marginRight: 14 }}
+                    onPress={() => addDoctor()}
+                >
+                    Add
+                </Button>
+            </Surface>
             {doctors.map((el) => (
                 <DoctorListItem docInfo={el} key={el.uniqueID} />
             ))}
@@ -48,6 +65,16 @@ const styles = StyleSheet.create({
         elevation: 2,
         marginHorizontal: 6,
         borderRadius: 8
+    },
+    topBar: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: 16,
+        paddingVertical: 8,
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8
     }
 });
 
