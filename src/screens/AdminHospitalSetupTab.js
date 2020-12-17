@@ -1,10 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet } from "react-native";
-import { Surface, Text, Banner, Title, Paragraph } from "react-native-paper";
+import { View, StyleSheet, ImageBackground } from "react-native";
+import {
+    Surface,
+    Text,
+    Banner,
+    Title,
+    Paragraph,
+    Button,
+    TextInput,
+    Headline,
+    Divider
+} from "react-native-paper";
+import { useForm, Controller } from "react-hook-form";
+
 import Scroll from "../components/Scroll";
 
 const AdminHospitalSetupTab = () => {
     const [bannerVisible, setBannerVisible] = useState(true);
+    const { control, handleSubmit, errors } = useForm();
 
     // useEffect(() => {
     //     const timer = setTimeout(() => setBannerVisible(true), 5000);
@@ -33,7 +46,7 @@ const AdminHospitalSetupTab = () => {
             >
                 <View>
                     <Title>Welcome to GeoFencer!</Title>
-                    <Paragraph style={{ maxWidth: 280, height: "100%" }}>
+                    <Paragraph style={{ maxWidth: 280 }}>
                         Please fill out the hospital information and GeoFencing
                         details in the following section.
                     </Paragraph>
@@ -41,7 +54,69 @@ const AdminHospitalSetupTab = () => {
             </Banner>
             <Scroll>
                 <Surface style={styles.container}>
-                    <Text>Setup the hospital here!</Text>
+                    <View
+                        style={{
+                            alignItems: "center",
+                            flex: 1,
+                            alignContent: "center",
+                            justifyContent: "center"
+                        }}
+                    >
+                        <ImageBackground
+                            source={require("../assets/hospital.webp")}
+                            style={styles.imageBackground}
+                            imageStyle={{ borderRadius: 8 }}
+                        >
+                            <View style={styles.childContainer}>
+                                <Headline style={styles.title}>
+                                    Hospital Cover
+                                </Headline>
+                                <Button
+                                    mode={"contained"}
+                                    color={"#eee"}
+                                    compact
+                                    uppercase={false}
+                                    style={{ marginTop: 8 }}
+                                >
+                                    Click to Edit
+                                </Button>
+                            </View>
+                        </ImageBackground>
+                    </View>
+                    <View style={styles.hospitalInformationForm}>
+                        <Divider />
+                        <Title style={{ marginBottom: 8 }}>
+                            Hospital Information:
+                        </Title>
+                        {/*<Divider  />*/}
+                        <View style={styles.formItem}>
+                            <Text style={styles.labelText}>Name:</Text>
+                            <Controller
+                                control={control}
+                                render={({ onChange, onBlur, value }) => (
+                                    <TextInput
+                                        mode="outlined"
+                                        dense
+                                        style={{
+                                            backgroundColor: "#fff",
+                                            width: "80%"
+                                        }}
+                                        placeholder="Hospital Name"
+                                        onBlur={onBlur}
+                                        onChangeText={(value) =>
+                                            onChange(value)
+                                        }
+                                        value={value}
+                                        textContentType={"name"}
+                                        error={errors.email}
+                                    />
+                                )}
+                                name="email"
+                                rules={{ required: false }}
+                                defaultValue=""
+                            />
+                        </View>
+                    </View>
                 </Surface>
             </Scroll>
         </>
@@ -51,19 +126,47 @@ const AdminHospitalSetupTab = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: "center",
         elevation: 2,
-        height: 2000
+        height: 1000,
+        borderRadius: 8
     },
     bannerContent: {
-        // flex: 1,
-        // flexDirection: "column",
-        // justifyContent: "space-between",
-        // alignContent: "space-between",
         backgroundColor: "rgba(255,229,100,0.3);",
         borderColor: "#ffe564",
-        borderLeftWidth: 8
-        // borderRadius: 8
+        borderLeftWidth: 8,
+        paddingVertical: 0,
+        alignItems: "center",
+        justifyContent: "space-between"
+    },
+    imageBackground: {
+        flex: 1,
+        width: "100%",
+        resizeMode: "cover"
+    },
+    childContainer: {
+        backgroundColor: "rgba(0,0,0,0.5)",
+        padding: 16,
+        borderRadius: 8,
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center"
+    },
+    title: {
+        color: "#eee",
+        fontSize: 28
+    },
+    hospitalInformationForm: {
+        flex: 4,
+        marginTop: 8,
+        padding: 8
+    },
+    formItem: {
+        flexDirection: "row",
+        justifyContent: "space-around",
+        alignItems: "center"
+    },
+    labelText: {
+        fontSize: 18
     }
 });
 
