@@ -1,10 +1,11 @@
 import React from "react";
 import { connect } from "react-redux";
-import { withTheme } from "react-native-paper";
+import { StyleSheet, View, ScrollView, SafeAreaView } from "react-native";
+import { withTheme, HelperText } from "react-native-paper";
+import { useForm, Controller } from "react-hook-form";
 
 import { setLoggedIn as setLoggedInAction } from "../utils/actions";
-
-import { StyleSheet, View, ScrollView, SafeAreaView } from "react-native";
+import Scroll from "./Scroll";
 
 import {
     Surface,
@@ -12,14 +13,13 @@ import {
     Text,
     TextInput,
     Title,
-    Button,
+    Button
 } from "react-native-paper";
 
 import OutlinedContainer from "./OutlinedContainer";
 
 const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn, ...props }) => {
-    const [text, setText] = React.useState("");
-    const [pass, setPass] = React.useState("");
+    const { control, handleSubmit, errors } = useForm();
 
     const isAdmin = loginAs === "ADMIN";
 
@@ -31,17 +31,14 @@ const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn, ...props }) => {
         }
     };
 
-    const onLoginClick = () => {
+    const onSubmit = (data) => {
         // TODO: implement login logic
         setLoggedIn(true);
     };
 
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView
-                style={{ flex: 1 }}
-                contentContainerStyle={styles.scrollViewContent}
-            >
+            <Scroll contentStyles={{ alignItems: "center" }}>
                 <Title style={styles.title}>
                     {isAdmin ? "Sign in as Admin" : "Sign in as Doctor"}
                 </Title>
@@ -50,25 +47,64 @@ const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn, ...props }) => {
                         <Text style={styles.textFieldHeading}>
                             Email address
                         </Text>
-                        <TextInput
-                            mode="outlined"
-                            style={{ height: 40, backgroundColor: "#fff" }}
-                            placeholder="email@example.com"
-                            onChangeText={(text) => setText(text)}
-                            value={text}
+                        <Controller
+                            control={control}
+                            render={({ onChange, onBlur, value }) => (
+                                <TextInput
+                                    mode="outlined"
+                                    dense
+                                    style={{
+                                        backgroundColor: "#fff"
+                                    }}
+                                    placeholder="email@example.com"
+                                    onBlur={onBlur}
+                                    onChangeText={(value) => onChange(value)}
+                                    value={value}
+                                    textContentType={"emailAddress"}
+                                    error={errors.email}
+                                />
+                            )}
+                            name="email"
+                            rules={{ required: false }}
+                            defaultValue=""
                         />
+                        <HelperText
+                            type="error"
+                            visible={Boolean(errors.email)}
+                        >
+                            Email is required!
+                        </HelperText>
                     </View>
                     <View style={styles.formItem}>
                         <Text style={styles.textFieldHeading}>Password</Text>
-                        <TextInput
-                            mode="outlined"
-                            style={{ height: 40, backgroundColor: "#fff" }}
-                            placeholder="password"
-                            textContentType="password"
-                            secureTextEntry
-                            onChangeText={(text) => setPass(text)}
-                            value={pass}
+                        <Controller
+                            control={control}
+                            render={({ onChange, onBlur, value }) => (
+                                <TextInput
+                                    mode="outlined"
+                                    dense
+                                    style={{
+                                        backgroundColor: "#fff"
+                                    }}
+                                    placeholder="password"
+                                    textContentType="password"
+                                    secureTextEntry
+                                    onBlur={onBlur}
+                                    onChangeText={(value) => onChange(value)}
+                                    value={value}
+                                    error={errors.password}
+                                />
+                            )}
+                            name="password"
+                            rules={{ required: false }}
+                            defaultValue=""
                         />
+                        <HelperText
+                            type="error"
+                            visible={Boolean(errors.password)}
+                        >
+                            Password is required!
+                        </HelperText>
                     </View>
 
                     <Subheading
@@ -76,7 +112,7 @@ const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn, ...props }) => {
                             textAlign: "right",
                             fontSize: 14,
                             color: "#0366d6",
-                            fontFamily: "sans-serif-medium",
+                            fontFamily: "sans-serif-medium"
                         }}
                     >
                         {"Forgot password?"}
@@ -96,17 +132,17 @@ const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn, ...props }) => {
                         uppercase={false}
                         style={{ borderRadius: 6, marginTop: 15 }}
                         contentStyle={{ height: 40 }}
-                        onPress={onLoginClick}
+                        onPress={handleSubmit(onSubmit)}
                     >
                         {"Sign in"}
                     </Button>
                 </Surface>
                 <OutlinedContainer containerStyle={styles.outlinedContainer}>
                     <Subheading style={{ fontFamily: "sans-serif-light" }}>
-                        {"Check our guildlines for patients"}
+                        {"Check our guidelines for patients"}
                     </Subheading>
                 </OutlinedContainer>
-            </ScrollView>
+            </Scroll>
         </SafeAreaView>
     );
 };
@@ -115,10 +151,10 @@ const styles = StyleSheet.create({
     title: {
         marginBottom: 48,
         fontFamily: "sans-serif-light",
-        fontSize: 30,
+        fontSize: 30
     },
     container: {
-        flex: 1,
+        flex: 1
     },
     scrollViewContent: {
         paddingHorizontal: 8,
@@ -126,22 +162,22 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         backgroundColor: "#fff",
-        minHeight: "100%",
+        minHeight: "100%"
     },
     loginComponent: {
         padding: 16,
         width: "80%",
         maxWidth: 400,
         elevation: 1,
-        borderRadius: 6,
+        borderRadius: 6
     },
     textFieldHeading: {
         fontFamily: "sans-serif-light",
-        fontSize: 16,
+        fontSize: 16
     },
     formItem: {
         // marginTop: 10,
-        marginBottom: 15,
+        marginBottom: 15
     },
     outlinedContainer: {
         width: "80%",
@@ -150,15 +186,15 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         alignItems: "center",
         borderColor: "#ddd",
-        paddingVertical: 16,
-    },
+        paddingVertical: 16
+    }
 });
 
 const mapStateToProps = (state) => state;
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        setLoggedIn: (loggedIn) => dispatch(setLoggedInAction(loggedIn)),
+        setLoggedIn: (loggedIn) => dispatch(setLoggedInAction(loggedIn))
     };
 };
 

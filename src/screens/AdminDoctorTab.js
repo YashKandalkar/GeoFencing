@@ -11,7 +11,6 @@ import {
     Paragraph,
     Button
 } from "react-native-paper";
-import { StatusBar } from "expo-status-bar";
 import DoctorList from "../components/DoctorList";
 import OutlinedContainer from "../components/OutlinedContainer";
 import { ScrollView } from "react-native-gesture-handler";
@@ -82,7 +81,6 @@ const AdminDoctorTab = ({ navigation, theme }) => {
                 />
             </ScrollView>
             <AddDoctor open={dialogOpen} uid={uid} setOpen={setDialogOpen} />
-            <StatusBar style="light" />
         </>
     );
 };
