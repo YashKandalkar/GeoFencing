@@ -85,37 +85,69 @@ const AdminHospitalSetupTab = () => {
                     </View>
                     <View style={styles.hospitalInformationForm}>
                         <Divider />
-                        <Title style={{ marginBottom: 8 }}>
+                        <Title
+                            style={{
+                                textAlign: "center",
+                                fontSize: 24,
+                                marginVertical: 16
+                            }}
+                        >
                             Hospital Information:
                         </Title>
-                        {/*<Divider  />*/}
-                        <View style={styles.formItem}>
-                            <Text style={styles.labelText}>Name:</Text>
-                            <Controller
-                                control={control}
-                                render={({ onChange, onBlur, value }) => (
-                                    <TextInput
-                                        mode="outlined"
-                                        dense
-                                        style={{
-                                            backgroundColor: "#fff",
-                                            width: "80%"
-                                        }}
-                                        placeholder="Hospital Name"
-                                        onBlur={onBlur}
-                                        onChangeText={(value) =>
-                                            onChange(value)
-                                        }
-                                        value={value}
-                                        textContentType={"name"}
-                                        error={errors.email}
-                                    />
-                                )}
-                                name="email"
-                                rules={{ required: false }}
-                                defaultValue=""
-                            />
-                        </View>
+                        <FormItem
+                            labelText={"Name:"}
+                            control={control}
+                            errors={errors}
+                            required={true}
+                            name={"name"}
+                            placeholder={"Hospital Name"}
+                        />
+                        <FormItem
+                            labelText={"Address:"}
+                            control={control}
+                            errors={errors}
+                            required={true}
+                            name={"address"}
+                            placeholder={"Address"}
+                            textContentType={"fullStreetAddress"}
+                            inputProps={{
+                                multiline: true,
+                                numberOfLines: 3,
+                                alignContent: "center"
+                            }}
+                        />
+                        <FormItem
+                            labelText={"State:"}
+                            control={control}
+                            errors={errors}
+                            required={true}
+                            name={"state"}
+                            placeholder={"State"}
+                        />
+                        <FormItem
+                            labelText={"Phone Number:"}
+                            control={control}
+                            errors={errors}
+                            required={true}
+                            name={"phoneNumber"}
+                            placeholder={"Phone Number"}
+                            inputProps={{
+                                left: <TextInput.Icon name="phone" />
+                            }}
+                        />
+                        <FormItem
+                            labelText={"Beds Available:"}
+                            control={control}
+                            errors={errors}
+                            required={true}
+                            name={"bedsAvailable"}
+                            placeholder={"Beds Available"}
+                            inputProps={
+                                {
+                                    // left: <TextInput.Icon name="phone" />
+                                }
+                            }
+                        />
                     </View>
                 </Surface>
             </Scroll>
@@ -123,11 +155,51 @@ const AdminHospitalSetupTab = () => {
     );
 };
 
+const FormItem = ({
+    labelText,
+    control,
+    errors,
+    name,
+    required,
+    placeholder,
+    inputProps,
+    textContentType
+}) => {
+    return (
+        <View style={styles.formItem}>
+            <Text style={styles.labelText}>{labelText}</Text>
+            <Controller
+                control={control}
+                render={({ onChange, onBlur, value }) => (
+                    <TextInput
+                        mode="outlined"
+                        dense
+                        style={{
+                            backgroundColor: "#fff",
+                            minWidth: "55%"
+                        }}
+                        placeholder={placeholder}
+                        onBlur={onBlur}
+                        onChangeText={(value) => onChange(value)}
+                        value={value}
+                        textContentType={textContentType || "name"}
+                        error={errors.email}
+                        {...inputProps}
+                    />
+                )}
+                name={name}
+                rules={{ required }}
+                defaultValue=""
+            />
+        </View>
+    );
+};
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         elevation: 2,
-        height: 1000,
+        // height: 1000,
         borderRadius: 8
     },
     bannerContent: {
@@ -162,8 +234,10 @@ const styles = StyleSheet.create({
     },
     formItem: {
         flexDirection: "row",
-        justifyContent: "space-around",
-        alignItems: "center"
+        justifyContent: "space-between",
+        marginHorizontal: 8,
+        alignItems: "center",
+        marginVertical: 4
     },
     labelText: {
         fontSize: 18
