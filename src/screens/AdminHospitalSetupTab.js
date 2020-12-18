@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, ImageBackground } from "react-native";
 import {
     Surface,
-    Text,
     Banner,
     Title,
     Paragraph,
@@ -11,8 +10,10 @@ import {
     Headline,
     Divider
 } from "react-native-paper";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
+import FormItem from "../components/FormItem";
+import NumericFormInput from "../components/NumericFormInput";
 import Scroll from "../components/Scroll";
 
 const AdminHospitalSetupTab = () => {
@@ -25,6 +26,10 @@ const AdminHospitalSetupTab = () => {
     //         clearTimeout(timer);
     //     };
     // }, []);
+
+    const onSubmit = (data) => {
+        console.log(data);
+    }
 
     return (
         <>
@@ -135,63 +140,46 @@ const AdminHospitalSetupTab = () => {
                                 left: <TextInput.Icon name="phone" />
                             }}
                         />
-                        <FormItem
+                        <NumericFormInput 
+                            labelText={"Tota Beds:"}
+                            control={control}
+                            required={true}
+                            name={"totalBeds"}
+                            inputProps={{ minValue: 0, rounded: true }}
+                        />
+                        <NumericFormInput 
                             labelText={"Beds Available:"}
                             control={control}
-                            errors={errors}
                             required={true}
                             name={"bedsAvailable"}
-                            placeholder={"Beds Available"}
-                            inputProps={
-                                {
-                                    // left: <TextInput.Icon name="phone" />
-                                }
-                            }
+                            inputProps={{ minValue: 0, rounded: true }}
                         />
+                        <NumericFormInput 
+                            labelText={"Total Ventilators:"}
+                            control={control}
+                            required={true}
+                            name={"totalVentilators"}
+                            inputProps={{ minValue: 0, rounded: true }}
+                        />
+                        <NumericFormInput 
+                            labelText={"Ventilators Available:"}
+                            control={control}
+                            required={true}
+                            name={"ventilatorsAvailable"}
+                            inputProps={{ minValue: 0, rounded: true }}
+                        />
+                    </View>
+                    <View style={styles.formButtonsContainer}>
+                        <Button style={styles.formButton} mode={"outlined"}>Reset</Button>
+                        <Button 
+                            style={styles.formButton}
+                            mode={"contained"}
+                            onPress={handleSubmit(onSubmit)}
+                        >Next</Button>
                     </View>
                 </Surface>
             </Scroll>
         </>
-    );
-};
-
-const FormItem = ({
-    labelText,
-    control,
-    errors,
-    name,
-    required,
-    placeholder,
-    inputProps,
-    textContentType
-}) => {
-    return (
-        <View style={styles.formItem}>
-            <Text style={styles.labelText}>{labelText}</Text>
-            <Controller
-                control={control}
-                render={({ onChange, onBlur, value }) => (
-                    <TextInput
-                        mode="outlined"
-                        dense
-                        style={{
-                            backgroundColor: "#fff",
-                            minWidth: "55%"
-                        }}
-                        placeholder={placeholder}
-                        onBlur={onBlur}
-                        onChangeText={(value) => onChange(value)}
-                        value={value}
-                        textContentType={textContentType || "name"}
-                        error={errors.email}
-                        {...inputProps}
-                    />
-                )}
-                name={name}
-                rules={{ required }}
-                defaultValue=""
-            />
-        </View>
     );
 };
 
@@ -232,15 +220,14 @@ const styles = StyleSheet.create({
         marginTop: 8,
         padding: 8
     },
-    formItem: {
+    formButtonsContainer: {
         flexDirection: "row",
-        justifyContent: "space-between",
-        marginHorizontal: 8,
         alignItems: "center",
-        marginVertical: 4
+        justifyContent: "flex-end"
     },
-    labelText: {
-        fontSize: 18
+    formButton: {
+        marginRight: 16,
+        marginBottom: 16
     }
 });
 
