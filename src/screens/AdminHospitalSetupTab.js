@@ -11,14 +11,36 @@ import {
     Divider
 } from "react-native-paper";
 import { useForm } from "react-hook-form";
+import DropDownPicker from "react-native-dropdown-picker";
 
+import indianStates from "../utils/IndianStateNames";
 import FormItem from "../components/FormItem";
-import NumericFormInput from "../components/NumericFormInput";
+import NumericFormItem from "../components/NumericFormItem";
 import Scroll from "../components/Scroll";
 
 const AdminHospitalSetupTab = () => {
     const [bannerVisible, setBannerVisible] = useState(true);
-    const { control, handleSubmit, errors } = useForm();
+    const [totalBeds, setTotalBeds] = useState(0);
+    const [totalVentilators, setTotalVentilators] = useState(0);
+    let statePickerController;
+
+    const { control, handleSubmit, errors, reset } = useForm({
+        defaultValues: {
+            address: "",
+            bedsAvailable: 0,
+            name: "",
+            phoneNumber: "",
+            state: null,
+            totalBeds: 0,
+            totalVentilators: 0,
+            ventilatorsAvailable: 0
+        }
+    });
+
+    const items = Object.keys(indianStates).map((el) => ({
+        label: indianStates[el],
+        value: el
+    }));
 
     // useEffect(() => {
     //     const timer = setTimeout(() => setBannerVisible(true), 5000);
@@ -29,7 +51,25 @@ const AdminHospitalSetupTab = () => {
 
     const onSubmit = (data) => {
         console.log(data);
-    }
+    };
+
+    const onReset = () => {
+        setTotalBeds(0);
+        setTotalVentilators(0);
+        statePickerController.reset();
+        // statePickerController.select({});
+        // console.log(statePickerController);
+        reset({
+            address: "",
+            bedsAvailable: 0,
+            name: "",
+            phoneNumber: "",
+            state: null,
+            totalBeds: 0,
+            totalVentilators: 0,
+            ventilatorsAvailable: 0
+        });
+    };
 
     return (
         <>
@@ -62,7 +102,8 @@ const AdminHospitalSetupTab = () => {
                     <View
                         style={{
                             alignItems: "center",
-                            flex: 1,
+                            flex: 2,
+                            minHeight: 200,
                             alignContent: "center",
                             justifyContent: "center"
                         }}
@@ -128,6 +169,24 @@ const AdminHospitalSetupTab = () => {
                             required={true}
                             name={"state"}
                             placeholder={"State"}
+                            render={({ onChange, onBlur, onFocus }) => (
+                                <DropDownPicker
+                                    searchable
+                                    items={items}
+                                    controller={(instance) =>
+                                        (statePickerController = instance)
+                                    }
+                                    onChangeItem={(val) => onChange(val)}
+                                    style={{
+                                        backgroundColor: "#fff",
+                                        minWidth: "55%",
+                                        height: 75
+                                    }}
+                                    defaultValue={null}
+                                    searchablePlaceholder={"Search for a state"}
+                                    dropDownMaxHeight={300}
+                                />
+                            )}
                         />
                         <FormItem
                             labelText={"Phone Number:"}
@@ -136,46 +195,66 @@ const AdminHospitalSetupTab = () => {
                             required={true}
                             name={"phoneNumber"}
                             placeholder={"Phone Number"}
+                            textContentType={"telephoneNumber"}
                             inputProps={{
-                                left: <TextInput.Icon name="phone" />
+                                left: <TextInput.Icon name="phone" />,
+                                keyboardType: "numeric"
                             }}
                         />
-                        <NumericFormInput 
-                            labelText={"Tota Beds:"}
+                        <NumericFormItem
+                            labelText={"Total Beds:"}
                             control={control}
                             required={true}
                             name={"totalBeds"}
                             inputProps={{ minValue: 0, rounded: true }}
+                            setMaxValue={setTotalBeds}
                         />
-                        <NumericFormInput 
+                        <NumericFormItem
                             labelText={"Beds Available:"}
                             control={control}
                             required={true}
                             name={"bedsAvailable"}
-                            inputProps={{ minValue: 0, rounded: true }}
+                            inputProps={{
+                                minValue: 0,
+                                rounded: true,
+                                maxValue: totalBeds
+                            }}
                         />
-                        <NumericFormInput 
+                        <NumericFormItem
                             labelText={"Total Ventilators:"}
                             control={control}
                             required={true}
                             name={"totalVentilators"}
                             inputProps={{ minValue: 0, rounded: true }}
+                            setMaxValue={setTotalVentilators}
                         />
-                        <NumericFormInput 
+                        <NumericFormItem
                             labelText={"Ventilators Available:"}
                             control={control}
                             required={true}
                             name={"ventilatorsAvailable"}
-                            inputProps={{ minValue: 0, rounded: true }}
+                            inputProps={{
+                                minValue: 0,
+                                rounded: true,
+                                maxValue: totalVentilators
+                            }}
                         />
                     </View>
                     <View style={styles.formButtonsContainer}>
-                        <Button style={styles.formButton} mode={"outlined"}>Reset</Button>
-                        <Button 
+                        <Button
+                            style={styles.formButton}
+                            mode={"outlined"}
+                            onPress={onReset}
+                        >
+                            Reset
+                        </Button>
+                        <Button
                             style={styles.formButton}
                             mode={"contained"}
                             onPress={handleSubmit(onSubmit)}
-                        >Next</Button>
+                        >
+                            Next
+                        </Button>
                     </View>
                 </Surface>
             </Scroll>
@@ -216,7 +295,7 @@ const styles = StyleSheet.create({
         fontSize: 28
     },
     hospitalInformationForm: {
-        flex: 4,
+        flex: 3,
         marginTop: 8,
         padding: 8
     },

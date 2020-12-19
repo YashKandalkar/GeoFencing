@@ -1,7 +1,7 @@
-import React from 'react';
+import React from "react";
 import { View, StyleSheet } from "react-native";
 import { Text, TextInput, HelperText } from "react-native-paper";
-import { Controller } from "react-hook-form"; 
+import { Controller } from "react-hook-form";
 
 const FormItem = ({
     labelText,
@@ -11,7 +11,8 @@ const FormItem = ({
     required,
     placeholder,
     inputProps,
-    textContentType
+    textContentType,
+    render
 }) => {
     return (
         <View style={styles.formItem}>
@@ -20,27 +21,32 @@ const FormItem = ({
                 control={control}
                 render={({ onChange, onBlur, value }) => (
                     <View>
-                        <TextInput
-                            mode="outlined"
-                            dense
-                            style={{
-                                backgroundColor: "#fff", 
-                                minWidth: "55%"
-                            }}
-                            placeholder={placeholder}
-                            onBlur={onBlur}
-                            onChangeText={(value) => onChange(value)}
-                            value={value}
-                            textContentType={textContentType || "name"}
-                            error={errors[name]}
-                            {...inputProps}
-                        />
-                        {Boolean(errors[name]) && 
-                            <HelperText
-                                type="error"
-                            >
-                                {labelText.substr(0, labelText.length-1)} is required!
-                            </HelperText>}
+                        {render !== undefined ? (
+                            render({ onChange, onBlur, value })
+                        ) : (
+                            <TextInput
+                                mode="outlined"
+                                dense
+                                style={{
+                                    backgroundColor: "#fff",
+                                    minWidth: "55%"
+                                }}
+                                placeholder={placeholder}
+                                onBlur={onBlur}
+                                onChangeText={(value) => onChange(value)}
+                                value={value}
+                                textContentType={textContentType || "name"}
+                                error={errors[name]}
+                                {...inputProps}
+                            />
+                        )}
+
+                        {Boolean(errors[name]) && (
+                            <HelperText type="error">
+                                {labelText.substr(0, labelText.length - 1)} is
+                                required!
+                            </HelperText>
+                        )}
                     </View>
                 )}
                 name={name}

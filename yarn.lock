@@ -12473,6 +12473,13 @@ react-is@^16.12.0, react-is@^16.13.0, react-is@^16.13.1, react-is@^16.7.0, react
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
+react-native-dropdown-picker@^3.7.1:
+  version "3.7.1"
+  resolved "https://registry.yarnpkg.com/react-native-dropdown-picker/-/react-native-dropdown-picker-3.7.1.tgz#ead80b69108bfe8cf56fef5a68d5545d5063b33c"
+  integrity sha512-YyT4q+CgMw299ypSlvSOt/tZiYD0bsTmnNKazLwpYM3ouGaj34NTDS+MHVyiYpyZbn4XSs+FHRcs12PupWS7Cg==
+  dependencies:
+    react-native-vector-icons "^7.0.0"
+
 react-native-gesture-handler@~1.7.0:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-1.7.0.tgz#0ef74a5ba836832e497dc49eb1ce58baa6c617e5"
@@ -12559,7 +12566,7 @@ react-native-unimodules@~0.11.0:
     unimodules-sensors-interface "~5.3.0"
     unimodules-task-manager-interface "~5.3.0"
 
-react-native-vector-icons@^7.1.0:
+react-native-vector-icons@^7.0.0, react-native-vector-icons@^7.1.0:
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/react-native-vector-icons/-/react-native-vector-icons-7.1.0.tgz#145487d617b2a81d395d2cf64e6e065fcab3a454"
   integrity sha512-V2a1zJ4i+kS8O4j183gIwX14St9AxxXabxwYpFBgRhvr2NDXyFcjHDEAgrOYYlt2W57e20aN1tBDU/I+wn9WtQ==
