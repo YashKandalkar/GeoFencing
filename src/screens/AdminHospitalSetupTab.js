@@ -20,8 +20,9 @@ import Scroll from "../components/Scroll";
 
 const AdminHospitalSetupTab = () => {
     const [bannerVisible, setBannerVisible] = useState(true);
-    const [totalBeds, setTotalBeds] = useState(0);
-    const [totalVentilators, setTotalVentilators] = useState(0);
+    const [beds, setBeds] = useState({total: 0, available: 0});
+    const [ventilators, setVentilators] = useState({total: 0, available: 0});
+    const [selectedState, setSelectedState] = useState(null);
     let statePickerController;
 
     const { control, handleSubmit, errors, reset } = useForm({
@@ -54,11 +55,9 @@ const AdminHospitalSetupTab = () => {
     };
 
     const onReset = () => {
-        setTotalBeds(0);
-        setTotalVentilators(0);
+        setBeds({total: 0, available: 0});
+        setVentilators({total: 0, available: 0});
         statePickerController.reset();
-        // statePickerController.select({});
-        // console.log(statePickerController);
         reset({
             address: "",
             bedsAvailable: 0,
@@ -169,20 +168,25 @@ const AdminHospitalSetupTab = () => {
                             required={true}
                             name={"state"}
                             placeholder={"State"}
-                            render={({ onChange, onBlur, onFocus }) => (
+                            render={({ onChange, onBlur, value }) => (
                                 <DropDownPicker
                                     searchable
                                     items={items}
+                                    placeholder={"Select a state"}
                                     controller={(instance) =>
                                         (statePickerController = instance)
                                     }
-                                    onChangeItem={(val) => onChange(val)}
+                                    onChangeItem={(val) => {
+                                        setSelectedState(val);
+                                        onChange(val);
+                                    }}
                                     style={{
                                         backgroundColor: "#fff",
-                                        minWidth: "55%",
+                                        minWidth: "57%",
                                         height: 75
                                     }}
-                                    defaultValue={null}
+                                    defaultValue={selectedState? selectedState.value : null}
+                                    
                                     searchablePlaceholder={"Search for a state"}
                                     dropDownMaxHeight={300}
                                 />
@@ -207,7 +211,7 @@ const AdminHospitalSetupTab = () => {
                             required={true}
                             name={"totalBeds"}
                             inputProps={{ minValue: 0, rounded: true }}
-                            setMaxValue={setTotalBeds}
+                            setMaxValue={(val) => setBeds({ total: val, available: beds.available})}
                         />
                         <NumericFormItem
                             labelText={"Beds Available:"}
@@ -217,7 +221,7 @@ const AdminHospitalSetupTab = () => {
                             inputProps={{
                                 minValue: 0,
                                 rounded: true,
-                                maxValue: totalBeds
+                                maxValue: beds.total
                             }}
                         />
                         <NumericFormItem
@@ -226,7 +230,7 @@ const AdminHospitalSetupTab = () => {
                             required={true}
                             name={"totalVentilators"}
                             inputProps={{ minValue: 0, rounded: true }}
-                            setMaxValue={setTotalVentilators}
+                            setMaxValue={(val) => setVentilators({ total: val, available: ventilators.available})}
                         />
                         <NumericFormItem
                             labelText={"Ventilators Available:"}
@@ -236,7 +240,7 @@ const AdminHospitalSetupTab = () => {
                             inputProps={{
                                 minValue: 0,
                                 rounded: true,
-                                maxValue: totalVentilators
+                                maxValue: ventilators.total
                             }}
                         />
                     </View>

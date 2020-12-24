@@ -17,11 +17,15 @@ const FormItem = ({
     return (
         <View style={styles.formItem}>
             <Text style={styles.labelText}>{labelText}</Text>
+            <View>
             <Controller
                 control={control}
+                name={name}
+                rules={{ required }}
+                defaultValue=""
                 render={({ onChange, onBlur, value }) => (
-                    <View>
-                        {render !== undefined ? (
+                    
+                        render !== undefined ? (
                             render({ onChange, onBlur, value })
                         ) : (
                             <TextInput
@@ -39,20 +43,15 @@ const FormItem = ({
                                 error={errors[name]}
                                 {...inputProps}
                             />
-                        )}
-
-                        {Boolean(errors[name]) && (
-                            <HelperText type="error">
-                                {labelText.substr(0, labelText.length - 1)} is
-                                required!
-                            </HelperText>
-                        )}
-                    </View>
-                )}
-                name={name}
-                rules={{ required }}
-                defaultValue=""
-            />
+                        ))}
+                />
+                    {Boolean(errors[name]) && (
+                        <HelperText type="error">
+                            {labelText.substr(0, labelText.length - 1)} is
+                            required!
+                        </HelperText>
+                    )}
+            </View>
         </View>
     );
 };

@@ -32,7 +32,7 @@ const NumericFormItem = ({
                                 setMaxValue && setMaxValue(val);
                                 return onChange(Number(val));
                             }}
-                            initValue={0}
+                            // initValue={0}
                             {...inputProps}
                         />
                     )}
