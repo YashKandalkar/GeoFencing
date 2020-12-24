@@ -1,18 +1,9 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { Text, TextInput } from "react-native-paper";
-import { Controller } from "react-hook-form";
+import { Text } from "react-native-paper";
 import NumericInput from "react-native-numeric-input";
 
-const NumericFormItem = ({
-    labelText,
-    control,
-    name,
-    required,
-    inputProps,
-    setMaxValue
-}) => {
-    const inputRef = React.useRef();
+const NumericFormItem = ({ labelText, inputProps, value, onChange }) => {
     return (
         <View style={styles.formItem}>
             <Text style={styles.labelText}>{labelText}</Text>
@@ -23,22 +14,11 @@ const NumericFormItem = ({
                     marginVertical: 8
                 }}
             >
-                <Controller
-                    control={control}
-                    render={({ onChange, value }) => (
-                        <NumericInput
-                            value={Number(value)}
-                            onChange={(val) => {
-                                setMaxValue && setMaxValue(val);
-                                return onChange(Number(val));
-                            }}
-                            // initValue={0}
-                            {...inputProps}
-                        />
-                    )}
-                    name={name}
-                    rules={{ required }}
-                    defaultValue={0}
+                <NumericInput
+                    value={value}
+                    onChange={(val) => onChange(val)}
+                    initValue={value !== 0 ? value : 0}
+                    {...inputProps}
                 />
             </View>
         </View>

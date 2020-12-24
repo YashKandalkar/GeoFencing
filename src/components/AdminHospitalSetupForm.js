@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Divider, Surface, TextInput, Title } from "react-native-paper";
+import { Button, Divider, TextInput, Title } from "react-native-paper";
 import { View, StyleSheet } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import FormItem from "./FormItem";
@@ -25,6 +25,16 @@ const AdminHospitalSetupForm = ({ onSubmit }) => {
             ventilatorsAvailable: 0
         }
     });
+
+    const onSubmitFunction = (data) => {
+        onSubmit({
+            ...data,
+            totalBeds: beds.total,
+            availableBeds: beds.available,
+            totalVentilators: ventilators.total,
+            availableVentilators: ventilators.available
+        });
+    };
 
     const items = Object.keys(indianStates).map((el) => ({
         label: indianStates[el],
@@ -89,7 +99,7 @@ const AdminHospitalSetupForm = ({ onSubmit }) => {
                     required={true}
                     name={"state"}
                     placeholder={"State"}
-                    render={({ onChange, onBlur, value }) => (
+                    render={({ onChange }) => (
                         <DropDownPicker
                             searchable
                             items={items}
@@ -129,50 +139,50 @@ const AdminHospitalSetupForm = ({ onSubmit }) => {
                 />
                 <NumericFormItem
                     labelText={"Total Beds:"}
-                    control={control}
-                    required={true}
-                    name={"totalBeds"}
                     inputProps={{ minValue: 0, rounded: true }}
-                    setMaxValue={(val) =>
-                        setBeds({
-                            total: val,
-                            available: beds.available
-                        })
-                    }
+                    value={beds.total}
+                    onChange={(val) => {
+                        if (val < beds.available) {
+                            setBeds({ total: val, available: val });
+                        } else {
+                            setBeds({ ...beds, total: val });
+                        }
+                    }}
                 />
                 <NumericFormItem
                     labelText={"Beds Available:"}
-                    control={control}
-                    required={true}
-                    name={"bedsAvailable"}
                     inputProps={{
                         minValue: 0,
                         rounded: true,
                         maxValue: beds.total
                     }}
+                    value={beds.available}
+                    onChange={(val) => {
+                        setBeds({ ...beds, available: val });
+                    }}
                 />
                 <NumericFormItem
                     labelText={"Total Ventilators:"}
-                    control={control}
-                    required={true}
-                    name={"totalVentilators"}
                     inputProps={{ minValue: 0, rounded: true }}
-                    setMaxValue={(val) =>
-                        setVentilators({
-                            total: val,
-                            available: ventilators.available
-                        })
-                    }
+                    value={ventilators.total}
+                    onChange={(val) => {
+                        if (val < ventilators.available) {
+                            setVentilators({ total: val, available: val });
+                        } else {
+                            setVentilators({ ...ventilators, total: val });
+                        }
+                    }}
                 />
                 <NumericFormItem
                     labelText={"Ventilators Available:"}
-                    control={control}
-                    required={true}
-                    name={"ventilatorsAvailable"}
                     inputProps={{
                         minValue: 0,
                         rounded: true,
                         maxValue: ventilators.total
+                    }}
+                    value={ventilators.available}
+                    onChange={(val) => {
+                        setVentilators({ ...ventilators, available: val });
                     }}
                 />
             </View>
@@ -187,7 +197,7 @@ const AdminHospitalSetupForm = ({ onSubmit }) => {
                 <Button
                     style={styles.formButton}
                     mode={"contained"}
-                    onPress={handleSubmit(onSubmit)}
+                    onPress={handleSubmit(onSubmitFunction)}
                 >
                     Next
                 </Button>
