@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, StyleSheet, ImageBackground } from "react-native";
+import { connect } from "react-redux";
 import {
     Surface,
     Banner,
@@ -11,12 +12,15 @@ import {
 
 import Scroll from "../components/Scroll";
 import AdminHospitalSetupForm from "../components/AdminHospitalSetupForm";
+import { setAdminHospitalSetup as setAdminHospitalSetupAction } from "../utils/actions";
 
-const AdminHospitalSetupTab = () => {
+const AdminHospitalSetupTab = ({ setAdminHospitalSetup, jumpTo }) => {
     const [bannerVisible, setBannerVisible] = useState(false);
 
     const onSubmit = (data) => {
         console.log(data);
+        setAdminHospitalSetup(true);
+        jumpTo("geofencingSetup");
     };
 
     return (
@@ -47,15 +51,7 @@ const AdminHospitalSetupTab = () => {
             </Banner>
             <Scroll>
                 <Surface style={styles.container}>
-                    <View
-                        style={{
-                            alignItems: "center",
-                            flex: 2,
-                            minHeight: 200,
-                            alignContent: "center",
-                            justifyContent: "center"
-                        }}
-                    >
+                    <View style={styles.hospitalImageCover}>
                         <ImageBackground
                             source={require("../assets/hospital.webp")}
                             style={styles.imageBackground}
@@ -99,6 +95,13 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "space-between"
     },
+    hospitalImageCover: {
+        alignItems: "center",
+        flex: 2,
+        minHeight: 200,
+        alignContent: "center",
+        justifyContent: "center"
+    },
     imageBackground: {
         flex: 1,
         width: "100%",
@@ -118,4 +121,16 @@ const styles = StyleSheet.create({
     }
 });
 
-export default AdminHospitalSetupTab;
+const mapStateToProps = (state) => state;
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        setAdminHospitalSetup: (value) =>
+            dispatch(setAdminHospitalSetupAction(value))
+    };
+};
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(AdminHospitalSetupTab);
