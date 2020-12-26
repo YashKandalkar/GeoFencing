@@ -1,6 +1,11 @@
 import React from "react";
+import { View } from "react-native";
 import { registerRootComponent } from "expo";
-import { DefaultTheme, Provider as PaperProvider } from "react-native-paper";
+import {
+    DefaultTheme,
+    Provider as PaperProvider,
+    ActivityIndicator
+} from "react-native-paper";
 import { createStore, applyMiddleware } from "redux";
 import { Provider as StoreProvider } from "react-redux";
 import { composeWithDevTools } from "redux-devtools-extension";
@@ -42,13 +47,17 @@ const store = createStore(pReducer, initialState, enhancer);
 const pStore = persistStore(store);
 
 const Main = () => {
+    const renderLoading = () => (
+        <View
+            style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+        >
+            <ActivityIndicator animating={true} size={"large"} />
+        </View>
+    );
     return (
         <PaperProvider theme={theme}>
             <StoreProvider store={store}>
-                <PersistGate
-                    persistor={pStore}
-                    // loading={this.renderLoading()}
-                >
+                <PersistGate persistor={pStore} loading={renderLoading()}>
                     <App />
                 </PersistGate>
             </StoreProvider>
