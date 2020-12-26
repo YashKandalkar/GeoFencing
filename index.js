@@ -5,6 +5,12 @@ import { createStore, applyMiddleware } from "redux";
 import { Provider as StoreProvider } from "react-redux";
 import { composeWithDevTools } from "redux-devtools-extension";
 
+import { persistStore, persistReducer } from "redux-persist";
+import { PersistGate } from "redux-persist/integration/react";
+import AsyncStorage from "@react-native-community/async-storage";
+
+import autoMergeLevel2 from "redux-persist/lib/stateReconciler/autoMergeLevel2";
+
 import App from "./src/App";
 import customTheme from "./src/utils/theme";
 import reducer from "./src/reducers/reducer";
@@ -18,18 +24,33 @@ const theme = {
 const initialState = {
     loginAs: "ADMIN",
     loggedIn: false,
-    adminHospitalSetupDone: false
+    adminHospitalSetupDone: false,
+    hospitalData: null
 };
+
+const persistConfig = {
+    key: "root",
+    storage: AsyncStorage,
+    stateReconciler: autoMergeLevel2
+};
+
+const pReducer = persistReducer(persistConfig, reducer);
 
 const enhancer = composeWithDevTools({})(applyMiddleware(thunk));
 
-const store = createStore(reducer, initialState, enhancer);
+const store = createStore(pReducer, initialState, enhancer);
+const pStore = persistStore(store);
 
 const Main = () => {
     return (
         <PaperProvider theme={theme}>
             <StoreProvider store={store}>
-                <App />
+                <PersistGate
+                    persistor={pStore}
+                    // loading={this.renderLoading()}
+                >
+                    <App />
+                </PersistGate>
             </StoreProvider>
         </PaperProvider>
     );

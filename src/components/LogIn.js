@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { StyleSheet, View, ScrollView, SafeAreaView } from "react-native";
+import { StyleSheet, View, SafeAreaView } from "react-native";
 import { withTheme, HelperText } from "react-native-paper";
 import { useForm, Controller } from "react-hook-form";
 
@@ -18,7 +18,7 @@ import {
 
 import OutlinedContainer from "./OutlinedContainer";
 
-const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn, ...props }) => {
+const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn }) => {
     const { control, handleSubmit, errors } = useForm();
 
     const isAdmin = loginAs === "ADMIN";
@@ -31,7 +31,7 @@ const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn, ...props }) => {
         }
     };
 
-    const onSubmit = (data) => {
+    const onSubmit = () => {
         // TODO: implement login logic
         setLoggedIn(true);
     };

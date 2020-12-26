@@ -6,24 +6,42 @@ import FormItem from "./FormItem";
 import NumericFormItem from "./NumericFormItem";
 import { useForm } from "react-hook-form";
 import indianStates from "../utils/IndianStateNames";
+import { connect } from "react-redux";
 
-const AdminHospitalSetupForm = ({ onSubmit }) => {
-    const [beds, setBeds] = useState({ total: 0, available: 0 });
-    const [ventilators, setVentilators] = useState({ total: 0, available: 0 });
-    const [selectedState, setSelectedState] = useState(null);
+const AdminHospitalSetupForm = ({ onSubmit, hospitalData }) => {
+    const {
+        totalBeds,
+        availableBeds,
+        totalVentilators,
+        availableVentilators
+    } = hospitalData;
+
+    const [beds, setBeds] = useState({
+        total: totalBeds || 0,
+        available: availableBeds || 0
+    });
+    const [ventilators, setVentilators] = useState({
+        total: totalVentilators || 0,
+        available: availableVentilators || 0
+    });
+    const [selectedState, setSelectedState] = useState(
+        hospitalData.state || null
+    );
     let statePickerController;
 
     const { control, handleSubmit, errors, reset } = useForm({
-        defaultValues: {
-            address: "",
-            bedsAvailable: 0,
-            name: "",
-            phoneNumber: "",
-            state: null,
-            totalBeds: 0,
-            totalVentilators: 0,
-            ventilatorsAvailable: 0
-        }
+        defaultValues: hospitalData.address
+            ? { ...hospitalData }
+            : {
+                  address: "",
+                  availableBeds: 0,
+                  name: "",
+                  phoneNumber: "",
+                  state: null,
+                  totalBeds: 0,
+                  totalVentilators: 0,
+                  availableVentilators: 0
+              }
     });
 
     const onSubmitFunction = (data) => {
@@ -32,7 +50,8 @@ const AdminHospitalSetupForm = ({ onSubmit }) => {
             totalBeds: beds.total,
             availableBeds: beds.available,
             totalVentilators: ventilators.total,
-            availableVentilators: ventilators.available
+            availableVentilators: ventilators.available,
+            state: selectedState
         });
     };
 
@@ -223,4 +242,8 @@ const styles = StyleSheet.create({
     }
 });
 
-export default AdminHospitalSetupForm;
+const mapStateToProps = (state) => ({
+    hospitalData: state.hospitalData
+});
+
+export default connect(mapStateToProps)(AdminHospitalSetupForm);

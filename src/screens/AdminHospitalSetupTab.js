@@ -12,14 +12,21 @@ import {
 
 import Scroll from "../components/Scroll";
 import AdminHospitalSetupForm from "../components/AdminHospitalSetupForm";
-import { setAdminHospitalSetup as setAdminHospitalSetupAction } from "../utils/actions";
+import {
+    setAdminHospitalSetup as setAdminHospitalSetupAction,
+    setHospitalData as setHospitalDataAction
+} from "../utils/actions";
 
-const AdminHospitalSetupTab = ({ setAdminHospitalSetup, jumpTo }) => {
+const AdminHospitalSetupTab = ({
+    setAdminHospitalSetup,
+    setHospitalData,
+    jumpTo
+}) => {
     const [bannerVisible, setBannerVisible] = useState(false);
 
     const onSubmit = (data) => {
-        console.log(data);
         setAdminHospitalSetup(true);
+        setHospitalData(data);
         jumpTo("geofencingSetup");
     };
 
@@ -126,7 +133,8 @@ const mapStateToProps = (state) => state;
 const mapDispatchToProps = (dispatch) => {
     return {
         setAdminHospitalSetup: (value) =>
-            dispatch(setAdminHospitalSetupAction(value))
+            dispatch(setAdminHospitalSetupAction(value)),
+        setHospitalData: (data) => dispatch(setHospitalDataAction(data))
     };
 };
 
