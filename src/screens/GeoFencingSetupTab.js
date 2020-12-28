@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Image } from "react-native";
+import { StyleSheet, View, Image } from "react-native";
 import { connect } from "react-redux";
 import {
     Surface,
-    Title,
     Subheading,
     Headline,
     Divider,
-    Button
+    Button,
+    Paragraph
 } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
+import { DragResizeBlock } from "react-native-drag-resize";
 
 const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
     const [image, setImage] = useState(null);
+    const [imageBounds, setImageBounds] = useState(null);
 
     useEffect(() => {
         (async () => {
@@ -37,11 +39,8 @@ const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
             allowsEditing: true,
-            // aspect: [4, 3],
             quality: 1
         });
-
-        console.log(result);
 
         if (!result.cancelled) {
             setImage(result);
@@ -59,12 +58,8 @@ const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
                 <Surface style={styles.mainContainer}>
                     <Surface
                         style={{
-                            // borderLeftColor: "#444",
-                            // borderLeftWidth: 8,
-                            // backgroundColor: "#eee",
                             paddingVertical: 8,
                             justifyContent: "center"
-                            // alignItems: "center"
                         }}
                     >
                         <Headline style={{ marginLeft: 8 }}>
@@ -72,23 +67,114 @@ const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
                         </Headline>
                         <Divider
                             style={{
-                                borderBottomWidth: 1,
                                 marginHorizontal: 8,
-                                marginTop: 4
+                                marginTop: 4,
+                                marginBottom: 16
                             }}
                         />
-                        <Button onPress={pickImage}>Pick an image!</Button>
-                        {image && (
-                            <Image
-                                source={{ uri: image.uri }}
-                                style={{
-                                    width: 250,
-                                    height: 190
-                                    // maxWidth: 250,
-                                    // maxHeight: 190
-                                }}
-                            />
-                        )}
+                        <View
+                            style={{
+                                borderColor: "#555",
+                                borderWidth: 3,
+                                padding: 8,
+                                margin: 4,
+                                justifyContent: "center",
+                                alignItems: "center",
+                                height: 210
+                            }}
+                        >
+                            {image ? (
+                                <View
+                                    style={{
+                                        flex: 1,
+                                        width: "100%",
+                                        position: "relative"
+                                    }}
+                                >
+                                    <Image
+                                        source={{ uri: image.uri }}
+                                        resizeMode="contain"
+                                        onLayout={(event) =>
+                                            setImageBounds({
+                                                ...event.nativeEvent.layout
+                                            })
+                                        }
+                                        style={{
+                                            flex: 1,
+                                            width: "100%",
+                                            height: 50,
+                                            maxHeight: 210
+                                        }}
+                                    />
+                                    {imageBounds && (
+                                        <DragResizeBlock
+                                            x={0}
+                                            y={0}
+                                            limitation={{
+                                                ...imageBounds,
+                                                w: imageBounds.width,
+                                                h: imageBounds.height
+                                            }}
+                                        >
+                                            <View
+                                                style={{
+                                                    position: "absolute",
+                                                    width: "100%",
+                                                    height: "100%",
+                                                    backgroundColor:
+                                                        "transparent",
+                                                    borderColor: "red",
+                                                    borderWidth: 4
+                                                }}
+                                            />
+                                        </DragResizeBlock>
+                                    )}
+                                </View>
+                            ) : (
+                                <Subheading>
+                                    Select the floormap of your hospital!
+                                </Subheading>
+                            )}
+                        </View>
+                        <View
+                            style={{
+                                justifyContent: "center",
+                                alignItems: "center",
+                                flexDirection: "row",
+                                marginVertical: 8
+                            }}
+                        >
+                            {image && (
+                                <Button
+                                    mode={"outlined"}
+                                    onPress={() => setImage(null)}
+                                    style={{ marginRight: 8 }}
+                                >
+                                    Clear
+                                </Button>
+                            )}
+                            <Button mode={"contained"} onPress={pickImage}>
+                                Pick an image
+                            </Button>
+                        </View>
+                        <View
+                            style={{
+                                margin: 8
+                            }}
+                        >
+                            <Headline>Fill in the dimentions:</Headline>
+                            <Divider style={{ marginBottom: 8 }} />
+                            <Paragraph>
+                                These are real world dimentions of the bounding
+                                rectangle (Red coloured). All the positions of
+                                objects inside the floormap will be relative to
+                                this rectangle.
+                            </Paragraph>
+                            <Paragraph>
+                                You can resize the rectangle above but these
+                                dimentions will not be affected.
+                            </Paragraph>
+                        </View>
                     </Surface>
                 </Surface>
             )}
@@ -116,6 +202,5 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => ({
     adminHospitalSetupDone: state.adminHospitalSetupDone
 });
-const mapDispatchToProps = {};
 
 export default connect(mapStateToProps)(GeoFencingSetupTab);

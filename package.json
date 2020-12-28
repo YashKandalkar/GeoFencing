@@ -26,6 +26,7 @@
     "react-dom": "16.13.1",
     "react-hook-form": "^6.13.1",
     "react-native": "~0.63.3",
+    "react-native-drag-resize": "^1.0.2",
     "react-native-dropdown-picker": "^3.7.1",
     "react-native-gesture-handler": "~1.7.0",
     "react-native-numeric-input": "^1.8.3",
