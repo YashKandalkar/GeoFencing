@@ -16,6 +16,7 @@ import Scroll from "../components/Scroll";
 import OutlinedContainer from "../components/OutlinedContainer";
 import GeoFencingRouter from "../components/GeoFencingRouter";
 import { useDebounce } from "../utils/hooks";
+import DraggableRouter from "../components/DraggableRouter";
 
 const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
     const [image, setImage] = useState(null);
@@ -140,65 +141,87 @@ const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
                                             }}
                                         >
                                             {imageBounds && (
-                                                <DragResizeBlock
-                                                    x={imageBounds.x}
-                                                    y={imageBounds.y}
-                                                    w={imageBounds.width}
-                                                    h={imageBounds.height}
-                                                    onResizeEnd={(args) =>
-                                                        geoFencePositionHandler(
-                                                            {
-                                                                x: args[0],
-                                                                y: args[1]
-                                                            }
-                                                        )
-                                                    }
-                                                    onDragEnd={(args) =>
-                                                        geoFencePositionHandler(
-                                                            {
-                                                                x: args[0],
-                                                                y: args[1]
-                                                            }
-                                                        )
-                                                    }
-                                                    limitation={{
-                                                        x: imageBounds.x - 7,
-                                                        y: imageBounds.y - 7,
-                                                        w:
-                                                            imageBounds.width +
-                                                            7,
-                                                        h:
-                                                            imageBounds.height +
-                                                            7
-                                                    }}
-                                                >
-                                                    <View
-                                                        style={{
-                                                            width: "100%",
-                                                            height: "100%",
-                                                            backgroundColor:
-                                                                "transparent",
-                                                            borderColor: "red",
-                                                            borderWidth: 4
-                                                        }}
-                                                        onLayout={({
-                                                            nativeEvent
-                                                        }) =>
-                                                            geoFenceDimensionsHandler(
+                                                <>
+                                                    <DragResizeBlock
+                                                        x={imageBounds.x}
+                                                        y={imageBounds.y}
+                                                        w={imageBounds.width}
+                                                        h={imageBounds.height}
+                                                        onResizeEnd={(args) =>
+                                                            geoFencePositionHandler(
                                                                 {
-                                                                    horizontal:
-                                                                        nativeEvent
-                                                                            .layout
-                                                                            .width,
-                                                                    vertical:
-                                                                        nativeEvent
-                                                                            .layout
-                                                                            .height
+                                                                    x: args[0],
+                                                                    y: args[1]
                                                                 }
                                                             )
                                                         }
+                                                        onDragEnd={(args) =>
+                                                            geoFencePositionHandler(
+                                                                {
+                                                                    x: args[0],
+                                                                    y: args[1]
+                                                                }
+                                                            )
+                                                        }
+                                                        limitation={{
+                                                            x:
+                                                                imageBounds.x -
+                                                                7,
+                                                            y:
+                                                                imageBounds.y -
+                                                                7,
+                                                            w:
+                                                                imageBounds.width +
+                                                                7,
+                                                            h:
+                                                                imageBounds.height +
+                                                                7
+                                                        }}
+                                                    >
+                                                        <View
+                                                            style={{
+                                                                width: "100%",
+                                                                height: "100%",
+                                                                backgroundColor:
+                                                                    "transparent",
+                                                                borderColor:
+                                                                    "red",
+                                                                borderWidth: 4
+                                                            }}
+                                                            onLayout={({
+                                                                nativeEvent
+                                                            }) =>
+                                                                geoFenceDimensionsHandler(
+                                                                    {
+                                                                        horizontal:
+                                                                            nativeEvent
+                                                                                .layout
+                                                                                .width,
+                                                                        vertical:
+                                                                            nativeEvent
+                                                                                .layout
+                                                                                .height
+                                                                    }
+                                                                )
+                                                            }
+                                                        />
+                                                    </DragResizeBlock>
+                                                    <DraggableRouter
+                                                        imageBounds={
+                                                            imageBounds
+                                                        }
                                                     />
-                                                </DragResizeBlock>
+                                                    <DraggableRouter
+                                                        imageBounds={
+                                                            imageBounds
+                                                        }
+                                                    />
+                                                    <DraggableRouter
+                                                        imageBounds={
+                                                            imageBounds
+                                                        }
+                                                    />
+                                                </>
                                             )}
                                         </ImageBackground>
                                     </View>
