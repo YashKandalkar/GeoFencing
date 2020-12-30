@@ -68,12 +68,14 @@ const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn }) => {
                             rules={{ required: false }}
                             defaultValue=""
                         />
-                        <HelperText
-                            type="error"
-                            visible={Boolean(errors.email)}
-                        >
-                            Email is required!
-                        </HelperText>
+                        {Boolean(errors.password) && (
+                            <HelperText
+                                type="error"
+                                visible={Boolean(errors.email)}
+                            >
+                                Email is required!
+                            </HelperText>
+                        )}
                     </View>
                     <View style={styles.formItem}>
                         <Text style={styles.textFieldHeading}>Password</Text>
@@ -99,12 +101,14 @@ const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn }) => {
                             rules={{ required: false }}
                             defaultValue=""
                         />
-                        <HelperText
-                            type="error"
-                            visible={Boolean(errors.password)}
-                        >
-                            Password is required!
-                        </HelperText>
+                        {Boolean(errors.password) && (
+                            <HelperText
+                                type="error"
+                                visible={Boolean(errors.password)}
+                            >
+                                Password is required!
+                            </HelperText>
+                        )}
                     </View>
 
                     <Subheading

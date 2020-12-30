@@ -1,12 +1,26 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { Text } from "react-native-paper";
+import { Text, HelperText } from "react-native-paper";
 import NumericInput from "react-native-numeric-input";
 
-const NumericFormItem = ({ labelText, inputProps, value, onChange }) => {
+const NumericFormItem = ({
+    labelText,
+    inputProps,
+    value,
+    onChange,
+    labelStyle,
+    helperText
+}) => {
     return (
         <View style={styles.formItem}>
-            <Text style={styles.labelText}>{labelText}</Text>
+            <View style={{ alignItems: "center" }}>
+                <Text style={{ ...styles.labelText, ...labelStyle }}>
+                    {labelText}
+                </Text>
+                {helperText && (
+                    <HelperText type={"info"}>{helperText}</HelperText>
+                )}
+            </View>
             <View
                 style={{
                     minWidth: "55%",
@@ -34,7 +48,8 @@ const styles = StyleSheet.create({
         marginVertical: 4
     },
     labelText: {
-        fontSize: 18
+        fontSize: 18,
+        maxWidth: 150
     }
 });
 

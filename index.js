@@ -30,7 +30,7 @@ const initialState = {
     loginAs: "ADMIN",
     loggedIn: false,
     adminHospitalSetupDone: false,
-    hospitalData: null
+    hospitalData: {}
 };
 
 const persistConfig = {
