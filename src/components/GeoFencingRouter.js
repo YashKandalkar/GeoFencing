@@ -1,16 +1,11 @@
-import React, { useState } from "react";
-import { Subheading, Title } from "react-native-paper";
+import React from "react";
+import { Subheading} from "react-native-paper";
 import OutlinedContainer from "./OutlinedContainer";
 import Divider from "./Divider";
 import NumericFormItem from "./NumericFormItem";
+import PropTypes from "prop-types";
 
-const GeoFencingRouter = ({ routerNumber }) => {
-    const [routerLocation, setRouterLocation] = useState({
-        horizontal: null,
-        vertical: null,
-        height: null
-    });
-
+const GeoFencingRouter = ({ routerNumber, value, onChange }) => {
     const inputProps = {
         minValue: 0,
         rounded: true,
@@ -32,35 +27,43 @@ const GeoFencingRouter = ({ routerNumber }) => {
             <NumericFormItem
                 labelText={"Horizontal Distance:"}
                 inputProps={inputProps}
-                onChange={(val) =>
-                    setRouterLocation({ ...routerLocation, horizontal: val })
-                }
+                onChange={(val) => onChange({ ...value, horizontal: val })}
                 helperText={"(in meters)"}
                 labelStyle={{ fontSize: 16 }}
-                value={routerLocation.horizontal}
+                value={Math.round(value.horizontal)}
             />
             <NumericFormItem
                 labelText={"Vertical Distance:"}
                 inputProps={inputProps}
-                onChange={(val) =>
-                    setRouterLocation({ ...routerLocation, vertical: val })
-                }
+                onChange={(val) => onChange({ ...value, vertical: val })}
                 helperText={"(in meters)"}
                 labelStyle={{ fontSize: 16 }}
-                value={routerLocation.vertical}
+                value={Math.round(value.vertical)}
             />
             <NumericFormItem
                 labelText={"Height:"}
                 inputProps={inputProps}
-                onChange={(val) =>
-                    setRouterLocation({ ...routerLocation, height: val })
-                }
+                onChange={(val) => onChange({ ...value, height: val })}
                 helperText={"(in meters)"}
                 labelStyle={{ fontSize: 16 }}
-                value={routerLocation.height}
+                value={Math.round(value.height)}
             />
         </OutlinedContainer>
     );
+};
+
+GeoFencingRouter.defaultProps = {
+    value: {
+        horizontal: 0,
+        vertical: 0,
+        height: 0
+    }
+};
+
+GeoFencingRouter.propTypes = {
+    routerNumber: PropTypes.number.isRequired,
+    value: PropTypes.object,
+    onChange: PropTypes.func.isRequired
 };
 
 export default GeoFencingRouter;

@@ -21,24 +21,32 @@ import DraggableRouter from "../components/DraggableRouter";
 const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
     const [image, setImage] = useState(null);
     const [imageBounds, setImageBounds] = useState(null);
-    const [geoFenceDimensions, setGeoFenceDimensions] = useState({
+    const [actualToPixelFactor, setActualToPixelFactor] = useState({
+        horizontal: null,
+        vertical: null
+    });
+    const [boundingRectDimensions, setBoundingRectDimensions] = useState({
         horizontal: null,
         vertical: null
     });
 
-    const [geoFencePosition, setGeoFencePosition] = useState({
-        x: null,
-        y: null
+    const [routers, setRouterInfo] = useState([
+        {
+            horizontal: 0,
+            vertical: 0,
+            height: 0
+        }
+    ]);
+
+    const [geoFenceDimensions, setGeoFenceDimensions] = useState({
+        horizontal: 0,
+        vertical: 0
     });
 
-    const [
-        boundingRectHorizontalLength,
-        setBoundingRectHorizontalLength
-    ] = useState(null);
-    const [
-        boundingRectVerticalLength,
-        setBoundingRectVerticalLength
-    ] = useState(null);
+    const [geoFencePosition, setGeoFencePosition] = useState({
+        x: 0,
+        y: 0
+    });
 
     useEffect(() => {
         (async () => {
@@ -71,15 +79,36 @@ const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
         }
     };
 
-    const geoFencePositionHandler = useDebounce(500, (dimension) => {
-        setGeoFencePosition({ ...dimension });
-        console.log(geoFencePosition);
+    const geoFencePositionHandler = useDebounce(500, (position) => {
+        setGeoFencePosition({ ...position });
+        console.log("geoFencePositionHandler: ", position);
     });
 
-    const geoFenceDimensionsHandler = useDebounce(500, (position) => {
-        setGeoFenceDimensions({ ...position });
-        console.log(geoFenceDimensions);
+    const geoFenceDimensionsHandler = useDebounce(500, (dimension) => {
+        setGeoFenceDimensions({ ...dimension });
+        if (
+            boundingRectDimensions.horizontal !== 0 &&
+            boundingRectDimensions.vertical !== 0
+        ) {
+            setActualToPixelFactor({
+                horizontal:
+                    dimension.horizontal / boundingRectDimensions.horizontal,
+                vertical: dimension.vertical / boundingRectDimensions.vertical
+            });
+        }
+        console.log("geoFenceDimensionsHandler: ", dimension);
     });
+
+    const routerInfoHandler = (val, ind) => {
+        console.log("routerInfoHandler: ", val);
+        let newArr = [...routers];
+        newArr[ind] = {
+            horizontal: val.horizontal || routers[ind].horizontal,
+            vertical: val.vertical || routers[ind].vertical,
+            height: val.height || routers[ind].height
+        };
+        setRouterInfo(newArr);
+    };
 
     return (
         <Scroll>
@@ -206,21 +235,52 @@ const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
                                                             }
                                                         />
                                                     </DragResizeBlock>
-                                                    <DraggableRouter
-                                                        imageBounds={
-                                                            imageBounds
-                                                        }
-                                                    />
-                                                    <DraggableRouter
-                                                        imageBounds={
-                                                            imageBounds
-                                                        }
-                                                    />
-                                                    <DraggableRouter
-                                                        imageBounds={
-                                                            imageBounds
-                                                        }
-                                                    />
+                                                    {routers.map(
+                                                        (router, index) => (
+                                                            <DraggableRouter
+                                                                key={index}
+                                                                bounds={{
+                                                                    x:
+                                                                        geoFencePosition.x,
+                                                                    y:
+                                                                        geoFencePosition.y,
+                                                                    w:
+                                                                        geoFenceDimensions.horizontal,
+                                                                    h:
+                                                                        geoFenceDimensions.vertical
+                                                                }}
+                                                                onDragEnd={(
+                                                                    coordinates
+                                                                ) => {
+                                                                    routerInfoHandler(
+                                                                        {
+                                                                            horizontal:
+                                                                                Math.pow(
+                                                                                    actualToPixelFactor.horizontal,
+                                                                                    -1
+                                                                                ) *
+                                                                                coordinates[0],
+                                                                            vertical:
+                                                                                Math.pow(
+                                                                                    actualToPixelFactor.vertical,
+                                                                                    -1
+                                                                                ) *
+                                                                                coordinates[1]
+                                                                        },
+                                                                        index
+                                                                    );
+                                                                }}
+                                                                value={{
+                                                                    horizontal:
+                                                                        router.horizontal *
+                                                                        actualToPixelFactor.horizontal,
+                                                                    vertical:
+                                                                        router.vertical *
+                                                                        actualToPixelFactor.vertical
+                                                                }}
+                                                            />
+                                                        )
+                                                    )}
                                                 </>
                                             )}
                                         </ImageBackground>
@@ -287,12 +347,19 @@ const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
                                             },
                                             totalHeight: 50
                                         }}
-                                        onChange={
-                                            setBoundingRectHorizontalLength
+                                        onChange={(val) =>
+                                            setBoundingRectDimensions(
+                                                ({ vertical }) => ({
+                                                    vertical,
+                                                    horizontal: val
+                                                })
+                                            )
                                         }
                                         helperText={"(in meters)"}
                                         labelStyle={{ fontSize: 16 }}
-                                        value={boundingRectHorizontalLength}
+                                        value={
+                                            boundingRectDimensions.horizontal
+                                        }
                                     />
                                     <NumericFormItem
                                         labelText={
@@ -309,10 +376,17 @@ const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
                                             },
                                             totalHeight: 50
                                         }}
-                                        onChange={setBoundingRectVerticalLength}
+                                        onChange={(val) =>
+                                            setBoundingRectDimensions(
+                                                ({ horizontal }) => ({
+                                                    horizontal,
+                                                    vertical: val
+                                                })
+                                            )
+                                        }
                                         helperText={"(in meters)"}
                                         labelStyle={{ fontSize: 16 }}
-                                        value={boundingRectVerticalLength}
+                                        value={boundingRectDimensions.vertical}
                                     />
                                 </OutlinedContainer>
                             </View>
@@ -338,9 +412,16 @@ const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
                                     Provide the actual location of the routers
                                     inside the hospital:
                                 </Paragraph>
-                                <GeoFencingRouter routerNumber={1} />
-                                <GeoFencingRouter routerNumber={2} />
-                                <GeoFencingRouter routerNumber={3} />
+                                {routers.map((router, index) => (
+                                    <GeoFencingRouter
+                                        key={index}
+                                        routerNumber={index + 1}
+                                        value={{ ...router }}
+                                        onChange={(value) =>
+                                            routerInfoHandler(value, index)
+                                        }
+                                    />
+                                ))}
                             </View>
                         </Surface>
                     </Surface>
