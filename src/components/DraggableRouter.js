@@ -1,44 +1,46 @@
-import React from "react";
-import { Image, View } from "react-native";
+import React, { useState, useEffect } from "react";
+import { Image } from "react-native";
 import { DragResizeBlock } from "react-native-drag-resize";
 import PropTypes from "prop-types";
 
 const DraggableRouter = ({ bounds, onDragEnd, value }) => {
-    console.log("DraggableRouter: update bounds", bounds);
+    const [temp, setTemp] = useState(0);
+    useEffect(() => {
+        let mounted = true;
+        if (mounted) {
+            setTemp(temp + 1);
+        }
+        return () => {
+            mounted = false;
+        };
+    }, [value.vertical, value.horizontal, bounds]);
     return (
-        <View>
-            <DragResizeBlock
-                isResizable={false}
-                connectors={["c"]}
-                w={10}
-                h={10}
-                x={Math.round(value.horizontal)}
-                y={Math.round(value.vertical)}
-                onDragEnd={onDragEnd}
-                limitation={{
-                    x: bounds.x - 7,
-                    y: bounds.y - 7,
-                    w: bounds.w + 7,
-                    h: bounds.h + 30
+        <DragResizeBlock
+            isResizable={false}
+            connectors={["c"]}
+            w={25}
+            h={25}
+            x={
+                value.horizontal > bounds.x
+                    ? bounds.x
+                    : Math.round(value.horizontal)
+            }
+            y={
+                value.vertical > bounds.y
+                    ? bounds.y
+                    : Math.round(value.vertical)
+            }
+            onDragEnd={onDragEnd}
+            limitation={{ ...bounds, h: bounds.h + 10, w: bounds.w + 7 }}
+        >
+            <Image
+                source={require("../assets/wifi-router.png")}
+                style={{
+                    width: 25,
+                    height: 25
                 }}
-            >
-                <View
-                    style={{
-                        alignItems: "center",
-                        // paddingTop: 10,
-                        backgroundColor: "#000"
-                    }}
-                >
-                    <Image
-                        source={require("../assets/wifi-router.png")}
-                        style={{
-                            width: 25,
-                            height: 25
-                        }}
-                    />
-                </View>
-            </DragResizeBlock>
-        </View>
+            />
+        </DragResizeBlock>
     );
 };
 

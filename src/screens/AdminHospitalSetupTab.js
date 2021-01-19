@@ -32,30 +32,32 @@ const AdminHospitalSetupTab = ({
 
     return (
         <>
-            <Banner
-                style={{
-                    margin: 8,
-                    alignItems: "space-between",
-                    justifyContent: "space-between"
-                }}
-                visible={bannerVisible}
-                actions={[
-                    {
-                        label: "Got It",
-                        onPress: () => setBannerVisible(false)
-                    }
-                ]}
-                contentStyle={styles.bannerContent}
-                icon={"information"}
-            >
-                <View>
-                    <Title>Welcome to GeoFencer!</Title>
-                    <Paragraph style={{ maxWidth: 280 }}>
-                        Please fill out the hospital information and GeoFencing
-                        details in the following section.
-                    </Paragraph>
-                </View>
-            </Banner>
+            {bannerVisible && (
+                <Banner
+                    style={{
+                        margin: 8,
+                        alignItems: "space-between",
+                        justifyContent: "space-between"
+                    }}
+                    visible={bannerVisible}
+                    actions={[
+                        {
+                            label: "Got It",
+                            onPress: () => setBannerVisible(false)
+                        }
+                    ]}
+                    contentStyle={styles.bannerContent}
+                    icon={"information"}
+                >
+                    <View>
+                        <Title>Welcome to GeoFencer!</Title>
+                        <Paragraph style={{ maxWidth: 280 }}>
+                            Please fill out the hospital information and
+                            GeoFencing details in the following section.
+                        </Paragraph>
+                    </View>
+                </Banner>
+            )}
             <Scroll>
                 <Surface style={styles.container}>
                     <View style={styles.hospitalImageCover}>
