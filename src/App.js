@@ -6,7 +6,7 @@ import { withTheme, IconButton } from "react-native-paper";
 import LogInScreen from "./screens/LogInScreen";
 import AdminScreen from "./screens/AdminScreen";
 import DoctorScreen from "./screens/DoctorScreen";
-import { setLoggedIn as setLoggedInAction } from "./utils/actions";
+import { setLoggedIn } from "./redux/mainReduxDuck";
 
 const Stack = createStackNavigator();
 
@@ -67,7 +67,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        setLoggedIn: (loggedIn) => dispatch(setLoggedInAction(loggedIn))
+        setLoggedIn: (loggedIn) => dispatch(setLoggedIn(loggedIn))
     };
 };
 

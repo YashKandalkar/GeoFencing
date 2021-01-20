@@ -4,7 +4,7 @@ import { StyleSheet, View, SafeAreaView } from "react-native";
 import { withTheme, HelperText } from "react-native-paper";
 import { useForm, Controller } from "react-hook-form";
 
-import { setLoggedIn as setLoggedInAction } from "../utils/actions";
+import { setLoggedIn } from "../redux/mainReduxDuck";
 import Scroll from "./Scroll";
 
 import {
@@ -198,7 +198,7 @@ const mapStateToProps = (state) => state;
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        setLoggedIn: (loggedIn) => dispatch(setLoggedInAction(loggedIn))
+        setLoggedIn: (loggedIn) => dispatch(setLoggedIn(loggedIn))
     };
 };
 

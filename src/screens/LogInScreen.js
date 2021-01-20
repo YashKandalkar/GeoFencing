@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import LogIn from "../components/LogIn";
 import { StatusBar } from "expo-status-bar";
-import { setLoginAs as setLoginAsAction } from "../utils/actions";
+import { setLoginAs } from "../redux/mainReduxDuck";
 
 const LogInScreen = ({ navigation, loginAs, setLoginAs, ...props }) => {
     return (
@@ -19,14 +19,14 @@ const LogInScreen = ({ navigation, loginAs, setLoginAs, ...props }) => {
 
 const mapStateToProps = (state) => {
     return {
-        loginAs: state.loginAs,
+        loginAs: state.loginAs
     };
 };
 const mapDispatchToProps = (dispatch) => {
     return {
         setLoginAs: (loginAs) => {
-            dispatch(setLoginAsAction(loginAs));
-        },
+            dispatch(setLoginAs(loginAs));
+        }
     };
 };
 

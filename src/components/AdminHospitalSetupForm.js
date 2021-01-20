@@ -7,8 +7,17 @@ import NumericFormItem from "./NumericFormItem";
 import { useForm } from "react-hook-form";
 import indianStates from "../utils/IndianStateNames";
 import { connect } from "react-redux";
+import {
+    setAdminHospitalSetupDone,
+    setHospitalData
+} from "../redux/mainReduxDuck";
 
-const AdminHospitalSetupForm = ({ onSubmit, hospitalData }) => {
+const AdminHospitalSetupForm = ({
+    onSubmit,
+    hospitalData,
+    setAdminHospitalSetup,
+    setHospitalData
+}) => {
     const {
         totalBeds,
         availableBeds,
@@ -64,6 +73,8 @@ const AdminHospitalSetupForm = ({ onSubmit, hospitalData }) => {
         setBeds({ total: 0, available: 0 });
         setVentilators({ total: 0, available: 0 });
         statePickerController.reset();
+        setAdminHospitalSetup(false);
+        setHospitalData({});
         reset({
             address: "",
             bedsAvailable: 0,
@@ -246,4 +257,15 @@ const mapStateToProps = (state) => ({
     hospitalData: state.hospitalData
 });
 
-export default connect(mapStateToProps)(AdminHospitalSetupForm);
+const mapDispatchToProps = (dispatch) => {
+    return {
+        setAdminHospitalSetup: (value) =>
+            dispatch(setAdminHospitalSetupDone(value)),
+        setHospitalData: (data) => dispatch(setHospitalData(data))
+    };
+};
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(AdminHospitalSetupForm);

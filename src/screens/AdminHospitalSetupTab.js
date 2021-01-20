@@ -13,9 +13,9 @@ import {
 import Scroll from "../components/Scroll";
 import AdminHospitalSetupForm from "../components/AdminHospitalSetupForm";
 import {
-    setAdminHospitalSetup as setAdminHospitalSetupAction,
-    setHospitalData as setHospitalDataAction
-} from "../utils/actions";
+    setAdminHospitalSetupDone,
+    setHospitalData
+} from "../redux/mainReduxDuck";
 
 const AdminHospitalSetupTab = ({
     setAdminHospitalSetup,
@@ -135,8 +135,8 @@ const mapStateToProps = (state) => state;
 const mapDispatchToProps = (dispatch) => {
     return {
         setAdminHospitalSetup: (value) =>
-            dispatch(setAdminHospitalSetupAction(value)),
-        setHospitalData: (data) => dispatch(setHospitalDataAction(data))
+            dispatch(setAdminHospitalSetupDone(value)),
+        setHospitalData: (data) => dispatch(setHospitalData(data))
     };
 };
 
