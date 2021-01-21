@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import LogIn from "../components/LogIn";
+import { LogIn } from "../components";
 import { StatusBar } from "expo-status-bar";
 import { setLoginAs } from "../redux/mainReduxDuck";
 

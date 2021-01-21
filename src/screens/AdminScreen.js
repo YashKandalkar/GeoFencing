@@ -1,9 +1,11 @@
 import React from "react";
 import { BottomNavigation } from "react-native-paper";
-import AdminHospitalSetupTab from "./AdminHospitalSetupTab";
-import AdminDoctorTab from "./AdminDoctorTab";
 import { StatusBar } from "expo-status-bar";
-import GeoFencingSetupTab from "./GeoFencingSetupTab";
+import {
+    HospitalSetupTab,
+    GeoFencingSetupTab,
+    DoctorListTab
+} from "../NavigationTabs/Admin";
 
 const AdminScreen = () => {
     const [index, setIndex] = React.useState(0);
@@ -22,9 +24,9 @@ const AdminScreen = () => {
     ]);
 
     const renderScene = BottomNavigation.SceneMap({
-        hospitalSetup: AdminHospitalSetupTab,
+        hospitalSetup: HospitalSetupTab,
         geofencingSetup: GeoFencingSetupTab,
-        doctorTab: AdminDoctorTab
+        doctorTab: DoctorListTab
     });
 
     return (

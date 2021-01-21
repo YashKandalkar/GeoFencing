@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { ImageBackground, StyleSheet, View } from "react-native";
+import { connect } from "react-redux";
+import { generateUID } from "../../utils/functions";
+
 import {
     Subheading,
     Surface,
@@ -7,14 +10,15 @@ import {
     Title,
     withTheme
 } from "react-native-paper";
-import DoctorList from "../components/DoctorList";
-import OutlinedContainer from "../components/OutlinedContainer";
-import AddDoctor from "../components/AddDoctor";
-import { generateUID } from "../utils/functions";
-import { connect } from "react-redux";
-import Scroll from "../components/Scroll";
 
-const AdminDoctorTab = ({ navigation, theme, geofencingSetupDone }) => {
+import {
+    DoctorList,
+    OutlinedContainer,
+    AddDoctor,
+    Scroll
+} from "../../components";
+
+const DoctorListTab = ({ navigation, theme, geofencingSetupDone }) => {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [uid, setUid] = useState("");
     console.log(geofencingSetupDone);
@@ -42,7 +46,7 @@ const AdminDoctorTab = ({ navigation, theme, geofencingSetupDone }) => {
                     <>
                         <Surface style={styles.container}>
                             <ImageBackground
-                                source={require("../assets/hospital.webp")}
+                                source={require("../../assets/hospital.webp")}
                                 style={styles.imageBackground}
                                 imageStyle={{ borderRadius: 8 }}
                             >
@@ -140,4 +144,4 @@ const mapStateToProps = (state) => ({
     geofencingSetupDone: state.geofencingSetupDone
 });
 
-export default connect(mapStateToProps)(withTheme(AdminDoctorTab));
+export default connect(mapStateToProps)(withTheme(DoctorListTab));

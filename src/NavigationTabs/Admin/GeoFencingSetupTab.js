@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Image } from "react-native";
 import { connect } from "react-redux";
+import * as ImagePicker from "expo-image-picker";
+import { useDebounce } from "../../utils/hooks";
+import { DragResizeBlock, DragResizeContainer } from "react-native-drag-resize";
+
 import {
     Surface,
     Subheading,
@@ -9,14 +13,14 @@ import {
     Button,
     Paragraph
 } from "react-native-paper";
-import * as ImagePicker from "expo-image-picker";
-import { DragResizeBlock, DragResizeContainer } from "react-native-drag-resize";
-import NumericFormItem from "../components/NumericFormItem";
-import Scroll from "../components/Scroll";
-import OutlinedContainer from "../components/OutlinedContainer";
-import GeoFencingRouter from "../components/GeoFencingRouter";
-import { useDebounce } from "../utils/hooks";
-import DraggableRouter from "../components/DraggableRouter";
+
+import {
+    NumericFormItem,
+    Scroll,
+    OutlinedContainer,
+    DraggableRouter,
+    GeoFencingRouter
+} from "../../components";
 
 const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
     const [image, setImage] = useState(null);

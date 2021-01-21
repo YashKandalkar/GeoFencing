@@ -10,14 +10,14 @@ import {
     Headline
 } from "react-native-paper";
 
-import Scroll from "../components/Scroll";
-import AdminHospitalSetupForm from "../components/AdminHospitalSetupForm";
+import { AdminHospitalSetupForm, Scroll } from "../../components";
+
 import {
     setAdminHospitalSetupDone,
     setHospitalData
-} from "../redux/mainReduxDuck";
+} from "../../redux/mainReduxDuck";
 
-const AdminHospitalSetupTab = ({
+const HospitalSetupTab = ({
     setAdminHospitalSetup,
     setHospitalData,
     jumpTo
@@ -62,7 +62,7 @@ const AdminHospitalSetupTab = ({
                 <Surface style={styles.container}>
                     <View style={styles.hospitalImageCover}>
                         <ImageBackground
-                            source={require("../assets/hospital.webp")}
+                            source={require("../../assets/hospital.webp")}
                             style={styles.imageBackground}
                             imageStyle={{ borderRadius: 8 }}
                         >
@@ -140,7 +140,4 @@ const mapDispatchToProps = (dispatch) => {
     };
 };
 
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(AdminHospitalSetupTab);
+export default connect(mapStateToProps, mapDispatchToProps)(HospitalSetupTab);
