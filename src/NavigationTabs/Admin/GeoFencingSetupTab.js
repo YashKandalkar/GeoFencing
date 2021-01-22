@@ -53,14 +53,14 @@ const GeoFencingSetupTab = ({
             vertical: 0
         }
     );
-    const [boundingRectDimensions, setBoundingRectDimensions] = useState(
-        geofencingData.boundingRectDimensions ?? {
-            horizontal: 5000,
-            vertical: 5000
+    const [geofenceActualDimensions, setGeofenceActualDimensions] = useState(
+        geofencingData.geofenceActualDimensions ?? {
+            horizontal: 100,
+            vertical: 100
         }
     );
-    const [geoFenceDimensions, setGeoFenceDimensions] = useState(
-        geofencingData.geoFenceDimensions ?? {
+    const [geoFencePixelDimensions, setGeoFencePixelDimensions] = useState(
+        geofencingData.geoFencePixelDimensions ?? {
             horizontal: 0,
             vertical: 0
         }
@@ -85,6 +85,17 @@ const GeoFencingSetupTab = ({
         })();
     }, []);
 
+    const onClearClick = () => {
+        setImage(null);
+        setGeofencingData({
+            ...geofencingData,
+            image: null,
+            geoFencePixelDimensions: null,
+            imageBounds: null,
+            dragBlockLimits: null,
+            actualToPixelFactor: null
+        });
+    };
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -97,37 +108,38 @@ const GeoFencingSetupTab = ({
         }
     };
 
-    const geoFenceDimensionsHandler = useDebounce(500, (dimension) => {
-        setGeoFenceDimensions({ ...dimension });
+    const geoFencePixelDimensionsHandler = useDebounce(500, (dimension) => {
+        setGeoFencePixelDimensions({ ...dimension });
         if (
-            boundingRectDimensions.horizontal !== 0 &&
-            boundingRectDimensions.vertical !== 0
+            geofenceActualDimensions.horizontal !== 0 &&
+            geofenceActualDimensions.vertical !== 0
         ) {
             setActualToPixelFactor({
                 horizontal:
-                    dimension.horizontal / boundingRectDimensions.horizontal -
+                    dimension.horizontal / geofenceActualDimensions.horizontal -
                     0.0058,
                 vertical:
-                    dimension.vertical / boundingRectDimensions.vertical - 0.009
+                    dimension.vertical / geofenceActualDimensions.vertical -
+                    0.009
             });
         }
     });
 
     useEffect(() => {
         if (
-            boundingRectDimensions.horizontal !== 0 &&
-            boundingRectDimensions.vertical !== 0 &&
-            geoFenceDimensions.horizontal !== 0 &&
-            geoFenceDimensions.vertical !== 0
+            geofenceActualDimensions.horizontal !== 0 &&
+            geofenceActualDimensions.vertical !== 0 &&
+            geoFencePixelDimensions.horizontal !== 0 &&
+            geoFencePixelDimensions.vertical !== 0
         ) {
             const ratios = {
                 horizontal:
-                    geoFenceDimensions.horizontal /
-                        boundingRectDimensions.horizontal -
+                    geoFencePixelDimensions.horizontal /
+                        geofenceActualDimensions.horizontal -
                     0.0058,
                 vertical:
-                    geoFenceDimensions.vertical /
-                        boundingRectDimensions.vertical -
+                    geoFencePixelDimensions.vertical /
+                        geofenceActualDimensions.vertical -
                     0.009
             };
             setRouterInfo((state) => {
@@ -145,7 +157,10 @@ const GeoFencingSetupTab = ({
             });
             setActualToPixelFactor(ratios);
         }
-    }, [boundingRectDimensions.horizontal, boundingRectDimensions.vertical]);
+    }, [
+        geofenceActualDimensions.horizontal,
+        geofenceActualDimensions.vertical
+    ]);
 
     const routerInfoHandler = (val, ind) => {
         let newArr = [...routers];
@@ -177,8 +192,8 @@ const GeoFencingSetupTab = ({
             routers,
             dragBlockLimits,
             actualToPixelFactor,
-            geoFenceDimensions,
-            boundingRectDimensions
+            geoFencePixelDimensions,
+            geofenceActualDimensions
         });
         setGeofencingSetupDone(true);
         jumpTo("doctorTab");
@@ -217,9 +232,11 @@ const GeoFencingSetupTab = ({
                                     borderWidth: 3,
                                     padding: 8,
                                     margin: 4,
+                                    zIndex: 10,
+                                    // elevation: 10,
                                     justifyContent: "center",
                                     alignItems: "center",
-                                    height: 210
+                                    minHeight: 210
                                 }}
                             >
                                 {image ? (
@@ -239,8 +256,8 @@ const GeoFencingSetupTab = ({
                                                 });
                                             }}
                                             style={{
-                                                height: "100%",
-                                                maxHeight: 210
+                                                height: "100%"
+                                                // maxHeight: 210
                                             }}
                                         />
                                         {imageBounds && (
@@ -278,7 +295,7 @@ const GeoFencingSetupTab = ({
                                                         onLayout={({
                                                             nativeEvent
                                                         }) =>
-                                                            geoFenceDimensionsHandler(
+                                                            geoFencePixelDimensionsHandler(
                                                                 {
                                                                     horizontal:
                                                                         nativeEvent
@@ -338,7 +355,7 @@ const GeoFencingSetupTab = ({
                                         )}
                                     </View>
                                 ) : (
-                                    <Subheading>
+                                    <Subheading style={{ marginVertical: 90 }}>
                                         Select the floor-map of your hospital!
                                     </Subheading>
                                 )}
@@ -354,7 +371,7 @@ const GeoFencingSetupTab = ({
                                 {image && (
                                     <Button
                                         mode={"outlined"}
-                                        onPress={() => setImage(null)}
+                                        onPress={onClearClick}
                                         style={{ marginRight: 8 }}
                                     >
                                         Clear
@@ -385,9 +402,9 @@ const GeoFencingSetupTab = ({
                                             "Bounding Rectangle Horizontal Length:"
                                         }
                                         inputProps={{
-                                            minValue: 5000,
+                                            minValue: 10,
                                             rounded: true,
-                                            step: 100,
+                                            step: 10,
                                             totalWidth: 150,
                                             type: "up-down",
                                             inputStyle: {
@@ -396,7 +413,7 @@ const GeoFencingSetupTab = ({
                                             totalHeight: 50
                                         }}
                                         onChange={(val) =>
-                                            setBoundingRectDimensions(
+                                            setGeofenceActualDimensions(
                                                 ({ vertical }) => ({
                                                     vertical,
                                                     horizontal: val
@@ -406,7 +423,7 @@ const GeoFencingSetupTab = ({
                                         helperText={"(in meters)"}
                                         labelStyle={{ fontSize: 16 }}
                                         value={
-                                            boundingRectDimensions.horizontal
+                                            geofenceActualDimensions.horizontal
                                         }
                                     />
                                     <NumericFormItem
@@ -414,9 +431,9 @@ const GeoFencingSetupTab = ({
                                             "Bounding Rectangle Vertical Length:"
                                         }
                                         inputProps={{
-                                            minValue: 5000,
+                                            minValue: 10,
                                             rounded: true,
-                                            step: 100,
+                                            step: 10,
                                             totalWidth: 150,
                                             type: "up-down",
                                             inputStyle: {
@@ -425,7 +442,7 @@ const GeoFencingSetupTab = ({
                                             totalHeight: 50
                                         }}
                                         onChange={(val) =>
-                                            setBoundingRectDimensions(
+                                            setGeofenceActualDimensions(
                                                 ({ horizontal }) => ({
                                                     horizontal,
                                                     vertical: val
@@ -434,7 +451,9 @@ const GeoFencingSetupTab = ({
                                         }
                                         helperText={"(in meters)"}
                                         labelStyle={{ fontSize: 16 }}
-                                        value={boundingRectDimensions.vertical}
+                                        value={
+                                            geofenceActualDimensions.vertical
+                                        }
                                     />
                                 </OutlinedContainer>
                             </View>
@@ -465,7 +484,7 @@ const GeoFencingSetupTab = ({
                                         key={index}
                                         routerNumber={index + 1}
                                         value={router}
-                                        maxValue={boundingRectDimensions}
+                                        maxValue={geofenceActualDimensions}
                                         onDelete={onRouterDelete}
                                         onChange={(value) =>
                                             routerInfoHandler(value, index)
@@ -532,7 +551,7 @@ const styles = StyleSheet.create({
     },
     setupWarningContainer: {
         flex: 1,
-        elevation: 1,
+        // elevation: 1,
         margin: 8,
         justifyContent: "center",
         alignItems: "center",
