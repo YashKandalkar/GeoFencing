@@ -4,14 +4,18 @@ import { connect } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
 import { useDebounce } from "../../utils/hooks";
 import { DragResizeBlock, DragResizeContainer } from "react-native-drag-resize";
+import {
+    setGeofencingData,
+    setGeofencingSetupDone
+} from "../../redux/mainReduxDuck";
 
 import {
     Surface,
     Subheading,
     Headline,
-    Divider,
     Button,
-    Paragraph
+    Paragraph,
+    HelperText
 } from "react-native-paper";
 
 import {
@@ -19,45 +23,48 @@ import {
     Scroll,
     OutlinedContainer,
     DraggableRouter,
-    GeoFencingRouter
+    GeoFencingRouter,
+    Divider
 } from "../../components";
 
-const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
-    const [image, setImage] = useState(null);
-    const [imageBounds, setImageBounds] = useState(null);
-    const [dragBlockLimits, setDragBlockLimits] = useState({
-        x: 0,
-        y: 0,
-        w: 0,
-        h: 0
-    });
-    const [actualToPixelFactor, setActualToPixelFactor] = useState({
-        horizontal: 0,
-        vertical: 0
-    });
-    console.log(actualToPixelFactor);
-    const [boundingRectDimensions, setBoundingRectDimensions] = useState({
-        horizontal: 5000,
-        vertical: 5000
-    });
-
-    const [routers, setRouterInfo] = useState([
-        {
-            horizontal: 0,
-            vertical: 0,
-            height: 0
+const GeoFencingSetupTab = ({
+    adminHospitalSetupDone,
+    setGeofencingSetupDone,
+    setGeofencingData,
+    geofencingData,
+    jumpTo
+}) => {
+    const [image, setImage] = useState(geofencingData.image ?? null);
+    const [imageBounds, setImageBounds] = useState(
+        geofencingData.imageBounds ?? null
+    );
+    const [routers, setRouterInfo] = useState(geofencingData.routers ?? []);
+    const [dragBlockLimits, setDragBlockLimits] = useState(
+        geofencingData.dragBlockLimits ?? {
+            x: 0,
+            y: 0,
+            w: 0,
+            h: 0
         }
-    ]);
-
-    const [geoFenceDimensions, setGeoFenceDimensions] = useState({
-        horizontal: 0,
-        vertical: 0
-    });
-
-    const [geoFencePosition, setGeoFencePosition] = useState({
-        x: 0,
-        y: 0
-    });
+    );
+    const [actualToPixelFactor, setActualToPixelFactor] = useState(
+        geofencingData.actualToPixelFactor ?? {
+            horizontal: 0,
+            vertical: 0
+        }
+    );
+    const [boundingRectDimensions, setBoundingRectDimensions] = useState(
+        geofencingData.boundingRectDimensions ?? {
+            horizontal: 5000,
+            vertical: 5000
+        }
+    );
+    const [geoFenceDimensions, setGeoFenceDimensions] = useState(
+        geofencingData.geoFenceDimensions ?? {
+            horizontal: 0,
+            vertical: 0
+        }
+    );
 
     useEffect(() => {
         (async () => {
@@ -89,10 +96,6 @@ const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
             setImage(result);
         }
     };
-
-    const geoFencePositionHandler = useDebounce(500, (position) => {
-        setGeoFencePosition({ ...position });
-    });
 
     const geoFenceDimensionsHandler = useDebounce(500, (dimension) => {
         setGeoFenceDimensions({ ...dimension });
@@ -129,24 +132,14 @@ const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
             };
             setRouterInfo((state) => {
                 return state.map((el) => {
-                    console.log(
-                        el.horizontal,
-                        actualToPixelFactor.horizontal,
-                        ratios.horizontal
-                    );
-                    console.log(
-                        (el.horizontal * actualToPixelFactor.horizontal) /
-                            ratios.horizontal,
-                        el.horizontal
-                    );
                     return {
+                        ...el,
                         horizontal:
                             (el.horizontal * actualToPixelFactor.horizontal) /
                             ratios.horizontal,
                         vertical:
                             (el.vertical * actualToPixelFactor.vertical) /
-                            ratios.vertical,
-                        height: el.height
+                            ratios.vertical
                     };
                 });
             });
@@ -156,12 +149,39 @@ const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
 
     const routerInfoHandler = (val, ind) => {
         let newArr = [...routers];
-        newArr[ind] = {
-            horizontal: val.horizontal || routers[ind].horizontal,
-            vertical: val.vertical || routers[ind].vertical,
-            height: val.height || routers[ind].height
-        };
+        newArr[ind] = { ...routers[ind], ...val };
         setRouterInfo(newArr);
+    };
+
+    const onRouterAdd = () => {
+        let newRouterArr = [...routers];
+        newRouterArr.push({
+            horizontal: 0,
+            vertical: 0,
+            height: 0,
+            range: 20
+        });
+        setRouterInfo(newRouterArr);
+    };
+
+    const onRouterDelete = (ind) => {
+        let newRouterArr = [...routers];
+        newRouterArr.splice(ind, 1);
+        setRouterInfo(newRouterArr);
+    };
+
+    const onNextClick = () => {
+        setGeofencingData({
+            image,
+            imageBounds,
+            routers,
+            dragBlockLimits,
+            actualToPixelFactor,
+            geoFenceDimensions,
+            boundingRectDimensions
+        });
+        setGeofencingSetupDone(true);
+        jumpTo("doctorTab");
     };
 
     return (
@@ -239,27 +259,12 @@ const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
                                                 }}
                                             >
                                                 <DragResizeBlock
+                                                    isResizable={false}
+                                                    connectors={[]}
                                                     x={imageBounds.x}
                                                     y={imageBounds.y - 7}
                                                     w={imageBounds.width}
-                                                    h={imageBounds.height + 10}
-                                                    onResizeEnd={(args) =>
-                                                        geoFencePositionHandler(
-                                                            {
-                                                                x: args[0],
-                                                                y: args[1]
-                                                            }
-                                                        )
-                                                    }
-                                                    onDragEnd={(args) =>
-                                                        geoFencePositionHandler(
-                                                            {
-                                                                x: args[0],
-                                                                y: args[1]
-                                                            }
-                                                        )
-                                                    }
-                                                    limitation={dragBlockLimits}
+                                                    h={imageBounds.height + 17}
                                                 >
                                                     <View
                                                         style={{
@@ -301,17 +306,11 @@ const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
                                                                 routerInfoHandler(
                                                                     {
                                                                         horizontal:
-                                                                            Math.pow(
-                                                                                actualToPixelFactor.horizontal,
-                                                                                -1
-                                                                            ) *
-                                                                            coordinates[0],
+                                                                            coordinates[0] /
+                                                                            actualToPixelFactor.horizontal,
                                                                         vertical:
-                                                                            Math.pow(
-                                                                                actualToPixelFactor.vertical,
-                                                                                -1
-                                                                            ) *
-                                                                            coordinates[1]
+                                                                            coordinates[1] /
+                                                                            actualToPixelFactor.vertical
                                                                     },
                                                                     index
                                                                 );
@@ -322,7 +321,15 @@ const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
                                                                     actualToPixelFactor.horizontal,
                                                                 vertical:
                                                                     router.vertical *
-                                                                    actualToPixelFactor.vertical
+                                                                    actualToPixelFactor.vertical,
+                                                                range: {
+                                                                    horizontal:
+                                                                        router.range *
+                                                                        actualToPixelFactor.horizontal,
+                                                                    vertical:
+                                                                        router.range *
+                                                                        actualToPixelFactor.vertical
+                                                                }
                                                             }}
                                                         />
                                                     )
@@ -369,10 +376,6 @@ const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
                                     bounding rectangle (Red coloured). All the
                                     positions of objects inside the floor-map
                                     will be relative to this rectangle.
-                                </Paragraph>
-                                <Paragraph>
-                                    You can resize the rectangle above but these
-                                    dimensions will not be affected.
                                 </Paragraph>
                                 <OutlinedContainer
                                     containerStyle={{ marginTop: 8 }}
@@ -455,7 +458,7 @@ const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
                                 </Paragraph>
                                 <Paragraph>
                                     Provide the actual location of the routers
-                                    inside the hospital:
+                                    inside the hospital.
                                 </Paragraph>
                                 {routers.map((router, index) => (
                                     <GeoFencingRouter
@@ -463,13 +466,55 @@ const GeoFencingSetupTab = ({ adminHospitalSetupDone }) => {
                                         routerNumber={index + 1}
                                         value={router}
                                         maxValue={boundingRectDimensions}
+                                        onDelete={onRouterDelete}
                                         onChange={(value) =>
                                             routerInfoHandler(value, index)
                                         }
                                     />
                                 ))}
+                                <View
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        marginTop: 16
+                                    }}
+                                >
+                                    <Button
+                                        mode={"contained"}
+                                        onPress={onRouterAdd}
+                                    >
+                                        Add Router
+                                    </Button>
+                                </View>
                             </View>
                         </Surface>
+                        <Divider
+                            dividerStyle={{
+                                marginBottom: routers.length < 3 ? 0 : 8
+                            }}
+                        />
+                        {routers.length < 3 && (
+                            <HelperText
+                                style={{ marginTop: 8 }}
+                                visible={routers.length < 3}
+                                type={"error"}
+                            >
+                                At least 3 routers are needed to locate a
+                                patient inside the hospital. Please add{" "}
+                                {3 - routers.length} more router(s)!
+                            </HelperText>
+                        )}
+                        <View style={styles.formButtonsContainer}>
+                            <Button
+                                style={styles.formButton}
+                                mode={"contained"}
+                                onPress={onNextClick}
+                                disabled={routers.length < 3}
+                            >
+                                Next
+                            </Button>
+                        </View>
                     </Surface>
                 )}
             </View>
@@ -492,11 +537,29 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         borderRadius: 8
+    },
+    formButtonsContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-end"
+    },
+    formButton: {
+        marginRight: 16,
+        marginTop: 8,
+        marginBottom: 8
     }
 });
 
 const mapStateToProps = (state) => ({
-    adminHospitalSetupDone: state.adminHospitalSetupDone
+    adminHospitalSetupDone: state.adminHospitalSetupDone,
+    geofencingData: state.geofencingData
 });
 
-export default connect(mapStateToProps)(GeoFencingSetupTab);
+const mapDispatchToProps = (dispatch) => {
+    return {
+        setGeofencingSetupDone: (val) => dispatch(setGeofencingSetupDone(val)),
+        setGeofencingData: (val) => dispatch(setGeofencingData(val))
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(GeoFencingSetupTab);

@@ -5,6 +5,7 @@ const SET_LOGGED_IN = "SET_LOGGED_IN";
 const SET_ADMIN_HOSPITAL_SETUP_DONE = "SET_ADMIN_HOSPITAL_SETUP_DONE";
 const SET_GEOFENCING_SETUP_DONE = "SET_GEOFENCING_SETUP_DONE";
 const SET_HOSPITAL_DATA = "SET_HOSPITAL_DATA";
+const SET_GEOFENCING_DATA = "SET_GEOFENCING_DATA";
 
 export const setLoginAs = (loginAs) => ({
     type: SET_LOGIN_AS,
@@ -29,6 +30,11 @@ export const setGeofencingSetupDone = (geofencingSetupDone) => ({
 export const setHospitalData = (data) => ({
     type: SET_HOSPITAL_DATA,
     hospitalData: data
+});
+
+export const setGeofencingData = (data) => ({
+    type: SET_GEOFENCING_DATA,
+    geofencingData: data
 });
 
 export default (state = initialState, action) => {
@@ -60,6 +66,12 @@ export default (state = initialState, action) => {
             return {
                 ...state,
                 hospitalData: action.hospitalData
+            };
+
+        case SET_GEOFENCING_DATA:
+            return {
+                ...state,
+                geofencingData: action.geofencingData
             };
 
         default:

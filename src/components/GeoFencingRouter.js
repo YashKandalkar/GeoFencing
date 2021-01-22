@@ -1,11 +1,18 @@
 import React from "react";
-import { Subheading } from "react-native-paper";
+import { IconButton, Subheading } from "react-native-paper";
+import { View, Text } from "react-native";
 import OutlinedContainer from "./OutlinedContainer";
 import Divider from "./Divider";
 import NumericFormItem from "./NumericFormItem";
 import PropTypes from "prop-types";
 
-const GeoFencingRouter = ({ routerNumber, value, onChange, maxValue }) => {
+const GeoFencingRouter = ({
+    routerNumber,
+    value,
+    onChange,
+    maxValue,
+    onDelete
+}) => {
     const inputProps = {
         minValue: 0,
         rounded: true,
@@ -19,10 +26,23 @@ const GeoFencingRouter = ({ routerNumber, value, onChange, maxValue }) => {
     };
 
     return (
-        <OutlinedContainer containerStyle={{ marginTop: 16 }}>
-            <Subheading style={{ fontSize: 20, marginLeft: 8 }}>
-                Router {routerNumber}
-            </Subheading>
+        <OutlinedContainer containerStyle={{ marginTop: 16, paddingTop: 0 }}>
+            <View
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    flexDirection: "row"
+                }}
+            >
+                <Subheading style={{ fontSize: 20, marginLeft: 8 }}>
+                    Router {routerNumber}
+                </Subheading>
+                <IconButton
+                    icon={"delete"}
+                    onPress={() => onDelete(routerNumber - 1)}
+                />
+            </View>
             <Divider dividerStyle={{ marginHorizontal: 8 }} />
             <NumericFormItem
                 labelText={"Horizontal Distance:"}
@@ -63,6 +83,14 @@ const GeoFencingRouter = ({ routerNumber, value, onChange, maxValue }) => {
                 labelStyle={{ fontSize: 16 }}
                 value={Math.round(value.height)}
             />
+            <NumericFormItem
+                labelText={"Range:"}
+                inputProps={{ ...inputProps, minValue: 20, step: 5 }}
+                onChange={(val) => onChange({ range: val })}
+                helperText={"(in meters)"}
+                labelStyle={{ fontSize: 16 }}
+                value={Math.round(value.range)}
+            />
         </OutlinedContainer>
     );
 };
@@ -71,7 +99,8 @@ GeoFencingRouter.defaultProps = {
     value: {
         horizontal: 0,
         vertical: 0,
-        height: 0
+        height: 0,
+        range: 0
     }
 };
 

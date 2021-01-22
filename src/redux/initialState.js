@@ -3,5 +3,6 @@ export default {
     loggedIn: false,
     adminHospitalSetupDone: false,
     geofencingSetupDone: false,
-    hospitalData: {}
+    hospitalData: {},
+    geofencingData: {}
 };

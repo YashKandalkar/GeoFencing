@@ -21,7 +21,7 @@ import {
 const DoctorListTab = ({ navigation, theme, geofencingSetupDone }) => {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [uid, setUid] = useState("");
-    console.log(geofencingSetupDone);
+
     const addDoctor = () => {
         // setDoctorDetails({
         //     id: generateUID({ prefix: "DCT" }),
