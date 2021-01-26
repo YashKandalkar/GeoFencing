@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Alert } from "react-native";
 import { connect } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
 import { useDebounce } from "../../utils/hooks";
@@ -25,6 +25,7 @@ import {
     OutlinedContainer,
     Scroll
 } from "../../components";
+import { cond } from "react-native-reanimated";
 
 const GeoFencingSetupTab = ({
     adminHospitalSetupDone,
@@ -34,7 +35,7 @@ const GeoFencingSetupTab = ({
     jumpTo
 }) => {
     const [image, setImage] = useState(geofencingData.image ?? null);
-    const [routers, setRouterInfo] = useState(geofencingData.routers ?? []);
+    const [routers, setRouters] = useState(geofencingData.routers ?? []);
     const [routerLimits, setRouterLimits] = useState(
         geofencingData.routerLimits ?? {
             x: 0,
@@ -81,16 +82,43 @@ const GeoFencingSetupTab = ({
         })();
     }, []);
 
-    const onClearClick = () => {
-        setImage(null);
-        setGeofencingData({
-            ...geofencingData,
-            image: null,
-            geoFencePixelDimensions: null,
-            routerLimits: null,
-            actualToPixelFactor: null
-        });
-    };
+    useEffect(() => {
+        if (
+            geofenceActualDimensions.horizontal !== 0 &&
+            geofenceActualDimensions.vertical !== 0 &&
+            geoFencePixelDimensions.horizontal !== 0 &&
+            geoFencePixelDimensions.vertical !== 0
+        ) {
+            const ratios = {
+                horizontal:
+                    geoFencePixelDimensions.horizontal /
+                        geofenceActualDimensions.horizontal +
+                    factorOffsets.x,
+                vertical:
+                    geoFencePixelDimensions.vertical /
+                        geofenceActualDimensions.vertical +
+                    factorOffsets.y
+            };
+            setRouters((state) => {
+                return state.map((el) => {
+                    return {
+                        ...el,
+                        horizontal:
+                            (el.horizontal * actualToPixelFactor.horizontal) /
+                            ratios.horizontal,
+                        vertical:
+                            (el.vertical * actualToPixelFactor.vertical) /
+                            ratios.vertical
+                    };
+                });
+            });
+            setActualToPixelFactor(ratios);
+        }
+    }, [
+        geofenceActualDimensions.horizontal,
+        geofenceActualDimensions.vertical
+    ]);
+
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -123,47 +151,22 @@ const GeoFencingSetupTab = ({
         }
     });
 
-    useEffect(() => {
-        if (
-            geofenceActualDimensions.horizontal !== 0 &&
-            geofenceActualDimensions.vertical !== 0 &&
-            geoFencePixelDimensions.horizontal !== 0 &&
-            geoFencePixelDimensions.vertical !== 0
-        ) {
-            const ratios = {
-                horizontal:
-                    geoFencePixelDimensions.horizontal /
-                        geofenceActualDimensions.horizontal +
-                    factorOffsets.x,
-                vertical:
-                    geoFencePixelDimensions.vertical /
-                        geofenceActualDimensions.vertical +
-                    factorOffsets.y
-            };
-            setRouterInfo((state) => {
-                return state.map((el) => {
-                    return {
-                        ...el,
-                        horizontal:
-                            (el.horizontal * actualToPixelFactor.horizontal) /
-                            ratios.horizontal,
-                        vertical:
-                            (el.vertical * actualToPixelFactor.vertical) /
-                            ratios.vertical
-                    };
-                });
-            });
-            setActualToPixelFactor(ratios);
-        }
-    }, [
-        geofenceActualDimensions.horizontal,
-        geofenceActualDimensions.vertical
-    ]);
-
     const routerInfoHandler = (val, ind) => {
         let newArr = [...routers];
         newArr[ind] = { ...routers[ind], ...val };
-        setRouterInfo(newArr);
+        setRouters(newArr);
+    };
+
+    const onClearClick = () => {
+        setImage(null);
+        setGeofencingData({
+            ...geofencingData,
+            image: null,
+            geoFencePixelDimensions: null,
+            routerLimits: null,
+            actualToPixelFactor: null
+        });
+        setGeofencingSetupDone(false);
     };
 
     const onRouterAdd = () => {
@@ -174,13 +177,35 @@ const GeoFencingSetupTab = ({
             height: 0,
             range: 20
         });
-        setRouterInfo(newRouterArr);
+        setRouters(newRouterArr);
+        setGeofencingData({ ...geofencingData, routers: newRouterArr });
     };
 
     const onRouterDelete = (ind) => {
-        let newRouterArr = [...routers];
-        newRouterArr.splice(ind, 1);
-        setRouterInfo(newRouterArr);
+        Alert.alert(
+            "Delete Router",
+            "Are you sure you want to delete this router? This action cannot be undone!",
+            [
+                {
+                    text: "Cancel",
+                    onPress: () => null,
+                    style: "cancel"
+                },
+                {
+                    text: "OK",
+                    onPress: () => {
+                        let newRouterArr = [...routers];
+                        newRouterArr.splice(ind, 1);
+                        setRouters(newRouterArr);
+                        setGeofencingData({
+                            ...geofencingData,
+                            routers: newRouterArr
+                        });
+                    }
+                }
+            ],
+            { cancelable: true }
+        );
     };
 
     const onNextClick = () => {
@@ -392,7 +417,7 @@ const GeoFencingSetupTab = ({
                                             marginTop: 8,
                                             textAlign: "center"
                                         }}
-                                        visible={routers.length < 3}
+                                        visible={!image}
                                         type={"error"}
                                     >
                                         Please upload the floor map of your
@@ -438,7 +463,7 @@ const GeoFencingSetupTab = ({
                                 style={styles.formButton}
                                 mode={"contained"}
                                 onPress={onNextClick}
-                                disabled={routers.length < 3}
+                                disabled={routers.length < 3 || !image}
                             >
                                 Next
                             </Button>
