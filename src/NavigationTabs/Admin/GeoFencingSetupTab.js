@@ -1,30 +1,29 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Image } from "react-native";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, View } from "react-native";
 import { connect } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
 import { useDebounce } from "../../utils/hooks";
-import { DragResizeBlock, DragResizeContainer } from "react-native-drag-resize";
 import {
     setGeofencingData,
     setGeofencingSetupDone
 } from "../../redux/mainReduxDuck";
 
 import {
-    Surface,
-    Subheading,
-    Headline,
     Button,
+    Headline,
+    HelperText,
     Paragraph,
-    HelperText
+    Subheading,
+    Surface
 } from "react-native-paper";
 
 import {
-    NumericFormItem,
-    Scroll,
-    OutlinedContainer,
-    DraggableRouter,
+    Divider,
+    GeoFencingMap,
     GeoFencingRouter,
-    Divider
+    NumericFormItem,
+    OutlinedContainer,
+    Scroll
 } from "../../components";
 
 const GeoFencingSetupTab = ({
@@ -35,12 +34,9 @@ const GeoFencingSetupTab = ({
     jumpTo
 }) => {
     const [image, setImage] = useState(geofencingData.image ?? null);
-    const [imageBounds, setImageBounds] = useState(
-        geofencingData.imageBounds ?? null
-    );
     const [routers, setRouterInfo] = useState(geofencingData.routers ?? []);
-    const [dragBlockLimits, setDragBlockLimits] = useState(
-        geofencingData.dragBlockLimits ?? {
+    const [routerLimits, setRouterLimits] = useState(
+        geofencingData.routerLimits ?? {
             x: 0,
             y: 0,
             w: 0,
@@ -91,8 +87,7 @@ const GeoFencingSetupTab = ({
             ...geofencingData,
             image: null,
             geoFencePixelDimensions: null,
-            imageBounds: null,
-            dragBlockLimits: null,
+            routerLimits: null,
             actualToPixelFactor: null
         });
     };
@@ -108,6 +103,9 @@ const GeoFencingSetupTab = ({
         }
     };
 
+    const factorOffsets = { x: -0.33, y: -0.33 };
+
+    // when numeric input changes:
     const geoFencePixelDimensionsHandler = useDebounce(500, (dimension) => {
         setGeoFencePixelDimensions({ ...dimension });
         if (
@@ -116,11 +114,11 @@ const GeoFencingSetupTab = ({
         ) {
             setActualToPixelFactor({
                 horizontal:
-                    dimension.horizontal / geofenceActualDimensions.horizontal -
-                    0.0058,
+                    dimension.horizontal / geofenceActualDimensions.horizontal +
+                    factorOffsets.x,
                 vertical:
-                    dimension.vertical / geofenceActualDimensions.vertical -
-                    0.009
+                    dimension.vertical / geofenceActualDimensions.vertical +
+                    factorOffsets.y
             });
         }
     });
@@ -135,12 +133,12 @@ const GeoFencingSetupTab = ({
             const ratios = {
                 horizontal:
                     geoFencePixelDimensions.horizontal /
-                        geofenceActualDimensions.horizontal -
-                    0.0058,
+                        geofenceActualDimensions.horizontal +
+                    factorOffsets.x,
                 vertical:
                     geoFencePixelDimensions.vertical /
-                        geofenceActualDimensions.vertical -
-                    0.009
+                        geofenceActualDimensions.vertical +
+                    factorOffsets.y
             };
             setRouterInfo((state) => {
                 return state.map((el) => {
@@ -188,9 +186,8 @@ const GeoFencingSetupTab = ({
     const onNextClick = () => {
         setGeofencingData({
             image,
-            imageBounds,
             routers,
-            dragBlockLimits,
+            routerLimits,
             actualToPixelFactor,
             geoFencePixelDimensions,
             geofenceActualDimensions
@@ -232,7 +229,7 @@ const GeoFencingSetupTab = ({
                                     borderWidth: 3,
                                     padding: 8,
                                     margin: 4,
-                                    zIndex: 10,
+                                    zIndex: 100,
                                     // elevation: 10,
                                     justifyContent: "center",
                                     alignItems: "center",
@@ -240,120 +237,19 @@ const GeoFencingSetupTab = ({
                                 }}
                             >
                                 {image ? (
-                                    <View
-                                        style={{
-                                            flex: 1,
-                                            width: "100%",
-                                            position: "relative"
-                                        }}
-                                    >
-                                        <Image
-                                            source={{ uri: image.uri }}
-                                            resizeMode="contain"
-                                            onLayout={(event) => {
-                                                setImageBounds({
-                                                    ...event.nativeEvent.layout
-                                                });
-                                            }}
-                                            style={{
-                                                height: "100%"
-                                                // maxHeight: 210
-                                            }}
-                                        />
-                                        {imageBounds && (
-                                            <DragResizeContainer
-                                                onInit={(limits) =>
-                                                    setDragBlockLimits({
-                                                        ...limits,
-                                                        y: limits.y - 7,
-                                                        h: limits.h + 10
-                                                    })
-                                                }
-                                                style={{
-                                                    width: "100%",
-                                                    height: "100%",
-                                                    position: "absolute"
-                                                }}
-                                            >
-                                                <DragResizeBlock
-                                                    isResizable={false}
-                                                    connectors={[]}
-                                                    x={imageBounds.x}
-                                                    y={imageBounds.y - 7}
-                                                    w={imageBounds.width}
-                                                    h={imageBounds.height + 17}
-                                                >
-                                                    <View
-                                                        style={{
-                                                            width: "100%",
-                                                            height: "100%",
-                                                            backgroundColor:
-                                                                "transparent",
-                                                            borderColor: "red",
-                                                            borderWidth: 4
-                                                        }}
-                                                        onLayout={({
-                                                            nativeEvent
-                                                        }) =>
-                                                            geoFencePixelDimensionsHandler(
-                                                                {
-                                                                    horizontal:
-                                                                        nativeEvent
-                                                                            .layout
-                                                                            .width,
-                                                                    vertical:
-                                                                        nativeEvent
-                                                                            .layout
-                                                                            .height
-                                                                }
-                                                            )
-                                                        }
-                                                    />
-                                                </DragResizeBlock>
-                                                {routers.map(
-                                                    (router, index) => (
-                                                        <DraggableRouter
-                                                            key={index}
-                                                            bounds={
-                                                                dragBlockLimits
-                                                            }
-                                                            onDragEnd={(
-                                                                coordinates
-                                                            ) => {
-                                                                routerInfoHandler(
-                                                                    {
-                                                                        horizontal:
-                                                                            coordinates[0] /
-                                                                            actualToPixelFactor.horizontal,
-                                                                        vertical:
-                                                                            coordinates[1] /
-                                                                            actualToPixelFactor.vertical
-                                                                    },
-                                                                    index
-                                                                );
-                                                            }}
-                                                            value={{
-                                                                horizontal:
-                                                                    router.horizontal *
-                                                                    actualToPixelFactor.horizontal,
-                                                                vertical:
-                                                                    router.vertical *
-                                                                    actualToPixelFactor.vertical,
-                                                                range: {
-                                                                    horizontal:
-                                                                        router.range *
-                                                                        actualToPixelFactor.horizontal,
-                                                                    vertical:
-                                                                        router.range *
-                                                                        actualToPixelFactor.vertical
-                                                                }
-                                                            }}
-                                                        />
-                                                    )
-                                                )}
-                                            </DragResizeContainer>
-                                        )}
-                                    </View>
+                                    <GeoFencingMap
+                                        actualToPixelFactor={
+                                            actualToPixelFactor
+                                        }
+                                        geoFencePixelDimensionsHandler={
+                                            geoFencePixelDimensionsHandler
+                                        }
+                                        image={image}
+                                        routerInfoHandler={routerInfoHandler}
+                                        routers={routers}
+                                        routerLimits={routerLimits}
+                                        setRouterLimits={setRouterLimits}
+                                    />
                                 ) : (
                                     <Subheading style={{ marginVertical: 90 }}>
                                         Select the floor-map of your hospital!
