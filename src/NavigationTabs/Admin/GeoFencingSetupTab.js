@@ -229,11 +229,10 @@ const GeoFencingSetupTab = ({
                                     borderWidth: 3,
                                     padding: 8,
                                     margin: 4,
-                                    zIndex: 100,
-                                    // elevation: 10,
                                     justifyContent: "center",
                                     alignItems: "center",
-                                    minHeight: 210
+                                    minHeight: 210,
+                                    maxHeight: 220
                                 }}
                             >
                                 {image ? (
@@ -387,6 +386,19 @@ const GeoFencingSetupTab = ({
                                         }
                                     />
                                 ))}
+                                {!image && (
+                                    <HelperText
+                                        style={{
+                                            marginTop: 8,
+                                            textAlign: "center"
+                                        }}
+                                        visible={routers.length < 3}
+                                        type={"error"}
+                                    >
+                                        Please upload the floor map of your
+                                        hospital first!
+                                    </HelperText>
+                                )}
                                 <View
                                     style={{
                                         display: "flex",
@@ -397,6 +409,7 @@ const GeoFencingSetupTab = ({
                                 >
                                     <Button
                                         mode={"contained"}
+                                        disabled={!image}
                                         onPress={onRouterAdd}
                                     >
                                         Add Router
