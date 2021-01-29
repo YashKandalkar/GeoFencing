@@ -21,6 +21,28 @@ import {
 const DoctorListTab = ({ navigation, theme, geofencingSetupDone }) => {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [uid, setUid] = useState("");
+    const [doctors, setDoctors] = useState([
+        {
+            name: "Dr. Yash Santosh Kandalkar",
+            age: 30,
+            uniqueID: 213123
+        },
+        {
+            name: "Dr. Hrushikesh Kandalkar",
+            age: 23,
+            uniqueID: 412892
+        },
+        {
+            name: "Dr. Manisha Santosh Kandalkar",
+            age: 59,
+            uniqueID: 532432
+        },
+        {
+            name: "Dr. Sumit Mahajan",
+            age: 20,
+            uniqueID: 140192
+        }
+    ]);
 
     const addDoctor = () => {
         // setDoctorDetails({
@@ -63,7 +85,7 @@ const DoctorListTab = ({ navigation, theme, geofencingSetupDone }) => {
                                     >
                                         <View style={styles.itemStyle}>
                                             <Text style={styles.label}>
-                                                Doctors: 5
+                                                Doctors: {}
                                             </Text>
                                             <Text style={styles.label}>
                                                 Patients: 15
@@ -84,6 +106,7 @@ const DoctorListTab = ({ navigation, theme, geofencingSetupDone }) => {
                         <DoctorList
                             containerStyle={{ flex: 2, marginVertical: 8 }}
                             addDoctor={addDoctor}
+                            doctors={doctors}
                         />
                         <AddDoctor
                             open={dialogOpen}

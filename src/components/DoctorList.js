@@ -3,30 +3,7 @@ import DoctorListItem from "./DoctorListItem";
 import { Surface, withTheme, Button, Title } from "react-native-paper";
 import { StyleSheet } from "react-native";
 
-const doctors = [
-    {
-        name: "Dr. Yash Santosh Kandalkar",
-        age: 30,
-        uniqueID: 213123
-    },
-    {
-        name: "Dr. Hrushikesh Kandalkar",
-        age: 23,
-        uniqueID: 412892
-    },
-    {
-        name: "Dr. Manisha Santosh Kandalkar",
-        age: 59,
-        uniqueID: 532432
-    },
-    {
-        name: "Dr. Sumit Mahajan",
-        age: 20,
-        uniqueID: 140192
-    }
-];
-
-const DoctorList = ({ containerStyle, addDoctor, theme }) => {
+const DoctorList = ({ containerStyle, addDoctor, theme, doctors }) => {
     const { colors } = theme;
     return (
         <Surface

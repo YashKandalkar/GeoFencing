@@ -25,7 +25,6 @@ import {
     OutlinedContainer,
     Scroll
 } from "../../components";
-import { cond } from "react-native-reanimated";
 
 const GeoFencingSetupTab = ({
     adminHospitalSetupDone,

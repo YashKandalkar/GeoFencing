@@ -16,7 +16,6 @@
     "@react-navigation/native": "^5.8.5",
     "@react-navigation/stack": "^5.12.2",
     "expo": "~39.0.2",
-    "expo-cli": "^4.0.13",
     "expo-image-picker": "~9.1.0",
     "expo-permissions": "~9.3.0",
     "expo-splash-screen": "~0.6.2",
