@@ -1,16 +1,50 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { withTheme, IconButton } from "react-native-paper";
+import { withTheme, IconButton, Snackbar } from "react-native-paper";
 import LogInScreen from "./screens/LogInScreen";
 import AdminScreen from "./screens/AdminScreen";
 import DoctorScreen from "./screens/DoctorScreen";
-import { setLoggedIn } from "./redux/mainReduxDuck";
+import {
+    resetState,
+    setFirebaseUser,
+    setLoggedIn,
+    setSnackbarConfig,
+    setHospitalData,
+    setGeofencingSetupDone,
+    setGeofencingData,
+    setAdminHospitalSetupDone
+} from "./redux/mainReduxDuck";
+import { firebaseApp } from "./firebase/init";
+import { getAdminData } from "./firebase/adminApi";
 
 const Stack = createStackNavigator();
 
-function App({ theme, loginAs, loggedIn, setLoggedIn, ...props }) {
+const logoutButton = (onLogout) => (
+    <IconButton
+        icon="account-arrow-right"
+        color={"#fff"}
+        size={24}
+        onPress={onLogout}
+    />
+);
+
+function App({
+    theme,
+    loginAs,
+    loggedIn,
+    snackbarConfig,
+    setLoggedIn,
+    setFirebaseUser,
+    setSnackbarConfig,
+    setAdminHospitalSetupDone,
+    setHospitalData,
+    setGeofencingSetupDone,
+    setGeofencingData,
+    resetState,
+    ...props
+}) {
     const { colors } = theme;
     const screenOptions = {
         headerStyle: {
@@ -19,14 +53,63 @@ function App({ theme, loginAs, loggedIn, setLoggedIn, ...props }) {
         headerTintColor: "#fff"
     };
 
-    const logoutButton = () => (
-        <IconButton
-            icon="account-arrow-right"
-            color={"#fff"}
-            size={24}
-            onPress={() => setLoggedIn(false)}
-        />
-    );
+    useEffect(() => {
+        let unsubAuthListener = firebaseApp
+            .auth()
+            .onAuthStateChanged((user) => {
+                if (user?.emailVerified) {
+                    getAdminData(
+                        user,
+                        (data) => {
+                            if (data.hospitalData) {
+                                setHospitalData(data.hospitalData);
+                                setAdminHospitalSetupDone(true);
+                            }
+                            if (data.geofencingData) {
+                                setGeofencingData(data.geofencingData);
+                                setGeofencingSetupDone(true);
+                            }
+                            if (user?.emailVerified) {
+                                setFirebaseUser(user);
+                                setLoggedIn(true);
+                                setSnackbarConfig({
+                                    content: "Logged in as " + loginAs + "!",
+                                    type: "SUCCESS"
+                                });
+                            }
+                        },
+                        (err) => {
+                            console.error(err);
+                            setSnackbarConfig({
+                                content:
+                                    "An error occurred. Please check your internet connection!",
+                                type: "ERROR"
+                            });
+                        }
+                    );
+                } else {
+                    setFirebaseUser(null);
+                    setLoggedIn(false);
+                }
+            });
+        return () => {
+            unsubAuthListener();
+        };
+    }, []);
+
+    const onSignOut = () => {
+        firebaseApp
+            .auth()
+            .signOut()
+            .then(() => {
+                resetState();
+                setSnackbarConfig({
+                    content: "Logged out successfully!",
+                    type: "SUCCESS"
+                });
+            })
+            .catch((err) => err && console.error);
+    };
 
     return (
         <NavigationContainer>
@@ -43,7 +126,7 @@ function App({ theme, loginAs, loggedIn, setLoggedIn, ...props }) {
                         component={AdminScreen}
                         options={{
                             ...screenOptions,
-                            headerRight: logoutButton
+                            headerRight: () => logoutButton(onSignOut)
                         }}
                     />
                 ) : (
@@ -52,11 +135,28 @@ function App({ theme, loginAs, loggedIn, setLoggedIn, ...props }) {
                         component={DoctorScreen}
                         options={{
                             ...screenOptions,
-                            headerRight: logoutButton
+                            headerRight: () => logoutButton(onSignOut)
                         }}
                     />
                 )}
             </Stack.Navigator>
+            {!!snackbarConfig.content && (
+                <Snackbar
+                    visible={!!snackbarConfig.content}
+                    onDismiss={() => setSnackbarConfig({ content: null })}
+                    theme={{
+                        colors: snackbarConfig.colors
+                    }}
+                    duration={snackbarConfig.duration}
+                    action={{
+                        label: snackbarConfig.actionLabel,
+                        onPress: () => setSnackbarConfig({ content: null })
+                    }}
+                    style={{ marginBottom: 28, marginHorizontal: 28 }}
+                >
+                    {snackbarConfig.content}
+                </Snackbar>
+            )}
         </NavigationContainer>
     );
 }
@@ -67,7 +167,15 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        setLoggedIn: (loggedIn) => dispatch(setLoggedIn(loggedIn))
+        setLoggedIn: (loggedIn) => dispatch(setLoggedIn(loggedIn)),
+        setFirebaseUser: (user) => dispatch(setFirebaseUser(user)),
+        setSnackbarConfig: (config) => dispatch(setSnackbarConfig(config)),
+        setAdminHospitalSetupDone: (value) =>
+            dispatch(setAdminHospitalSetupDone(value)),
+        setHospitalData: (data) => dispatch(setHospitalData(data)),
+        setGeofencingSetupDone: (val) => dispatch(setGeofencingSetupDone(val)),
+        setGeofencingData: (val) => dispatch(setGeofencingData(val)),
+        resetState: () => dispatch(resetState())
     };
 };
 

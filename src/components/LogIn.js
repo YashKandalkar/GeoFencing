@@ -1,25 +1,41 @@
-import React from "react";
+import React, { useState } from "react";
 import { connect } from "react-redux";
-import { StyleSheet, View, SafeAreaView } from "react-native";
-import { withTheme, HelperText } from "react-native-paper";
-import { useForm, Controller } from "react-hook-form";
-
-import { setLoggedIn } from "../redux/mainReduxDuck";
-import Scroll from "./Scroll";
-
+import { SafeAreaView, StyleSheet, View } from "react-native";
 import {
-    Surface,
+    Button,
+    HelperText,
+    Snackbar,
     Subheading,
+    Surface,
     Text,
     TextInput,
     Title,
-    Button
+    withTheme
 } from "react-native-paper";
+import { Controller, useForm } from "react-hook-form";
+
+import { setLoggedIn, setSnackbarConfig } from "../redux/mainReduxDuck";
+import Scroll from "./Scroll";
 
 import OutlinedContainer from "./OutlinedContainer";
 
-const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn }) => {
+import { createNewUser, loginInUser } from "../firebase/authApi";
+
+const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+const Login = ({
+    navigation,
+    loginAs,
+    setLoginAs,
+    setLoggedIn,
+    setSnackbarConfig
+}) => {
     const { control, handleSubmit, errors } = useForm();
+    const [loading, setLoading] = useState(false);
+    const [helperText, setHelperText] = useState({
+        type: null,
+        text: null
+    });
 
     const isAdmin = loginAs === "ADMIN";
 
@@ -31,9 +47,63 @@ const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn }) => {
         }
     };
 
-    const onSubmit = () => {
-        // TODO: implement login logic
-        setLoggedIn(true);
+    const onLogin = ({ email, password }) => {
+        setLoading(true);
+        loginInUser(
+            email,
+            password,
+            (user) => {
+                setLoading(false);
+                if (!user.emailVerified) {
+                    setHelperText({
+                        type: "info",
+                        text:
+                            "A verification email has been sent on your email address! Please click on the link provided in the email and sign in again"
+                    });
+                }
+            },
+            (err) => {
+                setLoading(false);
+                setLoggedIn(false);
+                console.log(err);
+                setSnackbarConfig({
+                    content: "Error logging in!",
+                    type: "ERROR"
+                });
+            },
+            loginAs
+        );
+    };
+
+    const onAdminSignUp = ({ email, password }) => {
+        createNewUser(
+            email,
+            password,
+            (user) => {
+                if (!user.emailVerified) {
+                    setHelperText({
+                        type: "info",
+                        text:
+                            "A verification email has been sent on your email address! Please click on the link provided in the email and sign in again"
+                    });
+                } else {
+                    setLoggedIn(true);
+                    setSnackbarConfig({
+                        content: "Logged in as " + loginAs + "!",
+                        type: "SUCCESS"
+                    });
+                }
+            },
+            (err) => {
+                setLoggedIn(false);
+                console.error(err);
+                setSnackbarConfig({
+                    content: "Error logging in!",
+                    type: "ERROR"
+                });
+            },
+            "ADMIN"
+        );
     };
 
     return (
@@ -57,6 +127,7 @@ const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn }) => {
                                         backgroundColor: "#fff"
                                     }}
                                     placeholder="email@example.com"
+                                    name="email"
                                     onBlur={onBlur}
                                     onChangeText={(value) => onChange(value)}
                                     value={value}
@@ -65,15 +136,17 @@ const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn }) => {
                                 />
                             )}
                             name="email"
-                            rules={{ required: false }}
+                            rules={{ required: true, pattern: emailRegex }}
                             defaultValue=""
                         />
-                        {Boolean(errors.password) && (
+                        {Boolean(errors.email) && (
                             <HelperText
                                 type="error"
                                 visible={Boolean(errors.email)}
                             >
-                                Email is required!
+                                {errors.email?.type === "required"
+                                    ? "Email is required!"
+                                    : "Enter a valid email address"}
                             </HelperText>
                         )}
                     </View>
@@ -90,6 +163,7 @@ const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn }) => {
                                     }}
                                     placeholder="password"
                                     textContentType="password"
+                                    name="password"
                                     secureTextEntry
                                     onBlur={onBlur}
                                     onChangeText={(value) => onChange(value)}
@@ -98,7 +172,10 @@ const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn }) => {
                                 />
                             )}
                             name="password"
-                            rules={{ required: false }}
+                            rules={{
+                                required: true,
+                                minLength: 6
+                            }}
                             defaultValue=""
                         />
                         {Boolean(errors.password) && (
@@ -106,7 +183,9 @@ const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn }) => {
                                 type="error"
                                 visible={Boolean(errors.password)}
                             >
-                                Password is required!
+                                {errors.password?.type === "required"
+                                    ? "Password is required!"
+                                    : "Password should be at least 6 characters"}
                             </HelperText>
                         )}
                     </View>
@@ -122,6 +201,12 @@ const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn }) => {
                         {"Forgot password?"}
                     </Subheading>
 
+                    {helperText.text && (
+                        <HelperText visible type={helperText.type}>
+                            {helperText.text}
+                        </HelperText>
+                    )}
+
                     <Button
                         mode="outlined"
                         uppercase={false}
@@ -134,12 +219,27 @@ const Login = ({ navigation, loginAs, setLoginAs, setLoggedIn }) => {
                     <Button
                         mode="contained"
                         uppercase={false}
+                        loading={loading}
                         style={{ borderRadius: 6, marginTop: 15 }}
                         contentStyle={{ height: 40 }}
-                        onPress={handleSubmit(onSubmit)}
+                        onPress={handleSubmit(onLogin)}
                     >
                         {"Sign in"}
                     </Button>
+                    {loginAs === "ADMIN" && (
+                        <Button
+                            uppercase={false}
+                            style={{
+                                borderRadius: 6,
+                                marginTop: 10,
+                                alignSelf: "flex-end"
+                            }}
+                            contentStyle={{ height: 40 }}
+                            onPress={handleSubmit(onAdminSignUp)}
+                        >
+                            {"Sign Up instead?"}
+                        </Button>
+                    )}
                 </Surface>
                 <OutlinedContainer containerStyle={styles.outlinedContainer}>
                     <Subheading style={{ fontFamily: "sans-serif-light" }}>
@@ -198,7 +298,8 @@ const mapStateToProps = (state) => state;
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        setLoggedIn: (loggedIn) => dispatch(setLoggedIn(loggedIn))
+        setLoggedIn: (loggedIn) => dispatch(setLoggedIn(loggedIn)),
+        setSnackbarConfig: (config) => dispatch(setSnackbarConfig(config))
     };
 };
 

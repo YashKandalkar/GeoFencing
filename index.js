@@ -5,6 +5,7 @@ import { DefaultTheme, Provider as PaperProvider } from "react-native-paper";
 import App from "./src/App";
 import customTheme from "./src/utils/theme";
 import PersistentStore from "./src/redux/PersistentStore";
+import { LogBox } from "react-native";
 
 const theme = {
     ...DefaultTheme,
@@ -12,6 +13,10 @@ const theme = {
 };
 
 const Main = () => {
+    LogBox.ignoreLogs([
+        "Setting a timer",
+        "Warning: componentWillReceiveProps has been renamed"
+    ]);
     return (
         <PaperProvider theme={theme}>
             <PersistentStore>

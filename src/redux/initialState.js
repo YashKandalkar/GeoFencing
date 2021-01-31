@@ -4,5 +4,17 @@ export default {
     adminHospitalSetupDone: false,
     geofencingSetupDone: false,
     hospitalData: {},
-    geofencingData: {}
+    geofencingData: {},
+    firebaseUser: null,
+    snackbarConfig: {
+        type: "INFO",
+        content: null,
+        duration: 4000,
+        actionLabel: "Close",
+        colors: {
+            onSurface: null,
+            surface: null,
+            accent: null
+        }
+    }
 };

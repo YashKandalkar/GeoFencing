@@ -16,18 +16,30 @@ import {
     setAdminHospitalSetupDone,
     setHospitalData
 } from "../../redux/mainReduxDuck";
+import { setHospitalData as setFirebaseHospitalData } from "../../firebase/adminApi";
+import { firebaseApp } from "../../firebase/init";
 
 const HospitalSetupTab = ({
-    setAdminHospitalSetup,
+    setAdminHospitalSetupDone,
     setHospitalData,
     jumpTo
 }) => {
     const [bannerVisible, setBannerVisible] = useState(false);
 
     const onSubmit = (data) => {
-        setAdminHospitalSetup(true);
-        setHospitalData(data);
-        jumpTo("geofencingSetup");
+        setFirebaseHospitalData(
+            firebaseApp.auth().currentUser,
+            data,
+            () => {
+                setAdminHospitalSetupDone(true);
+                setHospitalData(data);
+                jumpTo("geofencingSetup");
+                alert("Data set successfully!");
+            },
+            () => {
+                alert("Aww, couldn't set data!");
+            }
+        );
     };
 
     return (
@@ -134,7 +146,7 @@ const mapStateToProps = (state) => state;
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        setAdminHospitalSetup: (value) =>
+        setAdminHospitalSetupDone: (value) =>
             dispatch(setAdminHospitalSetupDone(value)),
         setHospitalData: (data) => dispatch(setHospitalData(data))
     };

@@ -10,9 +10,12 @@ import {
 
 import {
     Button,
+    Dialog,
     Headline,
     HelperText,
     Paragraph,
+    Portal,
+    ProgressBar,
     Subheading,
     Surface
 } from "react-native-paper";
@@ -26,14 +29,19 @@ import {
     Scroll
 } from "../../components";
 
+import { uploadHospitalMap } from "../../firebase/adminApi";
+
 const GeoFencingSetupTab = ({
     adminHospitalSetupDone,
     setGeofencingSetupDone,
     setGeofencingData,
     geofencingData,
+    firebaseUser,
     jumpTo
 }) => {
     const [image, setImage] = useState(geofencingData.image ?? null);
+    const [imageUploading, setImageUploading] = useState({ value: null });
+    const [dialog, setDialog] = useState({ title: null, content: null });
     const [routers, setRouters] = useState(geofencingData.routers ?? []);
     const [routerLimits, setRouterLimits] = useState(
         geofencingData.routerLimits ?? {
@@ -118,16 +126,30 @@ const GeoFencingSetupTab = ({
         geofenceActualDimensions.vertical
     ]);
 
-    const pickImage = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
+    const pickImage = () => {
+        ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             quality: 1
+        }).then((result) => {
+            if (!result.cancelled && firebaseUser) {
+                setImageUploading({ value: 0.0 });
+                uploadHospitalMap(
+                    firebaseUser,
+                    result.uri,
+                    (v) => {
+                        setImageUploading({ value: v });
+                        console.log(v);
+                    },
+                    console.error,
+                    () => setImageUploading({ value: null })
+                )
+                    .then(() => setImage(result))
+                    .catch(console.error);
+            } else {
+                alert("An error occurred! Please try again...");
+            }
         });
-
-        if (!result.cancelled) {
-            setImage(result);
-        }
     };
 
     const factorOffsets = { x: -0.33, y: -0.33 };
@@ -157,6 +179,13 @@ const GeoFencingSetupTab = ({
     };
 
     const onClearClick = () => {
+        setDialog({
+            title: "Confirmation",
+            content: "Are you sure you want to delete this map?"
+        });
+    };
+
+    const clearImage = () => {
         setImage(null);
         setGeofencingData({
             ...geofencingData,
@@ -166,6 +195,8 @@ const GeoFencingSetupTab = ({
             actualToPixelFactor: null
         });
         setGeofencingSetupDone(false);
+        setImageUploading({ value: null });
+        setDialog({ title: null });
     };
 
     const onRouterAdd = () => {
@@ -273,8 +304,21 @@ const GeoFencingSetupTab = ({
                                         routerLimits={routerLimits}
                                         setRouterLimits={setRouterLimits}
                                     />
+                                ) : imageUploading.value !== null ? (
+                                    <View
+                                        style={{
+                                            marginVertical: 90,
+                                            width: "70%"
+                                        }}
+                                    >
+                                        <ProgressBar
+                                            progress={imageUploading.value}
+                                            // color={"#000"}
+                                            visible
+                                        />
+                                    </View>
                                 ) : (
-                                    <Subheading style={{ marginVertical: 90 }}>
+                                    <Subheading>
                                         Select the floor-map of your hospital!
                                     </Subheading>
                                 )}
@@ -470,6 +514,23 @@ const GeoFencingSetupTab = ({
                     </Surface>
                 )}
             </View>
+            <Portal>
+                <Dialog
+                    visible={dialog.title !== null}
+                    onDismiss={() => setDialog({ title: null })}
+                >
+                    <Dialog.Title>{dialog.title}</Dialog.Title>
+                    <Dialog.Content>
+                        <Paragraph>{dialog.content}</Paragraph>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={() => setDialog({ title: null })}>
+                            Cancel
+                        </Button>
+                        <Button onPress={clearImage}>Clear</Button>
+                    </Dialog.Actions>
+                </Dialog>
+            </Portal>
         </Scroll>
     );
 };
@@ -504,7 +565,8 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => ({
     adminHospitalSetupDone: state.adminHospitalSetupDone,
-    geofencingData: state.geofencingData
+    geofencingData: state.geofencingData,
+    firebaseUser: state.firebaseUser
 });
 
 const mapDispatchToProps = (dispatch) => {
