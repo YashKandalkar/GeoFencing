@@ -218,6 +218,7 @@ const AdminHospitalSetupForm = ({
             </View>
             <View style={styles.formButtonsContainer}>
                 <Button
+                    compact
                     style={styles.formButton}
                     mode={"outlined"}
                     onPress={onReset}
@@ -225,11 +226,12 @@ const AdminHospitalSetupForm = ({
                     Reset
                 </Button>
                 <Button
+                    compact
                     style={styles.formButton}
                     mode={"contained"}
                     onPress={handleSubmit(onSubmitFunction)}
                 >
-                    Next
+                    Save and Next
                 </Button>
             </View>
         </>

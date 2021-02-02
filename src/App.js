@@ -58,6 +58,10 @@ function App({
             .auth()
             .onAuthStateChanged((user) => {
                 if (user?.emailVerified) {
+                    setSnackbarConfig({
+                        content: "Fetching data...",
+                        type: "INFO"
+                    });
                     getAdminData(
                         user,
                         (data) => {
@@ -68,14 +72,22 @@ function App({
                             if (data.geofencingData) {
                                 setGeofencingData(data.geofencingData);
                                 setGeofencingSetupDone(true);
+                            } else {
+                                data.geofencingData = {}; //so that the next if statement works
+                            }
+                            if (data.hospitalFloorMap) {
+                                setGeofencingData({
+                                    ...data.geofencingData,
+                                    image: data.hospitalFloorMap
+                                });
                             }
                             if (user?.emailVerified) {
-                                setFirebaseUser(user);
-                                setLoggedIn(true);
                                 setSnackbarConfig({
                                     content: "Logged in as " + loginAs + "!",
                                     type: "SUCCESS"
                                 });
+                                setFirebaseUser(user);
+                                setLoggedIn(true);
                             }
                         },
                         (err) => {

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { ImageBackground, StyleSheet, View } from "react-native";
 import { connect } from "react-redux";
-import { generateUID } from "../../utils/functions";
 
 import {
     Subheading,
@@ -20,39 +19,14 @@ import {
 
 const DoctorListTab = ({ navigation, theme, geofencingSetupDone }) => {
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [uid, setUid] = useState("");
-    const [doctors, setDoctors] = useState([
-        {
-            name: "Dr. Yash Santosh Kandalkar",
-            age: 30,
-            uniqueID: 213123
-        },
-        {
-            name: "Dr. Hrushikesh Kandalkar",
-            age: 23,
-            uniqueID: 412892
-        },
-        {
-            name: "Dr. Manisha Santosh Kandalkar",
-            age: 59,
-            uniqueID: 532432
-        },
-        {
-            name: "Dr. Sumit Mahajan",
-            age: 20,
-            uniqueID: 140192
-        }
-    ]);
+    const [doctors, setDoctors] = useState([]);
 
-    const addDoctor = () => {
-        // setDoctorDetails({
-        //     id: generateUID({ prefix: "DCT" }),
-        //     email: "efef",
-        //     name: docName
-        // });
-
-        setUid(generateUID({ prefix: "DCT" }));
+    const onAddClick = () => {
         setDialogOpen(true);
+    };
+
+    const onDoctorAdd = (data) => {
+        setDoctors([...doctors, data]);
     };
 
     return (
@@ -105,13 +79,13 @@ const DoctorListTab = ({ navigation, theme, geofencingSetupDone }) => {
                         </Surface>
                         <DoctorList
                             containerStyle={{ flex: 2, marginVertical: 8 }}
-                            addDoctor={addDoctor}
+                            onAddClick={onAddClick}
                             doctors={doctors}
                         />
                         <AddDoctor
                             open={dialogOpen}
-                            uid={uid}
                             setOpen={setDialogOpen}
+                            onDoctorAdd={onDoctorAdd}
                         />
                     </>
                 )}

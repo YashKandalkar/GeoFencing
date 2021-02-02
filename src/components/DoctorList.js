@@ -1,9 +1,15 @@
 import React from "react";
 import DoctorListItem from "./DoctorListItem";
-import { Surface, withTheme, Button, Title } from "react-native-paper";
-import { StyleSheet } from "react-native";
+import {
+    Surface,
+    withTheme,
+    Button,
+    Title,
+    Subheading
+} from "react-native-paper";
+import { StyleSheet, View } from "react-native";
 
-const DoctorList = ({ containerStyle, addDoctor, theme, doctors }) => {
+const DoctorList = ({ containerStyle, onAddClick, theme, doctors }) => {
     const { colors } = theme;
     return (
         <Surface
@@ -25,14 +31,33 @@ const DoctorList = ({ containerStyle, addDoctor, theme, doctors }) => {
                     mode="contained"
                     color={colors.background}
                     labelStyle={{ color: colors.primary, marginRight: 14 }}
-                    onPress={() => addDoctor()}
+                    onPress={() => onAddClick()}
                 >
                     Add
                 </Button>
             </Surface>
-            {doctors.map((el) => (
-                <DoctorListItem docInfo={el} key={el.uniqueID} />
-            ))}
+            {doctors.length ? (
+                doctors.map((el, ind) => (
+                    <DoctorListItem docInfo={el} key={ind} />
+                ))
+            ) : (
+                <View style={styles.addDoctorsMessage}>
+                    <Subheading
+                        style={{ textAlign: "center", marginBottom: 16 }}
+                    >
+                        Click the add button to add doctors to your hospital!
+                    </Subheading>
+                    <Button
+                        compact
+                        icon={"plus"}
+                        mode="contained"
+                        labelStyle={{ marginRight: 14 }}
+                        onPress={() => onAddClick()}
+                    >
+                        Add
+                    </Button>
+                </View>
+            )}
         </Surface>
     );
 };
@@ -52,6 +77,13 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         borderTopLeftRadius: 8,
         borderTopRightRadius: 8
+    },
+    addDoctorsMessage: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        marginHorizontal: 32,
+        textAlign: "center"
     }
 });
 

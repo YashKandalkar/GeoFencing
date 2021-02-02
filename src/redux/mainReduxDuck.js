@@ -126,9 +126,9 @@ export default (state = initialState, action) => {
 
                 case "INFO":
                     colors = {
-                        onSurface: "#a6afff",
-                        surface: "#001499",
-                        accent: "#001499"
+                        onSurface: "#2196f3",
+                        surface: "#fff",
+                        accent: "#fff"
                     };
                     break;
 

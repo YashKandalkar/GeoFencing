@@ -14,13 +14,15 @@ import { AdminHospitalSetupForm, Scroll } from "../../components";
 
 import {
     setAdminHospitalSetupDone,
-    setHospitalData
+    setHospitalData,
+    setSnackbarConfig
 } from "../../redux/mainReduxDuck";
 import { setHospitalData as setFirebaseHospitalData } from "../../firebase/adminApi";
 import { firebaseApp } from "../../firebase/init";
 
 const HospitalSetupTab = ({
     setAdminHospitalSetupDone,
+    setSnackbarConfig,
     setHospitalData,
     jumpTo
 }) => {
@@ -31,13 +33,20 @@ const HospitalSetupTab = ({
             firebaseApp.auth().currentUser,
             data,
             () => {
+                setSnackbarConfig({
+                    content: "Uploaded data successfully!",
+                    type: "SUCCESS"
+                });
                 setAdminHospitalSetupDone(true);
                 setHospitalData(data);
                 jumpTo("geofencingSetup");
-                alert("Data set successfully!");
             },
             () => {
-                alert("Aww, couldn't set data!");
+                setSnackbarConfig({
+                    content:
+                        "Error uploading data. Please check your internet connection",
+                    type: "ERROR"
+                });
             }
         );
     };
@@ -148,7 +157,8 @@ const mapDispatchToProps = (dispatch) => {
     return {
         setAdminHospitalSetupDone: (value) =>
             dispatch(setAdminHospitalSetupDone(value)),
-        setHospitalData: (data) => dispatch(setHospitalData(data))
+        setHospitalData: (data) => dispatch(setHospitalData(data)),
+        setSnackbarConfig: (config) => dispatch(setSnackbarConfig(config))
     };
 };
 

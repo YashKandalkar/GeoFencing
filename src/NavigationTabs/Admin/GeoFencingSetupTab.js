@@ -5,7 +5,8 @@ import * as ImagePicker from "expo-image-picker";
 import { useDebounce } from "../../utils/hooks";
 import {
     setGeofencingData,
-    setGeofencingSetupDone
+    setGeofencingSetupDone,
+    setSnackbarConfig
 } from "../../redux/mainReduxDuck";
 
 import {
@@ -29,20 +30,34 @@ import {
     Scroll
 } from "../../components";
 
-import { uploadHospitalMap } from "../../firebase/adminApi";
+import {
+    uploadHospitalMap,
+    setGeofencingData as setFirebaseGeofencingData,
+    deleteHospitalMap
+} from "../../firebase/adminApi";
 
 const GeoFencingSetupTab = ({
     adminHospitalSetupDone,
     setGeofencingSetupDone,
     setGeofencingData,
+    setSnackbarConfig,
     geofencingData,
     firebaseUser,
     jumpTo
 }) => {
     const [image, setImage] = useState(geofencingData.image ?? null);
+    const [firestoreImageUrl, setFirestoreImageUrl] = useState(null);
     const [imageUploading, setImageUploading] = useState({ value: null });
-    const [dialog, setDialog] = useState({ title: null, content: null });
+    const [dialog, setDialog] = useState({
+        title: null,
+        content: null,
+        onAction: null
+    });
     const [routers, setRouters] = useState(geofencingData.routers ?? []);
+    const [buttonLoading, setButtonLoading] = useState({
+        mapClear: false,
+        saveAndNext: false
+    });
     const [routerLimits, setRouterLimits] = useState(
         geofencingData.routerLimits ?? {
             x: 0,
@@ -133,21 +148,27 @@ const GeoFencingSetupTab = ({
             quality: 1
         }).then((result) => {
             if (!result.cancelled && firebaseUser) {
+                console.log(result);
                 setImageUploading({ value: 0.0 });
                 uploadHospitalMap(
                     firebaseUser,
-                    result.uri,
+                    result,
                     (v) => {
                         setImageUploading({ value: v });
-                        console.log(v);
                     },
-                    console.error,
-                    () => setImageUploading({ value: null })
+                    (err) => console.error(err),
+                    (downloadUrl) => {
+                        setFirestoreImageUrl(downloadUrl);
+                        setImageUploading({ value: null });
+                    }
                 )
                     .then(() => setImage(result))
                     .catch(console.error);
             } else {
-                alert("An error occurred! Please try again...");
+                setSnackbarConfig({
+                    content: "An error occurred! Please try again later...",
+                    type: "ERROR"
+                });
             }
         });
     };
@@ -181,22 +202,38 @@ const GeoFencingSetupTab = ({
     const onClearClick = () => {
         setDialog({
             title: "Confirmation",
-            content: "Are you sure you want to delete this map?"
+            content: "Are you sure you want to delete this map?",
+            onAction: clearImage
         });
     };
 
     const clearImage = () => {
-        setImage(null);
-        setGeofencingData({
-            ...geofencingData,
-            image: null,
-            geoFencePixelDimensions: null,
-            routerLimits: null,
-            actualToPixelFactor: null
-        });
-        setGeofencingSetupDone(false);
-        setImageUploading({ value: null });
-        setDialog({ title: null });
+        setButtonLoading({ ...buttonLoading, mapClear: true });
+        deleteHospitalMap(
+            firebaseUser,
+            () => {
+                setImage(null);
+                setButtonLoading({ ...buttonLoading, mapClear: false });
+                setGeofencingData({
+                    ...geofencingData,
+                    image: null,
+                    geoFencePixelDimensions: null,
+                    routerLimits: null,
+                    actualToPixelFactor: null
+                });
+                setGeofencingSetupDone(false);
+                setImageUploading({ value: null });
+                setDialog({ title: null });
+            },
+            (err) => {
+                console.error(err);
+                setButtonLoading({ ...buttonLoading, mapClear: false });
+                setSnackbarConfig({
+                    content: "An error occurred! Please try again later...",
+                    type: "ERROR"
+                });
+            }
+        );
     };
 
     const onRouterAdd = () => {
@@ -212,43 +249,57 @@ const GeoFencingSetupTab = ({
     };
 
     const onRouterDelete = (ind) => {
-        Alert.alert(
-            "Delete Router",
-            "Are you sure you want to delete this router? This action cannot be undone!",
-            [
-                {
-                    text: "Cancel",
-                    onPress: () => null,
-                    style: "cancel"
-                },
-                {
-                    text: "OK",
-                    onPress: () => {
-                        let newRouterArr = [...routers];
-                        newRouterArr.splice(ind, 1);
-                        setRouters(newRouterArr);
-                        setGeofencingData({
-                            ...geofencingData,
-                            routers: newRouterArr
-                        });
-                    }
-                }
-            ],
-            { cancelable: true }
-        );
+        setDialog({
+            title: "Delete Router",
+            content:
+                "Are you sure you want to delete this router? This action cannot be undone!",
+            onAction: () => {
+                // TODO: DELETE router from firebase database from here
+                let newRouterArr = [...routers];
+                newRouterArr.splice(ind, 1);
+                setRouters(newRouterArr);
+
+                setGeofencingData({
+                    ...geofencingData,
+                    routers: newRouterArr
+                });
+                setDialog({ title: null });
+            }
+        });
     };
 
     const onNextClick = () => {
-        setGeofencingData({
-            image,
+        setButtonLoading({ ...buttonLoading, saveAndNext: true });
+        const data = {
+            image: { ...image, uri: firestoreImageUrl },
             routers,
             routerLimits,
             actualToPixelFactor,
             geoFencePixelDimensions,
             geofenceActualDimensions
-        });
-        setGeofencingSetupDone(true);
-        jumpTo("doctorTab");
+        };
+        setFirebaseGeofencingData(
+            firebaseUser,
+            data,
+            () => {
+                setButtonLoading({ ...buttonLoading, saveAndNext: false });
+                setSnackbarConfig({
+                    content: "Uploaded data successfully!",
+                    type: "SUCCESS"
+                });
+                setGeofencingData({ ...data, image });
+                setGeofencingSetupDone(true);
+                jumpTo("doctorTab");
+            },
+            () => {
+                setButtonLoading({ ...buttonLoading, saveAndNext: false });
+                setSnackbarConfig({
+                    content:
+                        "Error uploading data. Please check your internet connection",
+                    type: "ERROR"
+                });
+            }
+        );
     };
 
     return (
@@ -503,12 +554,14 @@ const GeoFencingSetupTab = ({
                         )}
                         <View style={styles.formButtonsContainer}>
                             <Button
+                                compact
                                 style={styles.formButton}
                                 mode={"contained"}
                                 onPress={onNextClick}
                                 disabled={routers.length < 3 || !image}
+                                loading={buttonLoading.saveAndNext}
                             >
-                                Next
+                                Save and Next
                             </Button>
                         </View>
                     </Surface>
@@ -527,7 +580,12 @@ const GeoFencingSetupTab = ({
                         <Button onPress={() => setDialog({ title: null })}>
                             Cancel
                         </Button>
-                        <Button onPress={clearImage}>Clear</Button>
+                        <Button
+                            loading={buttonLoading.mapClear}
+                            onPress={dialog.onAction}
+                        >
+                            Delete
+                        </Button>
                     </Dialog.Actions>
                 </Dialog>
             </Portal>
@@ -572,7 +630,8 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => {
     return {
         setGeofencingSetupDone: (val) => dispatch(setGeofencingSetupDone(val)),
-        setGeofencingData: (val) => dispatch(setGeofencingData(val))
+        setGeofencingData: (val) => dispatch(setGeofencingData(val)),
+        setSnackbarConfig: (config) => dispatch(setSnackbarConfig(config))
     };
 };
 

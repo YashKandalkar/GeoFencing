@@ -11,7 +11,6 @@ const GeoFencingMap = ({
     routerLimits,
     setRouterLimits
 }) => {
-    const aspectRatio = image.width / image.height;
     return (
         <ImageBackground
             source={image}
@@ -29,7 +28,7 @@ const GeoFencingMap = ({
                 });
             }}
             style={{
-                height: image.height > image.width ? "100%" : undefined,
+                height: image.height >= image.width ? "100%" : undefined,
                 aspectRatio: image.width / image.height,
                 width: image.width > image.height ? "100%" : undefined,
                 zIndex: -20,

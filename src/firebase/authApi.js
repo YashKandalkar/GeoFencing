@@ -79,6 +79,7 @@ export const loginInUser = (
                 })
                 .catch((error) => {
                     failureCallback && failureCallback(error.message);
+                    console.log(error);
                 });
         })
         .catch(console.error);
