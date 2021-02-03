@@ -254,16 +254,34 @@ const GeoFencingSetupTab = ({
             content:
                 "Are you sure you want to delete this router? This action cannot be undone!",
             onAction: () => {
-                // TODO: DELETE router from firebase database from here
+                setButtonLoading({ ...buttonLoading, mapClear: true });
                 let newRouterArr = [...routers];
                 newRouterArr.splice(ind, 1);
-                setRouters(newRouterArr);
-
-                setGeofencingData({
-                    ...geofencingData,
-                    routers: newRouterArr
-                });
-                setDialog({ title: null });
+                setFirebaseGeofencingData(
+                    firebaseUser,
+                    { ...geofencingData, routers: newRouterArr },
+                    () => {
+                        setButtonLoading({ ...buttonLoading, mapClear: false });
+                        setSnackbarConfig({
+                            content: "Deleted Router " + (ind + 1),
+                            type: "INFO"
+                        });
+                        setRouters(newRouterArr);
+                        setGeofencingData({
+                            ...geofencingData,
+                            routers: newRouterArr
+                        });
+                        setDialog({ title: null });
+                    },
+                    () => {
+                        setButtonLoading({ ...buttonLoading, mapClear: false });
+                        setSnackbarConfig({
+                            content:
+                                "Error deleting router. Please check your internet connection!",
+                            type: "ERROR"
+                        });
+                    }
+                );
             }
         });
     };
@@ -295,7 +313,7 @@ const GeoFencingSetupTab = ({
                 setButtonLoading({ ...buttonLoading, saveAndNext: false });
                 setSnackbarConfig({
                     content:
-                        "Error uploading data. Please check your internet connection",
+                        "Error uploading data. Please check your internet connection!",
                     type: "ERROR"
                 });
             }

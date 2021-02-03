@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button, Divider, TextInput, Title } from "react-native-paper";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import FormItem from "./FormItem";
 import NumericFormItem from "./NumericFormItem";
@@ -24,7 +24,10 @@ const AdminHospitalSetupForm = ({
         totalVentilators,
         availableVentilators
     } = hospitalData;
-
+    const [buttonLoading, setButtonLoading] = useState({
+        save: false,
+        clear: false
+    });
     const [beds, setBeds] = useState({
         total: totalBeds || 0,
         available: availableBeds || 0
@@ -54,14 +57,18 @@ const AdminHospitalSetupForm = ({
     });
 
     const onSubmitFunction = (data) => {
-        onSubmit({
-            ...data,
-            totalBeds: beds.total,
-            availableBeds: beds.available,
-            totalVentilators: ventilators.total,
-            availableVentilators: ventilators.available,
-            state: selectedState
-        });
+        setButtonLoading({ ...buttonLoading, save: true });
+        onSubmit(
+            {
+                ...data,
+                totalBeds: beds.total,
+                availableBeds: beds.available,
+                totalVentilators: ventilators.total,
+                availableVentilators: ventilators.available,
+                state: selectedState
+            },
+            () => setButtonLoading({ ...buttonLoading, save: false })
+        );
     };
 
     const items = Object.keys(indianStates).map((el) => ({
@@ -70,6 +77,7 @@ const AdminHospitalSetupForm = ({
     }));
 
     const onReset = () => {
+        // TODO: delete hospitalData from firebase
         setBeds({ total: 0, available: 0 });
         setVentilators({ total: 0, available: 0 });
         statePickerController.reset();
@@ -85,6 +93,22 @@ const AdminHospitalSetupForm = ({
             totalVentilators: 0,
             ventilatorsAvailable: 0
         });
+    };
+
+    const onResetClick = () => {
+        Alert.alert(
+            "Delete Hospital Info?",
+            "This action is not reversible!",
+            [
+                {
+                    text: "Cancel",
+                    onPress: () => console.log(),
+                    style: "cancel"
+                },
+                { text: "OK", onPress: onReset }
+            ],
+            { cancelable: true }
+        );
     };
 
     return (
@@ -169,7 +193,7 @@ const AdminHospitalSetupForm = ({
                 />
                 <NumericFormItem
                     labelText={"Total Beds:"}
-                    inputProps={{ minValue: 0, rounded: true }}
+                    inputProps={{ minValue: 0, rounded: true, maxValue: 10000 }}
                     value={beds.total}
                     onChange={(val) => {
                         if (val < beds.available) {
@@ -193,7 +217,7 @@ const AdminHospitalSetupForm = ({
                 />
                 <NumericFormItem
                     labelText={"Total Ventilators:"}
-                    inputProps={{ minValue: 0, rounded: true }}
+                    inputProps={{ minValue: 0, rounded: true, maxValue: 10000 }}
                     value={ventilators.total}
                     onChange={(val) => {
                         if (val < ventilators.available) {
@@ -221,7 +245,8 @@ const AdminHospitalSetupForm = ({
                     compact
                     style={styles.formButton}
                     mode={"outlined"}
-                    onPress={onReset}
+                    onPress={onResetClick}
+                    loading={buttonLoading.clear}
                 >
                     Reset
                 </Button>
@@ -230,6 +255,7 @@ const AdminHospitalSetupForm = ({
                     style={styles.formButton}
                     mode={"contained"}
                     onPress={handleSubmit(onSubmitFunction)}
+                    loading={buttonLoading.save}
                 >
                     Save and Next
                 </Button>

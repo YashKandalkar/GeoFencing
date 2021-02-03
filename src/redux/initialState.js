@@ -5,6 +5,7 @@ export default {
     geofencingSetupDone: false,
     hospitalData: {},
     geofencingData: {},
+    doctorList: [],
     firebaseUser: null,
     snackbarConfig: {
         type: "INFO",

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { ImageBackground, StyleSheet, View } from "react-native";
 import { connect } from "react-redux";
-
 import {
     Subheading,
     Surface,
@@ -9,24 +8,39 @@ import {
     Title,
     withTheme
 } from "react-native-paper";
-
 import {
     DoctorList,
     OutlinedContainer,
     AddDoctor,
     Scroll
 } from "../../components";
+import { setDoctorList } from "../../redux/mainReduxDuck";
+import { setDoctorList as setFirebaseDoctorList } from "../../firebase/adminApi";
 
-const DoctorListTab = ({ navigation, theme, geofencingSetupDone }) => {
+const DoctorListTab = ({
+    navigation,
+    theme,
+    geofencingSetupDone,
+    doctorList,
+    setDoctorList,
+    firebaseUser
+}) => {
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [doctors, setDoctors] = useState([]);
 
     const onAddClick = () => {
         setDialogOpen(true);
     };
 
     const onDoctorAdd = (data) => {
-        setDoctors([...doctors, data]);
+        let newArr = [...doctorList, data];
+        setFirebaseDoctorList(
+            firebaseUser,
+            newArr,
+            () => {
+                setDoctorList(newArr);
+            },
+            (err) => console.error(err)
+        );
     };
 
     return (
@@ -80,7 +94,7 @@ const DoctorListTab = ({ navigation, theme, geofencingSetupDone }) => {
                         <DoctorList
                             containerStyle={{ flex: 2, marginVertical: 8 }}
                             onAddClick={onAddClick}
-                            doctors={doctors}
+                            doctors={doctorList}
                         />
                         <AddDoctor
                             open={dialogOpen}
@@ -138,7 +152,16 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => ({
-    geofencingSetupDone: state.geofencingSetupDone
+    geofencingSetupDone: state.geofencingSetupDone,
+    doctorList: state.doctorList,
+    firebaseUser: state.firebaseUser
 });
 
-export default connect(mapStateToProps)(withTheme(DoctorListTab));
+const mapDispatchToProps = (dispatch) => ({
+    setDoctorList: (arr) => dispatch(setDoctorList(arr))
+});
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(withTheme(DoctorListTab));

@@ -14,7 +14,8 @@ import {
     setHospitalData,
     setGeofencingSetupDone,
     setGeofencingData,
-    setAdminHospitalSetupDone
+    setAdminHospitalSetupDone,
+    setDoctorList
 } from "./redux/mainReduxDuck";
 import { firebaseApp } from "./firebase/init";
 import { getAdminData } from "./firebase/adminApi";
@@ -42,8 +43,8 @@ function App({
     setHospitalData,
     setGeofencingSetupDone,
     setGeofencingData,
-    resetState,
-    ...props
+    setDoctorList,
+    resetState
 }) {
     const { colors } = theme;
     const screenOptions = {
@@ -62,43 +63,59 @@ function App({
                         content: "Fetching data...",
                         type: "INFO"
                     });
-                    getAdminData(
-                        user,
-                        (data) => {
-                            if (data.hospitalData) {
-                                setHospitalData(data.hospitalData);
-                                setAdminHospitalSetupDone(true);
-                            }
-                            if (data.geofencingData) {
-                                setGeofencingData(data.geofencingData);
-                                setGeofencingSetupDone(true);
-                            } else {
-                                data.geofencingData = {}; //so that the next if statement works
-                            }
-                            if (data.hospitalFloorMap) {
-                                setGeofencingData({
-                                    ...data.geofencingData,
-                                    image: data.hospitalFloorMap
-                                });
-                            }
-                            if (user?.emailVerified) {
+                    if (loginAs === "ADMIN") {
+                        getAdminData(
+                            user,
+                            (data) => {
+                                if (data.hospitalData) {
+                                    setHospitalData(data.hospitalData);
+                                    setAdminHospitalSetupDone(true);
+                                }
+                                if (data.geofencingData) {
+                                    setGeofencingData(data.geofencingData);
+                                    setGeofencingSetupDone(true);
+                                } else {
+                                    data.geofencingData = {}; //so that the next if statement works
+                                }
+                                if (data.hospitalFloorMap) {
+                                    setGeofencingData({
+                                        ...data.geofencingData,
+                                        image: data.hospitalFloorMap
+                                    });
+                                }
+                                if (data.doctorList) {
+                                    console.log(data.doctorList);
+                                    setDoctorList(
+                                        Object.values(data.doctorList)
+                                    );
+                                }
+                                if (user?.emailVerified) {
+                                    setSnackbarConfig({
+                                        content:
+                                            "Logged in as " + loginAs + "!",
+                                        type: "SUCCESS"
+                                    });
+                                    setFirebaseUser(user);
+                                    setLoggedIn(true);
+                                }
+                            },
+                            (err) => {
+                                console.error(err);
                                 setSnackbarConfig({
-                                    content: "Logged in as " + loginAs + "!",
-                                    type: "SUCCESS"
+                                    content:
+                                        "An error occurred. Please check your internet connection!",
+                                    type: "ERROR"
                                 });
-                                setFirebaseUser(user);
-                                setLoggedIn(true);
                             }
-                        },
-                        (err) => {
-                            console.error(err);
-                            setSnackbarConfig({
-                                content:
-                                    "An error occurred. Please check your internet connection!",
-                                type: "ERROR"
-                            });
-                        }
-                    );
+                        );
+                    } else {
+                        setSnackbarConfig({
+                            content: "Logged in as " + loginAs + "!",
+                            type: "SUCCESS"
+                        });
+                        setFirebaseUser(user);
+                        setLoggedIn(true);
+                    }
                 } else {
                     setFirebaseUser(null);
                     setLoggedIn(false);
@@ -187,6 +204,7 @@ const mapDispatchToProps = (dispatch) => {
         setHospitalData: (data) => dispatch(setHospitalData(data)),
         setGeofencingSetupDone: (val) => dispatch(setGeofencingSetupDone(val)),
         setGeofencingData: (val) => dispatch(setGeofencingData(val)),
+        setDoctorList: (arr) => dispatch(setDoctorList(arr)),
         resetState: () => dispatch(resetState())
     };
 };

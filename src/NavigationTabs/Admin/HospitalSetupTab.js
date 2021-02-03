@@ -28,7 +28,7 @@ const HospitalSetupTab = ({
 }) => {
     const [bannerVisible, setBannerVisible] = useState(false);
 
-    const onSubmit = (data) => {
+    const onSubmit = (data, onFinish) => {
         setFirebaseHospitalData(
             firebaseApp.auth().currentUser,
             data,
@@ -39,9 +39,11 @@ const HospitalSetupTab = ({
                 });
                 setAdminHospitalSetupDone(true);
                 setHospitalData(data);
+                onFinish();
                 jumpTo("geofencingSetup");
             },
             () => {
+                onFinish();
                 setSnackbarConfig({
                     content:
                         "Error uploading data. Please check your internet connection",

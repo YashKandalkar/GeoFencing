@@ -78,8 +78,21 @@ export const loginInUser = (
                     }
                 })
                 .catch((error) => {
-                    failureCallback && failureCallback(error.message);
-                    console.log(error);
+                    // The user doesn't exists but is added by a hospital admin, so create a new user.
+                    if (
+                        error.code === "auth/user-not-found" &&
+                        type === "DOCTOR"
+                    ) {
+                        createNewUser(
+                            email,
+                            password,
+                            successCallback,
+                            failureCallback,
+                            (type = "DOCTOR")
+                        );
+                    } else {
+                        failureCallback && failureCallback(error.message);
+                    }
                 });
         })
         .catch(console.error);

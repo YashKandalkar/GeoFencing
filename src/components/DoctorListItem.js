@@ -23,7 +23,7 @@ const DoctorListItem = ({ theme, docInfo }) => {
             <View style={styles.doctorInfo}>
                 <Subheading>{name}</Subheading>
                 <Caption style={{ maxWidth: 190 }}>Age: {age}</Caption>
-                <Paragraph style={{ maxWidth: 190 }}>Email: {email}</Paragraph>
+                <Paragraph style={{ maxWidth: 190 }}>{email}</Paragraph>
             </View>
             <IconButton
                 icon={"delete"}

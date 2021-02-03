@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { connect } from "react-redux";
 import {
     Portal,
     Modal,
@@ -14,23 +15,12 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import Divider from "./Divider";
 import FormItem from "./FormItem";
 import { addDoctor } from "../firebase/adminApi";
-import { firebaseApp } from "../firebase/init";
 
 const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-const AddDoctor = ({ open, setOpen, onDoctorAdd }) => {
+const AddDoctor = ({ open, setOpen, onDoctorAdd, firebaseUser }) => {
     const [date, setDate] = useState(new Date(2003, 1, 1));
     const [showDatePicker, setShowDatePicker] = useState(false);
-    const [doctorDetails, setDoctorDetails] = useState({
-        id: null,
-        email: "",
-        name: "",
-        age: null,
-        contact: null,
-        address: null,
-        password: null,
-        dob: null
-    });
 
     const { control, handleSubmit, errors, reset } = useForm({});
 
@@ -41,7 +31,7 @@ const AddDoctor = ({ open, setOpen, onDoctorAdd }) => {
 
     const onAddPress = (data) => {
         addDoctor(
-            firebaseApp.auth().currentUser,
+            firebaseUser,
             data.email,
             data,
             () => {
@@ -202,4 +192,8 @@ const containerStyle = {
     alignItems: "center"
 };
 
-export default AddDoctor;
+const mapStateToProps = (state) => ({
+    firebaseUser: state.firebaseUser
+});
+
+export default connect(mapStateToProps)(AddDoctor);

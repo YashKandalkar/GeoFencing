@@ -28,6 +28,15 @@ export const setGeofencingData = (
         .catch((err) => failureCallback(err));
 };
 
+export const setDoctorList = (user, data, successCallback, failureCallback) => {
+    firebaseApp
+        .database()
+        .ref("users/" + user.uid + "/doctorList")
+        .set(data)
+        .then(() => successCallback())
+        .catch((err) => failureCallback(err));
+};
+
 export const getAdminData = (user, onSuccess, onError) => {
     let adminDataRef = firebaseApp.database().ref("users/" + user.uid);
     adminDataRef
@@ -78,9 +87,15 @@ export const deleteHospitalMap = (user, onSuccess, onError) => {
 };
 
 export const addDoctor = (user, email, data, onSuccess, onError) => {
-    const formattedData = Object.keys(data).map((el) =>
-        encodeURIComponent(data[el]).replace(/\./g, "%2E")
-    );
+    console.log(data);
+    const formattedData = {};
+    for (let key of Object.keys(data)) {
+        formattedData[key] = encodeURIComponent(data[key]).replace(
+            /\./g,
+            "%2E"
+        );
+    }
+    formattedData["adminID"] = user.uid;
     delete formattedData[email];
     firebaseApp
         .database()
@@ -90,8 +105,8 @@ export const addDoctor = (user, email, data, onSuccess, onError) => {
                 encodeURI(email.replace(/\./g, "-").replace(/\//g, "-"))
         )
         .set(formattedData)
-        .then((r) => {
-            onSuccess(r);
+        .then(() => {
+            onSuccess();
         })
         .catch((err) => onError(err.message));
 };
