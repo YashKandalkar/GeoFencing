@@ -38,7 +38,7 @@ const DoctorList = ({ containerStyle, onAddClick, theme, doctors }) => {
             </Surface>
             {doctors.length ? (
                 doctors.map((el, ind) => (
-                    <DoctorListItem docInfo={el} key={ind} />
+                    <DoctorListItem docInfo={el} key={ind} ind={ind} />
                 ))
             ) : (
                 <View style={styles.addDoctorsMessage}>

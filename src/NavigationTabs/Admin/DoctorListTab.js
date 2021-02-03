@@ -18,8 +18,6 @@ import { setDoctorList } from "../../redux/mainReduxDuck";
 import { setDoctorList as setFirebaseDoctorList } from "../../firebase/adminApi";
 
 const DoctorListTab = ({
-    navigation,
-    theme,
     geofencingSetupDone,
     doctorList,
     setDoctorList,
@@ -92,7 +90,7 @@ const DoctorListTab = ({
                             </ImageBackground>
                         </Surface>
                         <DoctorList
-                            containerStyle={{ flex: 2, marginVertical: 8 }}
+                            containerStyle={{ flex: 1, marginVertical: 8 }}
                             onAddClick={onAddClick}
                             doctors={doctorList}
                         />

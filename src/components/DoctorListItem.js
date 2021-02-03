@@ -9,45 +9,48 @@ import {
     withTheme
 } from "react-native-paper";
 import { StyleSheet, View } from "react-native";
+import OutlinedContainer from "./OutlinedContainer";
 
-const DoctorListItem = ({ theme, docInfo }) => {
+const DoctorListItem = ({ theme, docInfo, ind }) => {
     const { colors } = theme;
     const { name, email, age } = docInfo;
     return (
-        <Surface
-            style={{
-                ...styles.item
+        <OutlinedContainer
+            containerStyle={{
+                ...styles.item,
+                marginTop: ind === 0 ? 16 : 0
             }}
         >
             <Avatar.Image size={86} source={require("../assets/avatar.jpg")} />
             <View style={styles.doctorInfo}>
                 <Subheading>{name}</Subheading>
-                <Caption style={{ maxWidth: 190 }}>Age: {age}</Caption>
-                <Paragraph style={{ maxWidth: 190 }}>{email}</Paragraph>
+                <Caption style={{}}>Age: {age}</Caption>
+                <Paragraph style={{}}>{email}</Paragraph>
             </View>
             <IconButton
-                icon={"delete"}
-                style={{ alignSelf: "flex-start" }}
+                icon={"close"}
+                style={{ position: "absolute", right: 0, margin: 0 }}
                 size={24}
-                color={colors.primaryDark}
+                // color={colors.error}
             />
-        </Surface>
+        </OutlinedContainer>
     );
 };
 
 const styles = StyleSheet.create({
     item: {
         margin: 16,
-        elevation: 1,
+        marginTop: 0,
+        // elevation: 1,
         padding: 8,
         borderRadius: 8,
-        flex: 1,
-        flexDirection: "row",
-        maxHeight: 150
+        // flex: 1,
+        flexDirection: "row"
+        // maxHeight: 150
     },
     doctorInfo: {
         marginLeft: 16,
-        maxWidth: 170
+        maxWidth: "70%"
     }
 });
 

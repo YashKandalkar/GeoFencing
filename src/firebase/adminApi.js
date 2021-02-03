@@ -86,8 +86,16 @@ export const deleteHospitalMap = (user, onSuccess, onError) => {
         .catch(onError);
 };
 
+export const deleteHospitalData = (user, onSuccess, onError) => {
+    firebaseApp
+        .database()
+        .ref("users/" + user.uid + "/hospitalData")
+        .remove()
+        .then(onSuccess)
+        .catch(onError);
+};
+
 export const addDoctor = (user, email, data, onSuccess, onError) => {
-    console.log(data);
     const formattedData = {};
     for (let key of Object.keys(data)) {
         formattedData[key] = encodeURIComponent(data[key]).replace(

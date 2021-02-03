@@ -70,21 +70,20 @@ function App({
                                 if (data.hospitalData) {
                                     setHospitalData(data.hospitalData);
                                     setAdminHospitalSetupDone(true);
-                                }
-                                if (data.geofencingData) {
-                                    setGeofencingData(data.geofencingData);
-                                    setGeofencingSetupDone(true);
-                                } else {
-                                    data.geofencingData = {}; //so that the next if statement works
-                                }
-                                if (data.hospitalFloorMap) {
-                                    setGeofencingData({
-                                        ...data.geofencingData,
-                                        image: data.hospitalFloorMap
-                                    });
+                                    if (data.geofencingData) {
+                                        setGeofencingData(data.geofencingData);
+                                        setGeofencingSetupDone(true);
+                                    } else {
+                                        data.geofencingData = {}; //so that the next if statement works
+                                    }
+                                    if (data.hospitalFloorMap) {
+                                        setGeofencingData({
+                                            ...data.geofencingData,
+                                            image: data.hospitalFloorMap
+                                        });
+                                    }
                                 }
                                 if (data.doctorList) {
-                                    console.log(data.doctorList);
                                     setDoctorList(
                                         Object.values(data.doctorList)
                                     );

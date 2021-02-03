@@ -9,14 +9,18 @@ import indianStates from "../utils/IndianStateNames";
 import { connect } from "react-redux";
 import {
     setAdminHospitalSetupDone,
-    setHospitalData
+    setHospitalData,
+    setSnackbarConfig
 } from "../redux/mainReduxDuck";
+import { deleteHospitalData } from "../firebase/adminApi";
 
 const AdminHospitalSetupForm = ({
     onSubmit,
+    firebaseUser,
     hospitalData,
-    setAdminHospitalSetup,
-    setHospitalData
+    setHospitalData,
+    setSnackbarConfig,
+    setAdminHospitalSetup
 }) => {
     const {
         totalBeds,
@@ -77,22 +81,41 @@ const AdminHospitalSetupForm = ({
     }));
 
     const onReset = () => {
-        // TODO: delete hospitalData from firebase
-        setBeds({ total: 0, available: 0 });
-        setVentilators({ total: 0, available: 0 });
-        statePickerController.reset();
-        setAdminHospitalSetup(false);
-        setHospitalData({});
-        reset({
-            address: "",
-            bedsAvailable: 0,
-            name: "",
-            phoneNumber: "",
-            state: null,
-            totalBeds: 0,
-            totalVentilators: 0,
-            ventilatorsAvailable: 0
-        });
+        setButtonLoading({ ...buttonLoading, clear: true });
+        deleteHospitalData(
+            firebaseUser,
+            () => {
+                setBeds({ total: 0, available: 0 });
+                setVentilators({ total: 0, available: 0 });
+                statePickerController.reset();
+                setAdminHospitalSetup(false);
+                setHospitalData({});
+                reset({
+                    address: "",
+                    bedsAvailable: 0,
+                    name: "",
+                    phoneNumber: "",
+                    state: null,
+                    totalBeds: 0,
+                    totalVentilators: 0,
+                    ventilatorsAvailable: 0
+                });
+                setSnackbarConfig({
+                    content: "Reset data successful!",
+                    type: "SUCCESS"
+                });
+                setButtonLoading({ ...buttonLoading, clear: false });
+            },
+            (err) => {
+                console.error(err);
+                setSnackbarConfig({
+                    content:
+                        "Error resetting data. Please check your internet connection!",
+                    type: "ERROR"
+                });
+                setButtonLoading({ ...buttonLoading, clear: false });
+            }
+        );
     };
 
     const onResetClick = () => {
@@ -102,7 +125,7 @@ const AdminHospitalSetupForm = ({
             [
                 {
                     text: "Cancel",
-                    onPress: () => console.log(),
+                    onPress: () => {},
                     style: "cancel"
                 },
                 { text: "OK", onPress: onReset }
@@ -282,14 +305,16 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => ({
-    hospitalData: state.hospitalData
+    hospitalData: state.hospitalData,
+    firebaseUser: state.firebaseUser
 });
 
 const mapDispatchToProps = (dispatch) => {
     return {
         setAdminHospitalSetup: (value) =>
             dispatch(setAdminHospitalSetupDone(value)),
-        setHospitalData: (data) => dispatch(setHospitalData(data))
+        setHospitalData: (data) => dispatch(setHospitalData(data)),
+        setSnackbarConfig: (config) => dispatch(setSnackbarConfig(config))
     };
 };
 
