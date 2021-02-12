@@ -15,7 +15,10 @@ import {
     Scroll
 } from "../../components";
 import { setDoctorList } from "../../redux/mainReduxDuck";
-import { setDoctorList as setFirebaseDoctorList } from "../../firebase/adminApi";
+import {
+    deleteDoctor,
+    setDoctorList as setFirebaseDoctorList
+} from "../../firebase/adminApi";
 
 const DoctorListTab = ({
     geofencingSetupDone,
@@ -38,6 +41,19 @@ const DoctorListTab = ({
                 setDoctorList(newArr);
             },
             (err) => console.error(err)
+        );
+    };
+
+    const onDoctorRemove = (ind) => {
+        let newArr = [...doctorList].filter((_, elInd) => elInd !== ind);
+        deleteDoctor(
+            firebaseUser,
+            doctorList[ind].email,
+            newArr,
+            () => {
+                setDoctorList(newArr);
+            },
+            (err) => console.log(err)
         );
     };
 
@@ -91,6 +107,7 @@ const DoctorListTab = ({
                         </Surface>
                         <DoctorList
                             containerStyle={{ flex: 1, marginVertical: 8 }}
+                            onDoctorRemove={onDoctorRemove}
                             onAddClick={onAddClick}
                             doctors={doctorList}
                         />

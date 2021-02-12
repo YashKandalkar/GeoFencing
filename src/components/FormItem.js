@@ -52,7 +52,7 @@ const FormItem = ({
                     <HelperText type="error">
                         {errors[name]?.type === "required"
                             ? labelText.substr(0, labelText.length - 1) +
-                              "is required!"
+                              " is required!"
                             : "Email is not valid!"}
                     </HelperText>
                 )}
