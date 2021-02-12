@@ -14,12 +14,18 @@ import {
 } from "react-native-paper";
 import { Controller, useForm } from "react-hook-form";
 
-import { setLoggedIn, setSnackbarConfig } from "../redux/mainReduxDuck";
+import {
+    setAdminData,
+    setFirebaseUser,
+    setLoggedIn,
+    setSnackbarConfig
+} from "../redux/mainReduxDuck";
 import Scroll from "./Scroll";
 
 import OutlinedContainer from "./OutlinedContainer";
 
 import { createNewUser, loginInUser } from "../firebase/authApi";
+import { getAdminData } from "../firebase/adminApi";
 
 const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
@@ -28,7 +34,9 @@ const Login = ({
     loginAs,
     setLoginAs,
     setLoggedIn,
-    setSnackbarConfig
+    setSnackbarConfig,
+    setFirebaseUser,
+    setAdminData
 }) => {
     const { control, handleSubmit, errors } = useForm();
     const [loading, setLoading] = useState(false);
@@ -60,6 +68,32 @@ const Login = ({
                         text:
                             "A verification email has been sent on your email address! Please click on the link provided in the email and sign in again"
                     });
+                } else {
+                    if (loginAs === "ADMIN") {
+                        getAdminData(
+                            user,
+                            (data) => {
+                                if (data) {
+                                    setAdminData(data);
+                                }
+
+                                setSnackbarConfig({
+                                    content: "Logged in as " + loginAs + "!",
+                                    type: "SUCCESS"
+                                });
+                                setFirebaseUser(user);
+                                setLoggedIn(true);
+                            },
+                            (err) => {
+                                console.error(err);
+                                setSnackbarConfig({
+                                    content:
+                                        "An error occurred. Please check your internet connection!",
+                                    type: "ERROR"
+                                });
+                            }
+                        );
+                    }
                 }
             },
             (err) => {
@@ -299,7 +333,9 @@ const mapStateToProps = (state) => state;
 const mapDispatchToProps = (dispatch) => {
     return {
         setLoggedIn: (loggedIn) => dispatch(setLoggedIn(loggedIn)),
-        setSnackbarConfig: (config) => dispatch(setSnackbarConfig(config))
+        setSnackbarConfig: (config) => dispatch(setSnackbarConfig(config)),
+        setAdminData: (data) => dispatch(setAdminData(data)),
+        setFirebaseUser: (user) => dispatch(setFirebaseUser(user))
     };
 };
 

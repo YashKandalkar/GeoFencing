@@ -4,15 +4,12 @@ import {
     Caption,
     IconButton,
     Paragraph,
-    Subheading,
-    Surface,
-    withTheme
+    Subheading
 } from "react-native-paper";
 import { StyleSheet, View } from "react-native";
 import OutlinedContainer from "./OutlinedContainer";
 
-const DoctorListItem = ({ theme, docInfo, ind }) => {
-    const { colors } = theme;
+const DoctorListItem = ({ docInfo, ind, onDoctorRemove }) => {
     const { name, email, age } = docInfo;
     return (
         <OutlinedContainer
@@ -31,7 +28,7 @@ const DoctorListItem = ({ theme, docInfo, ind }) => {
                 icon={"close"}
                 style={{ position: "absolute", right: 0, margin: 0 }}
                 size={24}
-                // color={colors.error}
+                onPress={() => onDoctorRemove(ind)}
             />
         </OutlinedContainer>
     );
@@ -41,12 +38,9 @@ const styles = StyleSheet.create({
     item: {
         margin: 16,
         marginTop: 0,
-        // elevation: 1,
         padding: 8,
         borderRadius: 8,
-        // flex: 1,
         flexDirection: "row"
-        // maxHeight: 150
     },
     doctorInfo: {
         marginLeft: 16,
@@ -54,4 +48,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default withTheme(DoctorListItem);
+export default DoctorListItem;

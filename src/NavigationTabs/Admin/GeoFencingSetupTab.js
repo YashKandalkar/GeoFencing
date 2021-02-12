@@ -45,7 +45,7 @@ const GeoFencingSetupTab = ({
     firebaseUser,
     jumpTo
 }) => {
-    const [image, setImage] = useState(geofencingData.image ?? null);
+    const [image, setImage] = useState(geofencingData?.image ?? null);
     const [firestoreImageUrl, setFirestoreImageUrl] = useState(null);
     const [imageUploading, setImageUploading] = useState({ value: null });
     const [dialog, setDialog] = useState({
@@ -53,13 +53,13 @@ const GeoFencingSetupTab = ({
         content: null,
         onAction: null
     });
-    const [routers, setRouters] = useState(geofencingData.routers ?? []);
+    const [routers, setRouters] = useState(geofencingData?.routers ?? []);
     const [buttonLoading, setButtonLoading] = useState({
         mapClear: false,
         saveAndNext: false
     });
     const [routerLimits, setRouterLimits] = useState(
-        geofencingData.routerLimits ?? {
+        geofencingData?.routerLimits ?? {
             x: 0,
             y: 0,
             w: 0,
@@ -67,19 +67,19 @@ const GeoFencingSetupTab = ({
         }
     );
     const [actualToPixelFactor, setActualToPixelFactor] = useState(
-        geofencingData.actualToPixelFactor ?? {
+        geofencingData?.actualToPixelFactor ?? {
             horizontal: 0,
             vertical: 0
         }
     );
     const [geofenceActualDimensions, setGeofenceActualDimensions] = useState(
-        geofencingData.geofenceActualDimensions ?? {
+        geofencingData?.geofenceActualDimensions ?? {
             horizontal: 100,
             vertical: 100
         }
     );
     const [geoFencePixelDimensions, setGeoFencePixelDimensions] = useState(
-        geofencingData.geoFencePixelDimensions ?? {
+        geofencingData?.geoFencePixelDimensions ?? {
             horizontal: 0,
             vertical: 0
         }
@@ -91,7 +91,7 @@ const GeoFencingSetupTab = ({
                 try {
                     const {
                         status
-                    } = await ImagePicker.requestCameraRollPermissionsAsync();
+                    } = await ImagePicker.requestMediaLibraryPermissionsAsync();
                     if (status !== "granted") {
                         alert(
                             "Sorry, we need camera roll permissions to make this work!"

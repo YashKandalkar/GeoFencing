@@ -10,6 +10,7 @@ const SET_FIREBASE_USER = "SET_FIREBASE_USER";
 const SET_SNACKBAR_CONFIG = "SET_SNACKBAR_CONFIG";
 const SET_DOCTOR_LIST = "SET_DOCTOR_LIST";
 const RESET_STATE = "RESET_STATE";
+const SET_ADMIN_DATA = "SET_ADMIN_DATA";
 
 export const setLoginAs = (loginAs) => ({
     type: SET_LOGIN_AS,
@@ -54,6 +55,11 @@ export const setSnackbarConfig = (config) => ({
 export const setDoctorList = (arr) => ({
     type: SET_DOCTOR_LIST,
     doctorList: arr
+});
+
+export const setAdminData = (data) => ({
+    type: SET_ADMIN_DATA,
+    data: data
 });
 
 export const resetState = () => ({
@@ -154,6 +160,23 @@ export default (state = initialState, action) => {
             return {
                 ...state,
                 doctorList: action.doctorList
+            };
+
+        case SET_ADMIN_DATA:
+            return {
+                ...state,
+                hospitalData: action.data.hospitalData,
+                adminHospitalSetupDone: !!action.data.hospitalData,
+                geofencingData: action.data.hospitalFloorMap
+                    ? {
+                          ...action.data.geofencingData,
+                          image: action.data.hospitalFloorMap
+                      }
+                    : action.data.geofencingData,
+                geofencingSetupDone: !!action.data.geofencingData,
+                doctorList: action.data.doctorList
+                    ? Object.values(action.data.doctorList)
+                    : null
             };
 
         case RESET_STATE:

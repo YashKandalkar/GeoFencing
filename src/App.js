@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { PermissionsAndroid } from "react-native";
 import { connect } from "react-redux";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -11,14 +12,12 @@ import {
     setFirebaseUser,
     setLoggedIn,
     setSnackbarConfig,
-    setHospitalData,
-    setGeofencingSetupDone,
-    setGeofencingData,
-    setAdminHospitalSetupDone,
-    setDoctorList
+    setAdminData
 } from "./redux/mainReduxDuck";
 import { firebaseApp } from "./firebase/init";
 import { getAdminData } from "./firebase/adminApi";
+
+import WifiManager from "react-native-wifi-reborn";
 
 const Stack = createStackNavigator();
 
@@ -39,11 +38,7 @@ function App({
     setLoggedIn,
     setFirebaseUser,
     setSnackbarConfig,
-    setAdminHospitalSetupDone,
-    setHospitalData,
-    setGeofencingSetupDone,
-    setGeofencingData,
-    setDoctorList,
+    setAdminData,
     resetState
 }) {
     const { colors } = theme;
@@ -55,6 +50,29 @@ function App({
     };
 
     useEffect(() => {
+        // PermissionsAndroid.request(
+        //     PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        //     {
+        //         title: "Location permission is required for WiFi connections",
+        //         message:
+        //             "This app needs location permission as this is required  " +
+        //             "to scan for wifi networks.",
+        //         buttonNegative: "DENY",
+        //         buttonPositive: "ALLOW"
+        //     }
+        // )
+        //     .then((granted) => {
+        //         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        //             console.log("got perms");
+        //             WifiManager.loadWifiList()
+        //                 .then((r) => console.log(r))
+        //                 .catch(console.error);
+        //         } else {
+        //             console.log("denied perm");
+        //         }
+        //     })
+        //     .catch(console.error);
+
         let unsubAuthListener = firebaseApp
             .auth()
             .onAuthStateChanged((user) => {
@@ -67,27 +85,10 @@ function App({
                         getAdminData(
                             user,
                             (data) => {
-                                if (data.hospitalData) {
-                                    setHospitalData(data.hospitalData);
-                                    setAdminHospitalSetupDone(true);
-                                    if (data.geofencingData) {
-                                        setGeofencingData(data.geofencingData);
-                                        setGeofencingSetupDone(true);
-                                    } else {
-                                        data.geofencingData = {}; //so that the next if statement works
-                                    }
-                                    if (data.hospitalFloorMap) {
-                                        setGeofencingData({
-                                            ...data.geofencingData,
-                                            image: data.hospitalFloorMap
-                                        });
-                                    }
+                                if (data) {
+                                    setAdminData(data);
                                 }
-                                if (data.doctorList) {
-                                    setDoctorList(
-                                        Object.values(data.doctorList)
-                                    );
-                                }
+
                                 if (user?.emailVerified) {
                                     setSnackbarConfig({
                                         content:
@@ -198,12 +199,7 @@ const mapDispatchToProps = (dispatch) => {
         setLoggedIn: (loggedIn) => dispatch(setLoggedIn(loggedIn)),
         setFirebaseUser: (user) => dispatch(setFirebaseUser(user)),
         setSnackbarConfig: (config) => dispatch(setSnackbarConfig(config)),
-        setAdminHospitalSetupDone: (value) =>
-            dispatch(setAdminHospitalSetupDone(value)),
-        setHospitalData: (data) => dispatch(setHospitalData(data)),
-        setGeofencingSetupDone: (val) => dispatch(setGeofencingSetupDone(val)),
-        setGeofencingData: (val) => dispatch(setGeofencingData(val)),
-        setDoctorList: (arr) => dispatch(setDoctorList(arr)),
+        setAdminData: (data) => dispatch(setAdminData(data)),
         resetState: () => dispatch(resetState())
     };
 };

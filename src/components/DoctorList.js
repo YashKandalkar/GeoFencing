@@ -9,7 +9,13 @@ import {
 } from "react-native-paper";
 import { StyleSheet, View } from "react-native";
 
-const DoctorList = ({ containerStyle, onAddClick, theme, doctors }) => {
+const DoctorList = ({
+    containerStyle,
+    onAddClick,
+    theme,
+    doctors,
+    onDoctorRemove
+}) => {
     const { colors } = theme;
     return (
         <Surface
@@ -36,9 +42,14 @@ const DoctorList = ({ containerStyle, onAddClick, theme, doctors }) => {
                     Add
                 </Button>
             </Surface>
-            {doctors.length ? (
+            {doctors?.length ? (
                 doctors.map((el, ind) => (
-                    <DoctorListItem docInfo={el} key={ind} ind={ind} />
+                    <DoctorListItem
+                        docInfo={el}
+                        key={ind}
+                        ind={ind}
+                        onDoctorRemove={onDoctorRemove}
+                    />
                 ))
             ) : (
                 <View style={styles.addDoctorsMessage}>

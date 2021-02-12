@@ -118,3 +118,16 @@ export const addDoctor = (user, email, data, onSuccess, onError) => {
         })
         .catch((err) => onError(err.message));
 };
+
+export const deleteDoctor = (user, email, data, onSuccess, onError) => {
+    firebaseApp
+        .database()
+        .ref(
+            "DOCTOR" +
+                "/" +
+                encodeURI(email.replace(/\./g, "-").replace(/\//g, "-"))
+        )
+        .remove()
+        .then(onSuccess)
+        .catch(onError);
+};
