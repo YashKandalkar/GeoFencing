@@ -1,4 +1,4 @@
-package com.geofencing;
+package com.yashkandalkar.geofencing;
 
 import android.os.Bundle;
 

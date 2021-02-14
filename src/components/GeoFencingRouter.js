@@ -1,28 +1,68 @@
-import React from "react";
-import { IconButton, Subheading } from "react-native-paper";
-import { View, Text } from "react-native";
+import React, { useState } from "react";
+import { connect } from "react-redux";
+import { IconButton, Button } from "react-native-paper";
+import DropDownPicker from "react-native-dropdown-picker";
+import { View } from "react-native";
+import WifiManager from "react-native-wifi-reborn";
+
 import OutlinedContainer from "./OutlinedContainer";
-import Divider from "./Divider";
 import NumericFormItem from "./NumericFormItem";
 import PropTypes from "prop-types";
+import { setRouterNames } from "../redux/mainReduxDuck";
+
+const inputProps = {
+    minValue: 0,
+    rounded: true,
+    step: 100,
+    totalWidth: 150,
+    type: "up-down",
+    inputStyle: {
+        fontSize: 14
+    },
+    totalHeight: 50
+};
 
 const GeoFencingRouter = ({
     routerNumber,
     value,
     onChange,
     maxValue,
-    onDelete
+    onDelete,
+    routerNames,
+    setRouterNames
 }) => {
-    const inputProps = {
-        minValue: 0,
-        rounded: true,
-        step: 100,
-        totalWidth: 150,
-        type: "up-down",
-        inputStyle: {
-            fontSize: 14
-        },
-        totalHeight: 50
+    const [wifiList, setWifiList] = useState({});
+    const [selectedWifi, setSelectedWifi] = useState(null);
+    const [searchText, setSearchText] = useState("");
+
+    let controller;
+
+    const onDropDownOpen = () => {
+        WifiManager.loadWifiList()
+            .then((L) => {
+                let newObj = { ...wifiList };
+                for (let i of L) {
+                    newObj[i.BSSID] = {
+                        label: i.SSID,
+                        value: i.SSID,
+                        icon: () => {}
+                    };
+                }
+                setWifiList(newObj);
+            })
+            .catch(console.error);
+    };
+
+    const onCustomRouterAdd = () => {
+        let item = {
+            label: searchText,
+            value: searchText,
+            icon: () => {}
+        };
+        setWifiList({ ...wifiList, [searchText]: item });
+        controller.addItem(item);
+        setSelectedWifi(searchText);
+        controller.close();
     };
 
     return (
@@ -35,15 +75,31 @@ const GeoFencingRouter = ({
                     flexDirection: "row"
                 }}
             >
-                <Subheading style={{ fontSize: 20, marginLeft: 8 }}>
-                    Router {routerNumber}
-                </Subheading>
+                <DropDownPicker
+                    searchable
+                    max={3}
+                    items={Object.values(wifiList)}
+                    placeholder={"Router Name (SSID)"}
+                    controller={(inst) => (controller = inst)}
+                    onOpen={onDropDownOpen}
+                    defaultValue={selectedWifi}
+                    onChangeItem={(item) => setSelectedWifi(item.value)}
+                    onSearch={(text) => setSearchText(text.trim())}
+                    searchableError={() => (
+                        <Button compact mode="text" onPress={onCustomRouterAdd}>
+                            Select
+                        </Button>
+                    )}
+                    containerStyle={{
+                        width: "80%",
+                        marginTop: 8
+                    }}
+                />
                 <IconButton
                     icon={"delete"}
                     onPress={() => onDelete(routerNumber - 1)}
                 />
             </View>
-            <Divider dividerStyle={{ marginHorizontal: 8 }} />
             <NumericFormItem
                 labelText={"Horizontal Distance:"}
                 inputProps={{ ...inputProps, maxValue: maxValue.horizontal }}
@@ -111,4 +167,12 @@ GeoFencingRouter.propTypes = {
     maxValue: PropTypes.object
 };
 
-export default GeoFencingRouter;
+const mapStateToProps = (state) => ({
+    routerNames: state.routerNames
+});
+
+const mapDispatchToProps = (dispatch) => ({
+    setRouterNames: (names) => dispatch(setRouterNames(names))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(GeoFencingRouter);

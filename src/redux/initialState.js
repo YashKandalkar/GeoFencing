@@ -7,6 +7,7 @@ export default {
     geofencingData: {},
     doctorList: [],
     firebaseUser: null,
+    routerNames: {},
     snackbarConfig: {
         type: "INFO",
         content: null,

@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import {
     HospitalSetupTab,
     GeoFencingSetupTab,
+    AccessPointSetup,
     DoctorListTab
 } from "../NavigationTabs/Admin";
 
@@ -17,7 +18,12 @@ const AdminScreen = () => {
         },
         {
             key: "geofencingSetup",
-            title: "Setup GeoFencing",
+            title: "GeoFencing",
+            icon: "crosshairs-gps"
+        },
+        {
+            key: "accessPointSetup",
+            title: "AP Setup",
             icon: "crosshairs-gps"
         },
         { key: "doctorTab", title: "Doctors", icon: "doctor" }
@@ -26,6 +32,7 @@ const AdminScreen = () => {
     const renderScene = BottomNavigation.SceneMap({
         hospitalSetup: HospitalSetupTab,
         geofencingSetup: GeoFencingSetupTab,
+        accessPointSetup: AccessPointSetup,
         doctorTab: DoctorListTab
     });
 

@@ -4,7 +4,6 @@ import { DragResizeBlock } from "react-native-drag-resize";
 import PropTypes from "prop-types";
 
 const DraggableRouter = ({ bounds, onDragEnd, value }) => {
-    console.log({ bounds, value });
     return (
         <DragResizeBlock
             isResizable={false}
