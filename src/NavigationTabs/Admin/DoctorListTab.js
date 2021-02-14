@@ -44,7 +44,7 @@ const DoctorListTab = ({
         );
     };
 
-    const onDoctorRemove = (ind) => {
+    const onDoctorRemove = (ind, onEnd) => {
         let newArr = [...doctorList].filter((_, elInd) => elInd !== ind);
         deleteDoctor(
             firebaseUser,
@@ -52,8 +52,12 @@ const DoctorListTab = ({
             newArr,
             () => {
                 setDoctorList(newArr);
+                onEnd();
             },
-            (err) => console.log(err)
+            (err) => {
+                console.log(err);
+                onEnd();
+            }
         );
     };
 

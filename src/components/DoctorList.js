@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import DoctorListItem from "./DoctorListItem";
 import {
     Surface,
     withTheme,
     Button,
     Title,
-    Subheading
+    Subheading,
+    Dialog,
+    Paragraph,
+    Portal
 } from "react-native-paper";
 import { StyleSheet, View } from "react-native";
 
@@ -17,59 +20,102 @@ const DoctorList = ({
     onDoctorRemove
 }) => {
     const { colors } = theme;
+    const [loading, setLoading] = useState(false);
+    const [dialog, setDialog] = useState({
+        title: null,
+        content: null,
+        onAction: null
+    });
+
+    const onRemoveClick = (ind) => {
+        setDialog({
+            title: "Remove Doctor",
+            content: `Are you sure you want to remove ${doctors[ind].name}?`,
+            onAction: () => {
+                setLoading(true);
+                onDoctorRemove(ind, () => {
+                    setLoading(false);
+                    setDialog({ title: null });
+                });
+            }
+        });
+    };
+
     return (
-        <Surface
-            style={{
-                ...styles.container,
-                ...containerStyle
-            }}
-        >
+        <>
             <Surface
                 style={{
-                    ...styles.topBar,
-                    backgroundColor: colors.primary
+                    ...styles.container,
+                    ...containerStyle
                 }}
             >
-                <Title style={{ color: "#fff" }}>Doctor List</Title>
-                <Button
-                    compact
-                    icon={"plus"}
-                    mode="contained"
-                    color={colors.background}
-                    labelStyle={{ color: colors.primary, marginRight: 14 }}
-                    onPress={() => onAddClick()}
+                <Surface
+                    style={{
+                        ...styles.topBar,
+                        backgroundColor: colors.primary
+                    }}
                 >
-                    Add
-                </Button>
-            </Surface>
-            {doctors?.length ? (
-                doctors.map((el, ind) => (
-                    <DoctorListItem
-                        docInfo={el}
-                        key={ind}
-                        ind={ind}
-                        onDoctorRemove={onDoctorRemove}
-                    />
-                ))
-            ) : (
-                <View style={styles.addDoctorsMessage}>
-                    <Subheading
-                        style={{ textAlign: "center", marginBottom: 16 }}
-                    >
-                        Click the add button to add doctors to your hospital!
-                    </Subheading>
+                    <Title style={{ color: "#fff" }}>Doctor List</Title>
                     <Button
                         compact
                         icon={"plus"}
                         mode="contained"
-                        labelStyle={{ marginRight: 14 }}
+                        color={colors.background}
+                        labelStyle={{ color: colors.primary, marginRight: 14 }}
                         onPress={() => onAddClick()}
                     >
                         Add
                     </Button>
-                </View>
-            )}
-        </Surface>
+                </Surface>
+                {doctors?.length ? (
+                    doctors.map((el, ind) => (
+                        <DoctorListItem
+                            docInfo={el}
+                            key={ind}
+                            ind={ind}
+                            onDoctorRemove={onRemoveClick}
+                        />
+                    ))
+                ) : (
+                    <View style={styles.addDoctorsMessage}>
+                        <Subheading
+                            style={{ textAlign: "center", marginBottom: 16 }}
+                        >
+                            Click the add button to add doctors to your
+                            hospital!
+                        </Subheading>
+                        <Button
+                            compact
+                            icon={"plus"}
+                            mode="contained"
+                            labelStyle={{ marginRight: 14 }}
+                            onPress={() => onAddClick()}
+                        >
+                            Add
+                        </Button>
+                    </View>
+                )}
+            </Surface>
+            <Portal>
+                <Dialog
+                    visible={dialog.title !== null}
+                    onDismiss={() => setDialog({ title: null })}
+                >
+                    <Dialog.Title>{dialog.title}</Dialog.Title>
+                    <Dialog.Content>
+                        <Paragraph>{dialog.content}</Paragraph>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={() => setDialog({ title: null })}>
+                            Cancel
+                        </Button>
+                        <Button loading={loading} onPress={dialog.onAction}>
+                            Delete
+                        </Button>
+                    </Dialog.Actions>
+                </Dialog>
+            </Portal>
+        </>
     );
 };
 

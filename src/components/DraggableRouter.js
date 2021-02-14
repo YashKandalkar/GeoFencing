@@ -4,16 +4,16 @@ import { DragResizeBlock } from "react-native-drag-resize";
 import PropTypes from "prop-types";
 
 const DraggableRouter = ({ bounds, onDragEnd, value }) => {
+    console.log({ bounds, value });
     return (
         <DragResizeBlock
             isResizable={false}
             connectors={["c"]}
-            x={bounds.x}
-            y={bounds.y}
+            x={bounds.x + value.horizontal}
+            y={bounds.y + value.vertical}
             w={25}
             h={25}
             onDragEnd={onDragEnd}
-            // zIndex={-1}
             limitation={bounds}
         >
             <View
@@ -37,7 +37,6 @@ const DraggableRouter = ({ bounds, onDragEnd, value }) => {
                 style={{
                     position: "absolute",
                     width: 25,
-                    // zIndex: -10,
                     height: 25,
                     bottom: 25,
                     left: 5

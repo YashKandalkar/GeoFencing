@@ -128,6 +128,8 @@ export const deleteDoctor = (user, email, data, onSuccess, onError) => {
                 encodeURI(email.replace(/\./g, "-").replace(/\//g, "-"))
         )
         .remove()
-        .then(onSuccess)
+        .then(() => {
+            setDoctorList(user, data, onSuccess, onError);
+        })
         .catch(onError);
 };
