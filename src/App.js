@@ -1,9 +1,14 @@
 import React, { useEffect } from "react";
-import { PermissionsAndroid } from "react-native";
+import { PermissionsAndroid, View } from "react-native";
 import { connect } from "react-redux";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { withTheme, IconButton, Snackbar } from "react-native-paper";
+import {
+    withTheme,
+    IconButton,
+    Snackbar,
+    ActivityIndicator
+} from "react-native-paper";
 import LogInScreen from "./screens/LogInScreen";
 import AdminScreen from "./screens/AdminScreen";
 import DoctorScreen from "./screens/DoctorScreen";
@@ -26,6 +31,12 @@ const logoutButton = (onLogout) => (
         size={24}
         onPress={onLogout}
     />
+);
+
+const renderLoading = () => (
+    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <ActivityIndicator animating={true} size={"large"} />
+    </View>
 );
 
 function App({
@@ -62,9 +73,10 @@ function App({
         )
             .then((granted) => {
                 if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                    console.log("got ACCESS_FINE_LOCATION perm");
                 } else {
-                    console.log("denied perm");
+                    alert(
+                        "This app requires Location Permission to function properly!"
+                    );
                 }
             })
             .catch(console.error);
@@ -142,7 +154,9 @@ function App({
                 {!loggedIn ? (
                     <Stack.Screen
                         name="Login"
-                        component={LogInScreen}
+                        component={
+                            loggedIn === null ? renderLoading : LogInScreen
+                        }
                         options={{ ...screenOptions, title: "Geo Fencer" }}
                     />
                 ) : loginAs === "ADMIN" ? (

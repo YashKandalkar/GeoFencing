@@ -11,7 +11,6 @@ const SET_SNACKBAR_CONFIG = "SET_SNACKBAR_CONFIG";
 const SET_DOCTOR_LIST = "SET_DOCTOR_LIST";
 const RESET_STATE = "RESET_STATE";
 const SET_ADMIN_DATA = "SET_ADMIN_DATA";
-const SET_ROUTER_NAMES = "SET_ROUTER_NAMES";
 
 export const setLoginAs = (loginAs) => ({
     type: SET_LOGIN_AS,
@@ -61,11 +60,6 @@ export const setDoctorList = (arr) => ({
 export const setAdminData = (data) => ({
     type: SET_ADMIN_DATA,
     data: data
-});
-
-export const setRouterNames = (names) => ({
-    type: SET_ROUTER_NAMES,
-    routerNames: names
 });
 
 export const resetState = () => ({
@@ -184,13 +178,6 @@ export default (state = initialState, action) => {
                     ? Object.values(action.data.doctorList)
                     : null
             };
-
-        case SET_ROUTER_NAMES: {
-            return {
-                ...state,
-                routerNames: action.routerNames
-            };
-        }
 
         case RESET_STATE:
             return initialState;

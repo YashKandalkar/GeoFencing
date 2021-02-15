@@ -1,13 +1,12 @@
 export default {
     loginAs: "ADMIN",
-    loggedIn: false,
+    loggedIn: null,
     adminHospitalSetupDone: false,
     geofencingSetupDone: false,
     hospitalData: {},
     geofencingData: {},
     doctorList: [],
     firebaseUser: null,
-    routerNames: {},
     snackbarConfig: {
         type: "INFO",
         content: null,

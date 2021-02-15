@@ -18,7 +18,8 @@ import initialState from "./initialState";
 const persistConfig = {
     key: "root",
     storage: AsyncStorage,
-    stateReconciler: autoMergeLevel2
+    stateReconciler: autoMergeLevel2,
+    blacklist: ["loggedIn"]
 };
 
 const pReducer = persistReducer(persistConfig, reducer);

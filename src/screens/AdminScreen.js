@@ -24,7 +24,7 @@ const AdminScreen = () => {
         {
             key: "accessPointSetup",
             title: "AP Setup",
-            icon: "crosshairs-gps"
+            icon: "map-marker-multiple"
         },
         { key: "doctorTab", title: "Doctors", icon: "doctor" }
     ]);

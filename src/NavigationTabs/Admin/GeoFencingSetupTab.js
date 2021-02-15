@@ -10,6 +10,7 @@ import {
 } from "../../redux/mainReduxDuck";
 
 import {
+    ActivityIndicator,
     Button,
     Dialog,
     Headline,
@@ -45,6 +46,7 @@ const GeoFencingSetupTab = ({
     firebaseUser,
     jumpTo
 }) => {
+    const [loadComponents, setLoadComponents] = useState(false);
     const [image, setImage] = useState(geofencingData?.image ?? null);
     const [firestoreImageUrl, setFirestoreImageUrl] = useState(null);
     const [imageUploading, setImageUploading] = useState({ value: null });
@@ -84,6 +86,13 @@ const GeoFencingSetupTab = ({
             vertical: 0
         }
     );
+
+    useEffect(() => {
+        let timer = setTimeout(() => {
+            setLoadComponents(true);
+        }, 1000);
+        return () => clearTimeout(timer);
+    });
 
     useEffect(() => {
         (async () => {
@@ -307,7 +316,7 @@ const GeoFencingSetupTab = ({
                 });
                 setGeofencingData({ ...data, image });
                 setGeofencingSetupDone(true);
-                jumpTo("doctorTab");
+                jumpTo("accessPointSetup");
             },
             () => {
                 setButtonLoading({ ...buttonLoading, saveAndNext: false });
@@ -490,69 +499,73 @@ const GeoFencingSetupTab = ({
                                 </OutlinedContainer>
                             </View>
 
-                            <View
-                                style={{
-                                    margin: 8
-                                }}
-                            >
-                                <Headline>Add Routers:</Headline>
-                                <Divider style={{ marginBottom: 8 }} />
-                                <Paragraph>
-                                    Add routers inside the (red) GeoFencing
-                                    Rectangle which will be used to locate a
-                                    patient inside the hospital.
-                                </Paragraph>
-                                <Paragraph>
-                                    There should be a minimum of 3 routers in
-                                    the hospital. Add more routers for covering
-                                    larger areas.
-                                </Paragraph>
-                                <Paragraph>
-                                    Provide the actual location of the routers
-                                    inside the hospital.
-                                </Paragraph>
-                                {routers.map((router, index) => (
-                                    <GeoFencingRouter
-                                        key={index}
-                                        routerNumber={index + 1}
-                                        value={router}
-                                        maxValue={geofenceActualDimensions}
-                                        onDelete={onRouterDelete}
-                                        onChange={(value) =>
-                                            routerInfoHandler(value, index)
-                                        }
-                                    />
-                                ))}
-                                {!image && (
-                                    <HelperText
-                                        style={{
-                                            marginTop: 8,
-                                            textAlign: "center"
-                                        }}
-                                        visible={!image}
-                                        type={"error"}
-                                    >
-                                        Please upload the floor map of your
-                                        hospital first!
-                                    </HelperText>
-                                )}
+                            {loadComponents ? (
                                 <View
                                     style={{
-                                        display: "flex",
-                                        justifyContent: "center",
-                                        alignItems: "center",
-                                        marginTop: 16
+                                        margin: 8
                                     }}
                                 >
-                                    <Button
-                                        mode={"contained"}
-                                        disabled={!image}
-                                        onPress={onRouterAdd}
+                                    <Headline>Add Routers:</Headline>
+                                    <Divider style={{ marginBottom: 8 }} />
+                                    <Paragraph>
+                                        Add routers inside the (red) GeoFencing
+                                        Rectangle which will be used to locate a
+                                        patient inside the hospital.
+                                    </Paragraph>
+                                    <Paragraph>
+                                        There should be a minimum of 3 routers
+                                        in the hospital. Add more routers for
+                                        covering larger areas.
+                                    </Paragraph>
+                                    <Paragraph>
+                                        Provide the actual location of the
+                                        routers inside the hospital.
+                                    </Paragraph>
+                                    {routers.map((router, index) => (
+                                        <GeoFencingRouter
+                                            key={index}
+                                            routerNumber={index + 1}
+                                            value={router}
+                                            maxValue={geofenceActualDimensions}
+                                            onDelete={onRouterDelete}
+                                            onChange={(value) =>
+                                                routerInfoHandler(value, index)
+                                            }
+                                        />
+                                    ))}
+                                    {!image && (
+                                        <HelperText
+                                            style={{
+                                                marginTop: 8,
+                                                textAlign: "center"
+                                            }}
+                                            visible={!image}
+                                            type={"error"}
+                                        >
+                                            Please upload the floor map of your
+                                            hospital first!
+                                        </HelperText>
+                                    )}
+                                    <View
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                            marginTop: 16
+                                        }}
                                     >
-                                        Add Router
-                                    </Button>
+                                        <Button
+                                            mode={"contained"}
+                                            disabled={!image}
+                                            onPress={onRouterAdd}
+                                        >
+                                            Add Router
+                                        </Button>
+                                    </View>
                                 </View>
-                            </View>
+                            ) : (
+                                <ActivityIndicator />
+                            )}
                         </Surface>
                         <Divider
                             dividerStyle={{
@@ -570,13 +583,49 @@ const GeoFencingSetupTab = ({
                                 {3 - routers.length} more router(s)!
                             </HelperText>
                         )}
+
+                        {routers.filter((el) => !el.name).length > 0 ? (
+                            <HelperText
+                                style={{ marginTop: 8 }}
+                                visible={
+                                    routers.filter((el) => !el.name).length > 0
+                                }
+                                type={"error"}
+                            >
+                                Please add names (SSID) to all the routers!
+                            </HelperText>
+                        ) : routers.length !==
+                          new Set(routers.map((el) => el.name)).size ? (
+                            <HelperText
+                                style={{ marginTop: 8 }}
+                                visible={
+                                    routers.length !==
+                                    new Set(routers.map((el) => el.name)).size
+                                }
+                                type={"error"}
+                            >
+                                Names of routers should be unique!
+                            </HelperText>
+                        ) : (
+                            <></>
+                        )}
+
                         <View style={styles.formButtonsContainer}>
                             <Button
                                 compact
                                 style={styles.formButton}
                                 mode={"contained"}
                                 onPress={onNextClick}
-                                disabled={routers.length < 3 || !image}
+                                disabled={
+                                    routers.length < 3 ||
+                                    !image ||
+                                    !loadComponents ||
+                                    routers.filter((el) => !el.name).length >
+                                        0 ||
+                                    routers.length !==
+                                        new Set(routers.map((el) => el.name))
+                                            .size
+                                }
                                 loading={buttonLoading.saveAndNext}
                             >
                                 Save and Next

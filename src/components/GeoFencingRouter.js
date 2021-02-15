@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { connect } from "react-redux";
 import { IconButton, Button } from "react-native-paper";
 import DropDownPicker from "react-native-dropdown-picker";
 import { View } from "react-native";
@@ -8,7 +7,6 @@ import WifiManager from "react-native-wifi-reborn";
 import OutlinedContainer from "./OutlinedContainer";
 import NumericFormItem from "./NumericFormItem";
 import PropTypes from "prop-types";
-import { setRouterNames } from "../redux/mainReduxDuck";
 
 const inputProps = {
     minValue: 0,
@@ -27,12 +25,20 @@ const GeoFencingRouter = ({
     value,
     onChange,
     maxValue,
-    onDelete,
-    routerNames,
-    setRouterNames
+    onDelete
 }) => {
-    const [wifiList, setWifiList] = useState({});
-    const [selectedWifi, setSelectedWifi] = useState(null);
+    const [wifiList, setWifiList] = useState(
+        value.name
+            ? {
+                  [value.name]: {
+                      label: value.name,
+                      value: value.name,
+                      icon: () => {}
+                  }
+              }
+            : {}
+    );
+    const [selectedWifi, setSelectedWifi] = useState(value.name ?? null);
     const [searchText, setSearchText] = useState("");
 
     let controller;
@@ -42,7 +48,7 @@ const GeoFencingRouter = ({
             .then((L) => {
                 let newObj = { ...wifiList };
                 for (let i of L) {
-                    newObj[i.BSSID] = {
+                    newObj[i.SSID] = {
                         label: i.SSID,
                         value: i.SSID,
                         icon: () => {}
@@ -62,6 +68,7 @@ const GeoFencingRouter = ({
         setWifiList({ ...wifiList, [searchText]: item });
         controller.addItem(item);
         setSelectedWifi(searchText);
+        onChange({ name: searchText });
         controller.close();
     };
 
@@ -83,7 +90,10 @@ const GeoFencingRouter = ({
                     controller={(inst) => (controller = inst)}
                     onOpen={onDropDownOpen}
                     defaultValue={selectedWifi}
-                    onChangeItem={(item) => setSelectedWifi(item.value)}
+                    onChangeItem={(item) => {
+                        setSelectedWifi(item.value);
+                        onChange({ name: item.value });
+                    }}
                     onSearch={(text) => setSearchText(text.trim())}
                     searchableError={() => (
                         <Button compact mode="text" onPress={onCustomRouterAdd}>
@@ -167,12 +177,4 @@ GeoFencingRouter.propTypes = {
     maxValue: PropTypes.object
 };
 
-const mapStateToProps = (state) => ({
-    routerNames: state.routerNames
-});
-
-const mapDispatchToProps = (dispatch) => ({
-    setRouterNames: (names) => dispatch(setRouterNames(names))
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(GeoFencingRouter);
+export default GeoFencingRouter;
