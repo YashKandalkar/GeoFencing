@@ -1,19 +1,8 @@
 import React, { useState } from "react";
-import { ImageBackground, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { connect } from "react-redux";
-import {
-    Subheading,
-    Surface,
-    Text,
-    Title,
-    withTheme
-} from "react-native-paper";
-import {
-    DoctorList,
-    OutlinedContainer,
-    AddDoctor,
-    Scroll
-} from "../../components";
+import { Subheading, Surface, withTheme } from "react-native-paper";
+import { AddDoctor, DoctorList, HospitalInfo, Scroll } from "../../components";
 import { setDoctorList } from "../../redux/mainReduxDuck";
 import {
     deleteDoctor,
@@ -33,7 +22,12 @@ const DoctorListTab = ({
     };
 
     const onDoctorAdd = (data) => {
-        let newArr = [...doctorList, data];
+        let newArr = [
+            ...(Array.isArray(doctorList)
+                ? doctorList
+                : Object.values(doctorList ?? {})),
+            data
+        ];
         setFirebaseDoctorList(
             firebaseUser,
             newArr,
@@ -72,43 +66,7 @@ const DoctorListTab = ({
                     </Surface>
                 ) : (
                     <>
-                        <Surface style={styles.container}>
-                            <ImageBackground
-                                source={require("../../assets/hospital.webp")}
-                                style={styles.imageBackground}
-                                imageStyle={{ borderRadius: 8 }}
-                            >
-                                <View style={styles.childContainer}>
-                                    <Title style={{ color: "#eee" }}>
-                                        Hospital Name
-                                    </Title>
-                                    <Subheading style={{ color: "#eee" }}>
-                                        Hospital Address
-                                    </Subheading>
-
-                                    <OutlinedContainer
-                                        containerStyle={styles.hospitalInfo}
-                                    >
-                                        <View style={styles.itemStyle}>
-                                            <Text style={styles.label}>
-                                                Doctors: {}
-                                            </Text>
-                                            <Text style={styles.label}>
-                                                Patients: 15
-                                            </Text>
-                                        </View>
-                                        <View style={styles.itemStyle}>
-                                            <Text style={styles.label}>
-                                                Beds: 20
-                                            </Text>
-                                            <Text style={styles.label}>
-                                                Ventilators: 13
-                                            </Text>
-                                        </View>
-                                    </OutlinedContainer>
-                                </View>
-                            </ImageBackground>
-                        </Surface>
+                        <HospitalInfo />
                         <DoctorList
                             containerStyle={{ flex: 1, marginVertical: 8 }}
                             onDoctorRemove={onDoctorRemove}

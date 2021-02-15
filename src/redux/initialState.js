@@ -6,6 +6,7 @@ export default {
     hospitalData: {},
     geofencingData: {},
     doctorList: [],
+    accessPoints: [],
     firebaseUser: null,
     snackbarConfig: {
         type: "INFO",

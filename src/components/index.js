@@ -11,6 +11,7 @@ import NumericFormItem from "./NumericFormItem";
 import OutlinedContainer from "./OutlinedContainer";
 import Scroll from "./Scroll";
 import GeoFencingMap from "./GeoFencingMap";
+import HospitalInfo from "./HospitalInfo";
 
 export {
     AddDoctor,
@@ -25,5 +26,6 @@ export {
     OutlinedContainer,
     LogIn,
     GeoFencingRouter,
-    GeoFencingMap
+    GeoFencingMap,
+    HospitalInfo
 };

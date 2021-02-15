@@ -11,6 +11,7 @@ const SET_SNACKBAR_CONFIG = "SET_SNACKBAR_CONFIG";
 const SET_DOCTOR_LIST = "SET_DOCTOR_LIST";
 const RESET_STATE = "RESET_STATE";
 const SET_ADMIN_DATA = "SET_ADMIN_DATA";
+const SET_ACCESS_POINTS = "SET_ACCESS_POINTS";
 
 export const setLoginAs = (loginAs) => ({
     type: SET_LOGIN_AS,
@@ -60,6 +61,11 @@ export const setDoctorList = (arr) => ({
 export const setAdminData = (data) => ({
     type: SET_ADMIN_DATA,
     data: data
+});
+
+export const setAccessPoints = (data) => ({
+    type: SET_ACCESS_POINTS,
+    accessPoints: data
 });
 
 export const resetState = () => ({
@@ -177,6 +183,12 @@ export default (state = initialState, action) => {
                 doctorList: action.data.doctorList
                     ? Object.values(action.data.doctorList)
                     : null
+            };
+
+        case SET_ACCESS_POINTS:
+            return {
+                ...state,
+                accessPoints: action.accessPoints
             };
 
         case RESET_STATE:

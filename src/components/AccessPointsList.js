@@ -1,39 +1,81 @@
 import React, { useState } from "react";
-import DoctorListItem from "./DoctorListItem";
+import { connect } from "react-redux";
+import { StyleSheet, View } from "react-native";
 import {
-    Surface,
-    withTheme,
     Button,
-    Title,
-    Subheading,
     Dialog,
     Paragraph,
-    Portal
+    Portal,
+    Subheading,
+    Surface,
+    Title,
+    withTheme
 } from "react-native-paper";
-import { StyleSheet, View } from "react-native";
+import DoctorListItem from "./DoctorListItem";
+import { setAccessPoints } from "../redux/mainReduxDuck";
+import WifiManager from "react-native-wifi-reborn";
+import AccessPoint from "./AccessPoint";
 
-const DoctorList = ({
+const AccessPointsList = ({
+    setAccessPoints,
     containerStyle,
-    onAddClick,
-    theme,
-    doctors,
-    onDoctorRemove
+    accessPoints,
+    routers,
+    theme
 }) => {
     const { colors } = theme;
     const [loading, setLoading] = useState(false);
+    const [nearbyRouters, setNearbyRouters] = useState({
+        foundSignals: {},
+        notFound: []
+    });
     const [dialog, setDialog] = useState({
         title: null,
         content: null,
         onAction: null
     });
 
+    const onAddClick = () => {
+        let nearbyRoutersSignals = {};
+
+        let routerNames = Array.isArray(routers)
+            ? routers.map((el) => el.name)
+            : Object.values(routers).map((el) => el.name);
+
+        WifiManager.loadWifiList()
+            .then((wifiList) => {
+                for (let wifi of wifiList) {
+                    if (routerNames.includes(wifi.SSID)) {
+                        nearbyRoutersSignals[wifi.SSID] = wifi.level;
+                    }
+                }
+            })
+            .catch((err) => {
+                console.error(err);
+                alert(
+                    "Could not get the signal strengths of nearby routers. Make sure your phone's location service is ON!"
+                );
+            });
+
+        setNearbyRouters({
+            foundSignals: nearbyRoutersSignals,
+            notFound: routerNames.filter(
+                (el) => !Number.isInteger(nearbyRoutersSignals[el])
+            )
+        });
+
+        setAccessPoints([...accessPoints, { routerSignalLevels: {} }]);
+    };
+
+    const onAPRemove = (ind, onSuccess) => {};
+
     const onRemoveClick = (ind) => {
         setDialog({
-            title: "Remove Doctor",
-            content: `Are you sure you want to remove ${doctors[ind].name}?`,
+            title: "Remove Access Point",
+            content: `Are you sure you want to remove this Access Point?`,
             onAction: () => {
                 setLoading(true);
-                onDoctorRemove(ind, () => {
+                onAPRemove(ind, () => {
                     setLoading(false);
                     setDialog({ title: null });
                 });
@@ -55,7 +97,7 @@ const DoctorList = ({
                         backgroundColor: colors.primary
                     }}
                 >
-                    <Title style={{ color: "#fff" }}>Doctor List</Title>
+                    <Title style={{ color: "#fff" }}>Access Points</Title>
                     <Button
                         compact
                         icon={"plus"}
@@ -67,13 +109,14 @@ const DoctorList = ({
                         Add
                     </Button>
                 </Surface>
-                {doctors?.length ? (
-                    doctors.map((el, ind) => (
-                        <DoctorListItem
-                            docInfo={el}
+                {accessPoints?.length ? (
+                    accessPoints.map((el, ind) => (
+                        <AccessPoint
                             key={ind}
                             ind={ind}
-                            onDoctorRemove={onRemoveClick}
+                            onDelete={onRemoveClick}
+                            routerNotFound={nearbyRouters.notFound}
+                            nearbyRouters={nearbyRouters.foundSignals}
                         />
                     ))
                 ) : (
@@ -81,7 +124,8 @@ const DoctorList = ({
                         <Subheading
                             style={{ textAlign: "center", marginBottom: 16 }}
                         >
-                            Click the add button to add Access Points!
+                            Click the add button to add doctors to your
+                            hospital!
                         </Subheading>
                         <Button
                             compact
@@ -143,4 +187,16 @@ const styles = StyleSheet.create({
     }
 });
 
-export default withTheme(DoctorList);
+const mapStateToProps = (state) => ({
+    accessPoints: state.accessPoints,
+    routers: state.routers
+});
+
+const mapDispatchToProps = (dispatch) => ({
+    setAccessPoints: (arr) => dispatch(setAccessPoints(arr))
+});
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(withTheme(AccessPointsList));

@@ -23,7 +23,7 @@ const AdminScreen = () => {
         },
         {
             key: "accessPointSetup",
-            title: "AP Setup",
+            title: "Access Points",
             icon: "map-marker-multiple"
         },
         { key: "doctorTab", title: "Doctors", icon: "doctor" }

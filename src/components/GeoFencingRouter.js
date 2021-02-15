@@ -56,7 +56,10 @@ const GeoFencingRouter = ({
                 }
                 setWifiList(newObj);
             })
-            .catch(console.error);
+            .catch((err) => {
+                console.error(err);
+                alert("Make sure your phone's location service is ON!");
+            });
     };
 
     const onCustomRouterAdd = () => {
@@ -113,10 +116,7 @@ const GeoFencingRouter = ({
             <NumericFormItem
                 labelText={"Horizontal Distance:"}
                 inputProps={{ ...inputProps, maxValue: maxValue.horizontal }}
-                onChange={(val) => {
-                    console.log({ val, value });
-                    onChange({ horizontal: val });
-                }}
+                onChange={(val) => onChange({ horizontal: val })}
                 helperText={"(in meters)"}
                 labelStyle={{ fontSize: 16 }}
                 value={
