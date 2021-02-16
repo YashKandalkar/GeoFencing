@@ -4,8 +4,9 @@ import { connect } from "react-redux";
 import { Surface, Subheading, Headline, Paragraph } from "react-native-paper";
 
 import { Scroll, Divider } from "../../components";
+import AccessPointsList from "../../components/AccessPointsList";
 
-const AccessPointSetup = ({ geofencingSetupDone }) => {
+const AccessPointSetup = ({ geofencingSetupDone, jumpTo }) => {
     return (
         <Scroll>
             <View style={{ flex: 1 }}>
@@ -50,9 +51,13 @@ const AccessPointSetup = ({ geofencingSetupDone }) => {
                                     fontWeight: "bold"
                                 }}
                             >
-                                The more Access Points, the merrier!
+                                The more Access Points, the better!
                             </Paragraph>
                         </Surface>
+                        <AccessPointsList
+                            containerStyle={{ flex: 1, marginVertical: 8 }}
+                            jumpTo={jumpTo}
+                        />
                     </Surface>
                 )}
             </View>
@@ -65,7 +70,8 @@ const styles = StyleSheet.create({
         margin: 8,
         elevation: 1,
         borderRadius: 8,
-        padding: 8
+        padding: 8,
+        flex: 1
     },
     setupWarningContainer: {
         flex: 1,

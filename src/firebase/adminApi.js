@@ -28,6 +28,20 @@ export const setGeofencingData = (
         .catch((err) => failureCallback(err));
 };
 
+export const setAccessPoints = (
+    user,
+    data,
+    successCallback,
+    failureCallback
+) => {
+    firebaseApp
+        .database()
+        .ref("users/" + user.uid + "/accessPoints")
+        .set(data)
+        .then((r) => successCallback(r))
+        .catch((err) => failureCallback(err));
+};
+
 export const setDoctorList = (user, data, successCallback, failureCallback) => {
     firebaseApp
         .database()

@@ -90,7 +90,7 @@ const GeoFencingSetupTab = ({
     useEffect(() => {
         let timer = setTimeout(() => {
             setLoadComponents(true);
-        }, 1000);
+        }, 500);
         return () => clearTimeout(timer);
     });
 
@@ -254,7 +254,10 @@ const GeoFencingSetupTab = ({
             range: 20
         });
         setRouters(newRouterArr);
-        setGeofencingData({ ...geofencingData, routers: newRouterArr });
+        setSnackbarConfig({
+            content: "Unsaved Changes! Don't forget to click SAVE!",
+            type: "WARNING"
+        });
     };
 
     const onRouterDelete = (ind) => {
@@ -272,7 +275,7 @@ const GeoFencingSetupTab = ({
                     () => {
                         setButtonLoading({ ...buttonLoading, mapClear: false });
                         setSnackbarConfig({
-                            content: "Deleted Router " + (ind + 1),
+                            content: "Deleted Router " + routers[ind].name,
                             type: "INFO"
                         });
                         setRouters(newRouterArr);

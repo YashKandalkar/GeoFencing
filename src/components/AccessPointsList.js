@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import { StyleSheet, View } from "react-native";
 import {
@@ -11,63 +11,136 @@ import {
     Title,
     withTheme
 } from "react-native-paper";
-import DoctorListItem from "./DoctorListItem";
-import { setAccessPoints } from "../redux/mainReduxDuck";
+import { setAccessPoints, setSnackbarConfig } from "../redux/mainReduxDuck";
 import WifiManager from "react-native-wifi-reborn";
 import AccessPoint from "./AccessPoint";
+import Divider from "./Divider";
+
+import { setAccessPoints as setFirebaseAccessPoints } from "../firebase/adminApi";
 
 const AccessPointsList = ({
-    setAccessPoints,
+    setAccessPointsRedux,
+    accessPointsRedux,
+    setSnackbarConfig,
     containerStyle,
-    accessPoints,
-    routers,
+    geofencingData,
+    firebaseUser,
+    jumpTo,
     theme
 }) => {
+    // TODO: Add accessPointSetupDone state in redux!
+
     const { colors } = theme;
-    const [loading, setLoading] = useState(false);
-    const [nearbyRouters, setNearbyRouters] = useState({
-        foundSignals: {},
-        notFound: []
-    });
+    const { routers } = geofencingData;
+    const [deleteLoading, setLoading] = useState(false);
+    const [accessPoints, setAccessPoints] = useState(accessPointsRedux ?? []);
+    const [nextButtonLoading, setNextButtonLoading] = useState(false);
     const [dialog, setDialog] = useState({
         title: null,
         content: null,
         onAction: null
     });
 
-    const onAddClick = () => {
+    const getNearbySignals = async () => {
         let nearbyRoutersSignals = {};
-
+        let wifiList;
         let routerNames = Array.isArray(routers)
             ? routers.map((el) => el.name)
             : Object.values(routers).map((el) => el.name);
 
-        WifiManager.loadWifiList()
-            .then((wifiList) => {
-                for (let wifi of wifiList) {
-                    if (routerNames.includes(wifi.SSID)) {
-                        nearbyRoutersSignals[wifi.SSID] = wifi.level;
-                    }
-                }
-            })
-            .catch((err) => {
-                console.error(err);
-                alert(
-                    "Could not get the signal strengths of nearby routers. Make sure your phone's location service is ON!"
-                );
-            });
+        try {
+            wifiList = await WifiManager.loadWifiList();
+        } catch (err) {
+            console.error(err);
+            alert(
+                "Could not get the signal strengths of nearby routers. Make sure your phone's location service is ON!"
+            );
+            return;
+        }
 
-        setNearbyRouters({
-            foundSignals: nearbyRoutersSignals,
-            notFound: routerNames.filter(
-                (el) => !Number.isInteger(nearbyRoutersSignals[el])
-            )
-        });
+        for (let wifi of wifiList) {
+            if (routerNames.includes(wifi.SSID.trim())) {
+                nearbyRoutersSignals[wifi.SSID] = wifi.level;
+            }
+        }
 
-        setAccessPoints([...accessPoints, { routerSignalLevels: {} }]);
+        let notFound = routerNames.filter(
+            (el) => !Number.isInteger(nearbyRoutersSignals[el])
+        );
+
+        return {
+            routerSignalLevels: nearbyRoutersSignals,
+            routersNotFound: notFound
+        };
     };
 
-    const onAPRemove = (ind, onSuccess) => {};
+    const onAddClick = async () => {
+        let { routerSignalLevels, routersNotFound } = await getNearbySignals();
+        setAccessPoints([
+            ...accessPoints,
+            {
+                routerSignalLevels,
+                routersNotFound,
+                position: { x: 0, y: 0, z: 0 }
+            }
+        ]);
+        setSnackbarConfig({
+            content: "Unsaved Changes! Don't forget to click SAVE!",
+            type: "WARNING"
+        });
+    };
+
+    useEffect(() => {
+        let newAP = [...accessPoints];
+        let routerNames = Array.isArray(routers)
+            ? routers.map((el) => el.name)
+            : Object.values(routers).map((el) => el.name);
+        for (const newAPElement of newAP) {
+            let len =
+                Object.keys(newAPElement.routerSignalLevels).length +
+                newAPElement.routersNotFound.length;
+            if (len > routerNames.length) {
+                for (const el of Object.keys(newAPElement.routerSignalLevels)) {
+                    if (!routerNames.includes(el)) {
+                        delete newAPElement.routerSignalLevels[el];
+                    }
+                }
+                for (const el of newAPElement.routersNotFound) {
+                    if (!routerNames.includes(el)) {
+                        newAPElement.routersNotFound = newAPElement.routersNotFound.filter(
+                            (e) => e !== el
+                        );
+                    }
+                }
+            } else {
+                for (const routerName of routerNames) {
+                    if (
+                        !newAPElement.routerSignalLevels[routerName] &&
+                        !newAPElement.routersNotFound.includes(routerName)
+                    ) {
+                        newAPElement.routersNotFound.push(routerName);
+                    }
+                }
+            }
+            setFirebaseAccessPoints(
+                firebaseUser,
+                newAP,
+                () => {
+                    setAccessPointsRedux(newAP);
+                    setAccessPoints(newAP);
+                },
+                console.error
+            );
+        }
+        return () => {};
+    }, [geofencingData]);
+
+    const onAPRemove = (ind, onSuccess) => {
+        let newArr = accessPoints.filter((_, index) => index !== ind);
+        setAccessPointsRedux(newArr);
+        setAccessPoints(newArr);
+        onSuccess();
+    };
 
     const onRemoveClick = (ind) => {
         setDialog({
@@ -75,12 +148,40 @@ const AccessPointsList = ({
             content: `Are you sure you want to remove this Access Point?`,
             onAction: () => {
                 setLoading(true);
-                onAPRemove(ind, () => {
-                    setLoading(false);
-                    setDialog({ title: null });
-                });
+                let newArr = accessPoints.filter((_, index) => index !== ind);
+                setFirebaseAccessPoints(
+                    firebaseUser,
+                    newArr,
+                    () => {
+                        onAPRemove(ind, () => {
+                            setLoading(false);
+                            setDialog({ title: null });
+                        });
+                    },
+                    console.error
+                );
             }
         });
+    };
+
+    const onAPChange = (ind, val) => {
+        let newArr = [...accessPoints];
+        newArr[ind] = { ...accessPoints[ind], ...val };
+        setAccessPoints(newArr);
+    };
+
+    const onNextClick = () => {
+        setNextButtonLoading(true);
+        setFirebaseAccessPoints(
+            firebaseUser,
+            accessPoints,
+            () => {
+                setAccessPointsRedux(accessPoints);
+                setNextButtonLoading(false);
+                jumpTo("doctorTab");
+            },
+            console.error
+        );
     };
 
     return (
@@ -115,8 +216,10 @@ const AccessPointsList = ({
                             key={ind}
                             ind={ind}
                             onDelete={onRemoveClick}
-                            routerNotFound={nearbyRouters.notFound}
-                            nearbyRouters={nearbyRouters.foundSignals}
+                            onChange={onAPChange}
+                            routerSignalLevels={el.routerSignalLevels}
+                            routersNotFound={el.routersNotFound}
+                            position={el.position}
                         />
                     ))
                 ) : (
@@ -124,8 +227,7 @@ const AccessPointsList = ({
                         <Subheading
                             style={{ textAlign: "center", marginBottom: 16 }}
                         >
-                            Click the add button to add doctors to your
-                            hospital!
+                            Click the add button to add Access Points!
                         </Subheading>
                         <Button
                             compact
@@ -137,6 +239,23 @@ const AccessPointsList = ({
                             Add
                         </Button>
                     </View>
+                )}
+                {accessPoints.length > 0 && (
+                    <>
+                        <Divider dividerStyle={{ margin: 16 }} />
+                        <View style={styles.formButtonsContainer}>
+                            <Button
+                                compact
+                                style={styles.formButton}
+                                mode={"contained"}
+                                onPress={onNextClick}
+                                disabled={false}
+                                loading={nextButtonLoading}
+                            >
+                                Save and Next
+                            </Button>
+                        </View>
+                    </>
                 )}
             </Surface>
             <Portal>
@@ -152,7 +271,10 @@ const AccessPointsList = ({
                         <Button onPress={() => setDialog({ title: null })}>
                             Cancel
                         </Button>
-                        <Button loading={loading} onPress={dialog.onAction}>
+                        <Button
+                            loading={deleteLoading}
+                            onPress={dialog.onAction}
+                        >
                             Delete
                         </Button>
                     </Dialog.Actions>
@@ -166,7 +288,8 @@ const styles = StyleSheet.create({
     container: {
         elevation: 2,
         marginHorizontal: 6,
-        borderRadius: 8
+        borderRadius: 8,
+        paddingBottom: 16
     },
     topBar: {
         display: "flex",
@@ -176,7 +299,8 @@ const styles = StyleSheet.create({
         padding: 16,
         paddingVertical: 8,
         borderTopLeftRadius: 8,
-        borderTopRightRadius: 8
+        borderTopRightRadius: 8,
+        marginBottom: 16
     },
     addDoctorsMessage: {
         flex: 1,
@@ -184,16 +308,28 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginHorizontal: 32,
         textAlign: "center"
+    },
+    formButtonsContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-end"
+    },
+    formButton: {
+        marginRight: 16
+        // marginTop: 8,
+        // marginBottom: 8
     }
 });
 
 const mapStateToProps = (state) => ({
-    accessPoints: state.accessPoints,
-    routers: state.routers
+    accessPointsRedux: state.accessPoints,
+    firebaseUser: state.firebaseUser,
+    geofencingData: state.geofencingData
 });
 
 const mapDispatchToProps = (dispatch) => ({
-    setAccessPoints: (arr) => dispatch(setAccessPoints(arr))
+    setAccessPointsRedux: (arr) => dispatch(setAccessPoints(arr)),
+    setSnackbarConfig: (config) => dispatch(setSnackbarConfig(config))
 });
 
 export default connect(

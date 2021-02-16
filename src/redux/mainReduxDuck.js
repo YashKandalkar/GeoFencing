@@ -180,6 +180,9 @@ export default (state = initialState, action) => {
                       }
                     : action.data.geofencingData,
                 geofencingSetupDone: !!action.data.geofencingData,
+                accessPoints: action.data.accessPoints
+                    ? Object.values(action.data.accessPoints)
+                    : [],
                 doctorList: action.data.doctorList
                     ? Object.values(action.data.doctorList)
                     : null
