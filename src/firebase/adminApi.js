@@ -96,7 +96,14 @@ export const deleteHospitalMap = (user, onSuccess, onError) => {
         .ref(user.uid)
         .child("hospitalFloorMap")
         .delete()
-        .then(onSuccess)
+        .then(() => {
+            firebaseApp
+                .database()
+                .ref("users/" + user.uid + "/hospitalFloorMap")
+                .remove()
+                .then(onSuccess)
+                .catch(onError);
+        })
         .catch(onError);
 };
 

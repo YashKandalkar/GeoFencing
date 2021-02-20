@@ -9,12 +9,16 @@ import {
     Subheading,
     Surface,
     Title,
-    withTheme
+    withTheme,
+    Modal,
+    ActivityIndicator
 } from "react-native-paper";
 import { setAccessPoints, setSnackbarConfig } from "../redux/mainReduxDuck";
 import WifiManager from "react-native-wifi-reborn";
 import AccessPoint from "./AccessPoint";
 import Divider from "./Divider";
+
+// import { gaussian } from "../utils/functions";
 
 import { setAccessPoints as setFirebaseAccessPoints } from "../firebase/adminApi";
 
@@ -35,6 +39,8 @@ const AccessPointsList = ({
     const [deleteLoading, setLoading] = useState(false);
     const [accessPoints, setAccessPoints] = useState(accessPointsRedux ?? []);
     const [nextButtonLoading, setNextButtonLoading] = useState(false);
+    const [rescan, setRescan] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
     const [dialog, setDialog] = useState({
         title: null,
         content: null,
@@ -49,9 +55,17 @@ const AccessPointsList = ({
             : Object.values(routers).map((el) => el.name);
 
         try {
-            wifiList = await WifiManager.loadWifiList();
+            setModalVisible(true);
+            if (rescan) {
+                wifiList = await WifiManager.reScanAndLoadWifiList();
+            } else {
+                wifiList = await WifiManager.loadWifiList();
+                setRescan(true);
+            }
+            setModalVisible(false);
         } catch (err) {
             console.error(err);
+            setModalVisible(false);
             alert(
                 "Could not get the signal strengths of nearby routers. Make sure your phone's location service is ON!"
             );
@@ -76,6 +90,43 @@ const AccessPointsList = ({
 
     const onAddClick = async () => {
         let { routerSignalLevels, routersNotFound } = await getNearbySignals();
+        // if (Object.values(routerSignalLevels).length > 0) {
+        //     let data = {};
+        //     setModalVisible(true);
+        //     for (let i = 0; i < 5; i++) {
+        //         let { routerSignalLevels: newData } = await getNearbySignals(
+        //             true
+        //         );
+        //         console.log(newData);
+        //         Object.keys(newData).forEach((el) => {
+        //             if (Object.keys(data).includes(el)) {
+        //                 data[el].push(newData[el]);
+        //             } else {
+        //                 data[el] = [newData[el]];
+        //             }
+        //         });
+        //     }
+        //     console.log(data);
+        //     let filteredSignals = {};
+        //     Object.keys(data).forEach((router) => {
+        //         let filteredRssi = gaussian(data[router]);
+        //         filteredSignals[router] = +filteredRssi.toFixed(2);
+        //         console.log(+filteredRssi.toFixed(2), filteredRssi);
+        //     });
+        //     setAccessPoints([
+        //         ...accessPoints,
+        //         {
+        //             routerSignalLevels: filteredSignals,
+        //             routersNotFound,
+        //             position: { x: 0, y: 0, z: 0 }
+        //         }
+        //     ]);
+        //     setSnackbarConfig({
+        //         content: "Unsaved Changes! Don't forget to click SAVE!",
+        //         type: "WARNING"
+        //     });
+        //     setModalVisible(false);
+        // } else {
         setAccessPoints([
             ...accessPoints,
             {
@@ -88,6 +139,7 @@ const AccessPointsList = ({
             content: "Unsaved Changes! Don't forget to click SAVE!",
             type: "WARNING"
         });
+        // }
     };
 
     useEffect(() => {
@@ -279,6 +331,26 @@ const AccessPointsList = ({
                         </Button>
                     </Dialog.Actions>
                 </Dialog>
+            </Portal>
+            <Portal>
+                <Modal
+                    visible={modalVisible}
+                    onDismiss={() => setModalVisible(false)}
+                    dismissable={false}
+                    contentContainerStyle={{
+                        backgroundColor: "white",
+                        padding: 16,
+                        marginHorizontal: 56,
+                        alignItems: "center",
+                        justifyContent: "space-around",
+                        flexDirection: "row",
+                        borderLeftColor: colors.primaryDark,
+                        borderLeftWidth: 6
+                    }}
+                >
+                    <Subheading>Adding Access Point</Subheading>
+                    <ActivityIndicator />
+                </Modal>
             </Portal>
         </>
     );

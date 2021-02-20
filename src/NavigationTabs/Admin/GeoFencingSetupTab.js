@@ -87,6 +87,8 @@ const GeoFencingSetupTab = ({
         }
     );
 
+    // TODO: limit router's x, y if new image's size is lower than previous
+
     useEffect(() => {
         let timer = setTimeout(() => {
             setLoadComponents(true);
@@ -155,37 +157,45 @@ const GeoFencingSetupTab = ({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             quality: 1
-        }).then((result) => {
-            if (!result.cancelled && firebaseUser) {
-                console.log(result);
-                setImageUploading({ value: 0.0 });
-                uploadHospitalMap(
-                    firebaseUser,
-                    result,
-                    (v) => {
-                        setImageUploading({ value: v });
-                    },
-                    (err) => console.error(err),
-                    (downloadUrl) => {
-                        setFirestoreImageUrl(downloadUrl);
-                        setImageUploading({ value: null });
-                    }
-                )
-                    .then(() => setImage(result))
-                    .catch(console.error);
-            } else {
+        })
+            .then((result) => {
+                if (!result.cancelled && firebaseUser) {
+                    setImageUploading({ value: 0.0 });
+                    uploadHospitalMap(
+                        firebaseUser,
+                        result,
+                        (v) => {
+                            setImageUploading({ value: v });
+                        },
+                        (err) => console.error(err),
+                        (downloadUrl) => {
+                            setFirestoreImageUrl(downloadUrl);
+                            setImageUploading({ value: null });
+                            setImage({ ...result, uri: downloadUrl });
+                        }
+                    )
+                        .then(() => {})
+                        .catch(console.error);
+                } else {
+                    setSnackbarConfig({
+                        content: "An error occurred! Please try again later...",
+                        type: "ERROR"
+                    });
+                }
+            })
+            .catch((err) => {
+                console.log(err);
                 setSnackbarConfig({
                     content: "An error occurred! Please try again later...",
                     type: "ERROR"
                 });
-            }
-        });
+            });
     };
 
     const factorOffsets = { x: -0.33, y: -0.33 };
 
     // when numeric input changes:
-    const geoFencePixelDimensionsHandler = useDebounce(500, (dimension) => {
+    const geoFencePixelDimensionsHandler = (dimension) => {
         setGeoFencePixelDimensions({ ...dimension });
         if (
             geofenceActualDimensions.horizontal !== 0 &&
@@ -200,7 +210,7 @@ const GeoFencingSetupTab = ({
                     factorOffsets.y
             });
         }
-    });
+    };
 
     const routerInfoHandler = (val, ind) => {
         let newArr = [...routers];
@@ -210,7 +220,7 @@ const GeoFencingSetupTab = ({
 
     const onClearClick = () => {
         setDialog({
-            title: "Confirmation",
+            title: "Delete Floor Maps",
             content: "Are you sure you want to delete this map?",
             onAction: clearImage
         });
@@ -223,12 +233,26 @@ const GeoFencingSetupTab = ({
             () => {
                 setImage(null);
                 setButtonLoading({ ...buttonLoading, mapClear: false });
+                // setGeoFencePixelDimensions({
+                //     horizontal: 0,
+                //     vertical: 0
+                // });
+                // setRouterLimits({
+                //     x: 0,
+                //     y: 0,
+                //     w: 0,
+                //     h: 0
+                // });
+                // setActualToPixelFactor({
+                //     horizontal: 0,
+                //     vertical: 0
+                // });
                 setGeofencingData({
                     ...geofencingData,
-                    image: null,
-                    geoFencePixelDimensions: null,
-                    routerLimits: null,
-                    actualToPixelFactor: null
+                    image: null
+                    // geoFencePixelDimensions: null,
+                    // routerLimits: null,
+                    // actualToPixelFactor: null
                 });
                 setGeofencingSetupDone(false);
                 setImageUploading({ value: null });

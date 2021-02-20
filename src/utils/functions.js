@@ -1,27 +1,28 @@
-// This function was written by
-// José Manuel Aguirre
-// https://itnext.io/generation-unique-ids-in-the-database-a9a7acd0e721
+export const gaussian = (arr) => {
+    let arrLen = arr.length;
+    let arrSum = arr.reduce((a, b) => a + b);
+    let mu = arrSum / arrLen;
+    let sumation = 0;
+    arr.forEach((el) => {
+        sumation += Math.pow(el - mu, 2);
+    });
+    let sigSquare = sumation / (arrLen - 1);
 
-function uid(options = {}) {
-    const randomStr = (strLength) => {
-        const chars = [
-            ..."abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-        ];
-        return [...Array(strLength)]
-            .map(() => chars[Math.trunc(Math.random() * chars.length)])
-            .join("");
-    };
+    if (sigSquare == 0) return arr[0];
 
-    const now = String(Date.now());
-    const middlePos = Math.ceil(now.length / 2);
-    let output = `${now.substr(0, middlePos)}-${randomStr(6)}-${now.substr(
-        middlePos
-    )}`;
+    const probDensityFunction = (rssi) =>
+        (1 / (Math.sqrt(sigSquare) * Math.sqrt(2 * Math.PI))) *
+        Math.exp(-Math.pow(rssi - mu, 2) / sigSquare);
 
-    // We add a 3 letter CODE in front of the id to make it more recognizable
-    if (options.prefix) output = `${options.prefix}-${output}`;
+    let maxProb = 0.0,
+        outRssi;
 
-    return output;
-}
+    arr.forEach((rssi) => {
+        let prob = probDensityFunction(rssi);
+        if (prob > maxProb) {
+            outRssi = rssi;
+        }
+    });
 
-export { uid as generateUID };
+    return outRssi;
+};
