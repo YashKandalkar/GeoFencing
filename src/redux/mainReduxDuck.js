@@ -171,21 +171,21 @@ export default (state = initialState, action) => {
         case SET_ADMIN_DATA:
             return {
                 ...state,
-                hospitalData: action.data.hospitalData,
+                hospitalData: action.data.hospitalData ?? {},
                 adminHospitalSetupDone: !!action.data.hospitalData,
                 geofencingData: action.data.hospitalFloorMap
                     ? {
                           ...action.data.geofencingData,
                           image: action.data.hospitalFloorMap
                       }
-                    : action.data.geofencingData,
+                    : action.data.geofencingData ?? {},
                 geofencingSetupDone: !!action.data.geofencingData,
                 accessPoints: action.data.accessPoints
                     ? Object.values(action.data.accessPoints)
                     : [],
                 doctorList: action.data.doctorList
                     ? Object.values(action.data.doctorList)
-                    : null
+                    : []
             };
 
         case SET_ACCESS_POINTS:
