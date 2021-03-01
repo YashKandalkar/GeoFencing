@@ -18,9 +18,10 @@ import WifiManager from "react-native-wifi-reborn";
 import AccessPoint from "./AccessPoint";
 import Divider from "./Divider";
 
-// import { gaussian } from "../utils/functions";
-
-import { setAccessPoints as setFirebaseAccessPoints } from "../firebase/adminApi";
+import {
+    setAccessPoints as setFirebaseAccessPoints,
+    getAccessPoints
+} from "../firebase/adminApi";
 
 const AccessPointsList = ({
     setAccessPointsRedux,
@@ -32,8 +33,6 @@ const AccessPointsList = ({
     jumpTo,
     theme
 }) => {
-    // TODO: Add accessPointSetupDone state in redux!
-
     const { colors } = theme;
     const { routers } = geofencingData;
     const [deleteLoading, setLoading] = useState(false);
@@ -90,43 +89,6 @@ const AccessPointsList = ({
 
     const onAddClick = async () => {
         let { routerSignalLevels, routersNotFound } = await getNearbySignals();
-        // if (Object.values(routerSignalLevels).length > 0) {
-        //     let data = {};
-        //     setModalVisible(true);
-        //     for (let i = 0; i < 5; i++) {
-        //         let { routerSignalLevels: newData } = await getNearbySignals(
-        //             true
-        //         );
-        //         console.log(newData);
-        //         Object.keys(newData).forEach((el) => {
-        //             if (Object.keys(data).includes(el)) {
-        //                 data[el].push(newData[el]);
-        //             } else {
-        //                 data[el] = [newData[el]];
-        //             }
-        //         });
-        //     }
-        //     console.log(data);
-        //     let filteredSignals = {};
-        //     Object.keys(data).forEach((router) => {
-        //         let filteredRssi = gaussian(data[router]);
-        //         filteredSignals[router] = +filteredRssi.toFixed(2);
-        //         console.log(+filteredRssi.toFixed(2), filteredRssi);
-        //     });
-        //     setAccessPoints([
-        //         ...accessPoints,
-        //         {
-        //             routerSignalLevels: filteredSignals,
-        //             routersNotFound,
-        //             position: { x: 0, y: 0, z: 0 }
-        //         }
-        //     ]);
-        //     setSnackbarConfig({
-        //         content: "Unsaved Changes! Don't forget to click SAVE!",
-        //         type: "WARNING"
-        //     });
-        //     setModalVisible(false);
-        // } else {
         setAccessPoints([
             ...accessPoints,
             {
@@ -139,53 +101,21 @@ const AccessPointsList = ({
             content: "Unsaved Changes! Don't forget to click SAVE!",
             type: "WARNING"
         });
-        // }
     };
 
     useEffect(() => {
-        let newAP = [...accessPoints];
-        let routerNames = Array.isArray(routers)
-            ? routers.map((el) => el.name)
-            : Object.values(routers).map((el) => el.name);
-        for (const newAPElement of newAP) {
-            let len =
-                Object.keys(newAPElement.routerSignalLevels).length +
-                newAPElement.routersNotFound.length;
-            if (len > routerNames.length) {
-                for (const el of Object.keys(newAPElement.routerSignalLevels)) {
-                    if (!routerNames.includes(el)) {
-                        delete newAPElement.routerSignalLevels[el];
-                    }
+        getAccessPoints(
+            firebaseUser,
+            (d) => {
+                if (d) {
+                    setAccessPoints(Object.values(d));
+                    setAccessPointsRedux(Object.values(d));
                 }
-                for (const el of newAPElement.routersNotFound) {
-                    if (!routerNames.includes(el)) {
-                        newAPElement.routersNotFound = newAPElement.routersNotFound.filter(
-                            (e) => e !== el
-                        );
-                    }
-                }
-            } else {
-                for (const routerName of routerNames) {
-                    if (
-                        !newAPElement.routerSignalLevels[routerName] &&
-                        !newAPElement.routersNotFound.includes(routerName)
-                    ) {
-                        newAPElement.routersNotFound.push(routerName);
-                    }
-                }
-            }
-            setFirebaseAccessPoints(
-                firebaseUser,
-                newAP,
-                () => {
-                    setAccessPointsRedux(newAP);
-                    setAccessPoints(newAP);
-                },
-                console.error
-            );
-        }
+            },
+            console.error
+        );
         return () => {};
-    }, [geofencingData]);
+    }, []);
 
     const onAPRemove = (ind, onSuccess) => {
         let newArr = accessPoints.filter((_, index) => index !== ind);

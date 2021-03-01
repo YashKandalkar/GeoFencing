@@ -24,6 +24,7 @@ import Scroll from "./Scroll";
 
 import OutlinedContainer from "./OutlinedContainer";
 
+import { firebaseApp } from "../firebase/init";
 import { createNewUser, loginInUser } from "../firebase/authApi";
 import { getAdminData } from "../firebase/adminApi";
 
@@ -77,12 +78,15 @@ const Login = ({
                                     setAdminData(data);
                                 }
 
-                                setSnackbarConfig({
-                                    content: "Logged in as " + loginAs + "!",
-                                    type: "SUCCESS"
-                                });
-                                setFirebaseUser(user);
-                                setLoggedIn(true);
+                                if (!firebaseApp.auth().currentUser) {
+                                    setSnackbarConfig({
+                                        content:
+                                            "Logged in as " + loginAs + "!",
+                                        type: "SUCCESS"
+                                    });
+                                    setFirebaseUser(user);
+                                    setLoggedIn(true);
+                                }
                             },
                             (err) => {
                                 console.error(err);
@@ -99,7 +103,7 @@ const Login = ({
             (err) => {
                 setLoading(false);
                 setLoggedIn(false);
-                console.log(err);
+                console.error(err);
                 setSnackbarConfig({
                     content: "Error logging in!",
                     type: "ERROR"

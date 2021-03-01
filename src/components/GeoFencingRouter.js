@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { IconButton, Button } from "react-native-paper";
 import DropDownPicker from "react-native-dropdown-picker";
-import { View } from "react-native";
+import { View, StyleSheet } from "react-native";
 import WifiManager from "react-native-wifi-reborn";
 
 import OutlinedContainer from "./OutlinedContainer";
@@ -9,15 +9,30 @@ import NumericFormItem from "./NumericFormItem";
 import PropTypes from "prop-types";
 
 const inputProps = {
-    minValue: 0,
+    minValue: 0.0,
     rounded: true,
-    step: 100,
-    totalWidth: 150,
-    type: "up-down",
+    step: 0.1,
+    valueType: "real",
+    totalWidth: 110,
+    separatorWidth: StyleSheet.hairlineWidth,
+    iconStyle: { marginHorizontal: -100 },
+    totalHeight: 40,
     inputStyle: {
         fontSize: 14
-    },
-    totalHeight: 50
+    }
+};
+
+const channelInputProps = {
+    minValue: 0,
+    rounded: true,
+    step: 1,
+    valueType: "integer",
+    totalWidth: 110,
+    separatorWidth: StyleSheet.hairlineWidth,
+    totalHeight: 40,
+    inputStyle: {
+        fontSize: 14
+    }
 };
 
 const GeoFencingRouter = ({
@@ -122,7 +137,7 @@ const GeoFencingRouter = ({
                 value={
                     value.horizontal > 0
                         ? value.horizontal <= maxValue.horizontal
-                            ? Math.round(value.horizontal)
+                            ? +value.horizontal.toFixed(2)
                             : maxValue.horizontal
                         : 0
                 }
@@ -136,7 +151,7 @@ const GeoFencingRouter = ({
                 value={
                     value.vertical > 0
                         ? value.vertical <= maxValue.vertical
-                            ? Math.round(value.vertical)
+                            ? +value.vertical.toFixed(2)
                             : maxValue.vertical
                         : 0
                 }
@@ -147,15 +162,23 @@ const GeoFencingRouter = ({
                 onChange={(val) => onChange({ height: val })}
                 helperText={"(in meters)"}
                 labelStyle={{ fontSize: 16 }}
-                value={Math.round(value.height)}
+                value={+value.height.toFixed(2)}
             />
             <NumericFormItem
                 labelText={"Range:"}
-                inputProps={{ ...inputProps, minValue: 20, step: 5 }}
+                inputProps={{ ...inputProps, step: 0.1 }}
                 onChange={(val) => onChange({ range: val })}
                 helperText={"(in meters)"}
                 labelStyle={{ fontSize: 16 }}
                 value={Math.round(value.range)}
+            />
+            <NumericFormItem
+                labelText={"Channel:"}
+                inputProps={{ ...channelInputProps, maxValue: 12 }}
+                onChange={(val) => onChange({ channel: val })}
+                helperText={"(Operating Channel)"}
+                labelStyle={{ fontSize: 16 }}
+                value={Math.round(value.channel)}
             />
         </OutlinedContainer>
     );

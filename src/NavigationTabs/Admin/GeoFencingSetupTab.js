@@ -470,9 +470,10 @@ const GeoFencingSetupTab = ({
                                             "Bounding Rectangle Horizontal Length:"
                                         }
                                         inputProps={{
-                                            minValue: 10,
+                                            minValue: 0,
                                             rounded: true,
                                             step: 10,
+                                            valueType: "real",
                                             totalWidth: 150,
                                             type: "up-down",
                                             inputStyle: {
@@ -499,9 +500,10 @@ const GeoFencingSetupTab = ({
                                             "Bounding Rectangle Vertical Length:"
                                         }
                                         inputProps={{
-                                            minValue: 10,
+                                            minValue: 0,
                                             rounded: true,
                                             step: 10,
+                                            valueType: "real",
                                             totalWidth: 150,
                                             type: "up-down",
                                             inputStyle: {
@@ -526,7 +528,7 @@ const GeoFencingSetupTab = ({
                                 </OutlinedContainer>
                             </View>
 
-                            {loadComponents ? (
+                            {true ? (
                                 <View
                                     style={{
                                         margin: 8
@@ -546,7 +548,8 @@ const GeoFencingSetupTab = ({
                                     </Paragraph>
                                     <Paragraph>
                                         Provide the actual location of the
-                                        routers inside the hospital.
+                                        routers inside the hospital. Top left in
+                                        the rectangle is (0, 0).
                                     </Paragraph>
                                     {routers.map((router, index) => (
                                         <GeoFencingRouter

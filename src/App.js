@@ -117,12 +117,14 @@ function App({
                             }
                         );
                     } else {
-                        setSnackbarConfig({
-                            content: "Logged in as " + loginAs + "!",
-                            type: "SUCCESS"
-                        });
-                        setFirebaseUser(user);
-                        setLoggedIn(true);
+                        if (!firebaseApp.auth().currentUser) {
+                            setSnackbarConfig({
+                                content: "Logged in as " + loginAs + "!",
+                                type: "SUCCESS"
+                            });
+                            setFirebaseUser(user);
+                            setLoggedIn(true);
+                        }
                     }
                 } else {
                     setFirebaseUser(null);

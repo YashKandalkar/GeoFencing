@@ -16,9 +16,10 @@ import Divider from "./Divider";
 import DropDownPicker from "react-native-dropdown-picker";
 
 const inputProps = {
-    minValue: 0,
+    minValue: 0.0,
     rounded: true,
-    step: 100,
+    valueType: "real",
+    step: 0.1,
     totalWidth: 120,
     inputStyle: {
         fontSize: 14
@@ -101,7 +102,7 @@ const AccessPoint = ({
                 }
                 helperText={"(in meters)"}
                 labelStyle={{ fontSize: 16, maxWidth: 80 }}
-                value={position.x}
+                value={+position.x.toFixed(2)}
             />
             <NumericFormItem
                 labelText={"Vertical Distance:"}
@@ -111,7 +112,7 @@ const AccessPoint = ({
                 }
                 helperText={"(in meters)"}
                 labelStyle={{ fontSize: 16, maxWidth: 80 }}
-                value={position.y}
+                value={+position.y.toFixed(2)}
             />
             <NumericFormItem
                 labelText={"Height:"}
@@ -121,47 +122,50 @@ const AccessPoint = ({
                 }
                 helperText={"(in meters)"}
                 labelStyle={{ fontSize: 16, maxWidth: 70 }}
-                value={position.z}
+                value={+position.z.toFixed(2)}
             />
             <Divider />
-            {Object.keys(routerSignalLevels).map((el) => (
-                <RouterSignalRow
-                    name={el}
-                    key={el}
-                    signal={routerSignalLevels[el]}
-                    onChange={(val) =>
-                        onChange(ind, {
-                            routerSignalLevels: {
-                                ...routerSignalLevels,
-                                ...val
-                            }
-                        })
-                    }
-                />
-            ))}
-            {routersNotFound.length > 0 && (
+            {routerSignalLevels &&
+                Object.keys(routerSignalLevels).map((el) => (
+                    <RouterSignalRow
+                        name={el}
+                        key={el}
+                        signal={routerSignalLevels[el]}
+                        onChange={(val) =>
+                            onChange(ind, {
+                                routerSignalLevels: {
+                                    ...routerSignalLevels,
+                                    ...val
+                                }
+                            })
+                        }
+                    />
+                ))}
+            {routersNotFound?.length > 0 && (
                 <View
                     style={{
                         flexDirection: "row",
                         alignItems: "center",
                         justifyContent:
+                            !routerSignalLevels ||
                             Object.keys(routerSignalLevels).length >= 3
                                 ? "center"
                                 : undefined
                     }}
                 >
-                    {Object.keys(routerSignalLevels).length < 3 && (
-                        <HelperText
-                            style={{
-                                marginVertical: 8,
-                                maxWidth: "75%"
-                            }}
-                            type={"error"}
-                        >
-                            Could not find the signals of 3 routers at this
-                            access point!
-                        </HelperText>
-                    )}
+                    {!routerSignalLevels ||
+                        (Object.keys(routerSignalLevels).length < 3 && (
+                            <HelperText
+                                style={{
+                                    marginVertical: 8,
+                                    maxWidth: "75%"
+                                }}
+                                type={"error"}
+                            >
+                                Could not find the signals of 3 routers at this
+                                access point!
+                            </HelperText>
+                        ))}
                     <Button
                         compact
                         uppercase={false}
@@ -191,11 +195,15 @@ const AccessPoint = ({
                         <DropDownPicker
                             searchable
                             max={2}
-                            items={routersNotFound.map((el) => ({
-                                label: el,
-                                value: el,
-                                icon: () => {}
-                            }))}
+                            items={
+                                routersNotFound
+                                    ? routersNotFound.map((el) => ({
+                                          label: el,
+                                          value: el,
+                                          icon: () => {}
+                                      }))
+                                    : []
+                            }
                             containerStyle={{
                                 width: "80%",
                                 height: 50,

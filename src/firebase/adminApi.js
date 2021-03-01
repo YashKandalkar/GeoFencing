@@ -61,6 +61,19 @@ export const getAdminData = (user, onSuccess, onError) => {
         .catch(onError);
 };
 
+export const getAccessPoints = (user, onSuccess, onError) => {
+    firebaseApp
+        .database()
+        .ref("users/" + user.uid + "/accessPoints")
+        .on(
+            "value",
+            (snapshot) => {
+                onSuccess(snapshot.val());
+            },
+            onError
+        );
+};
+
 export const uploadHospitalMap = async (
     user,
     image,
