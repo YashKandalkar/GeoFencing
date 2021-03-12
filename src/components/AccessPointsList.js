@@ -34,7 +34,7 @@ const AccessPointsList = ({
     theme
 }) => {
     const { colors } = theme;
-    const { routers } = geofencingData;
+    const routers = geofencingData?.routers ?? [];
     const [deleteLoading, setLoading] = useState(false);
     const [accessPoints, setAccessPoints] = useState(accessPointsRedux ?? []);
     const [nextButtonLoading, setNextButtonLoading] = useState(false);
@@ -224,6 +224,22 @@ const AccessPointsList = ({
                 )}
                 {accessPoints.length > 0 && (
                     <>
+                        <View
+                            style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                marginTop: 16
+                            }}
+                        >
+                            <Button
+                                mode={"contained"}
+                                icon={"plus"}
+                                onPress={() => onAddClick()}
+                            >
+                                Add RP
+                            </Button>
+                        </View>
                         <Divider dividerStyle={{ margin: 16 }} />
                         <View style={styles.formButtonsContainer}>
                             <Button

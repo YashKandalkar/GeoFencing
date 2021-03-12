@@ -16,6 +16,7 @@ import { Controller, useForm } from "react-hook-form";
 
 import {
     setAdminData,
+    setAdminId,
     setFirebaseUser,
     setLoggedIn,
     setSnackbarConfig
@@ -26,7 +27,8 @@ import OutlinedContainer from "./OutlinedContainer";
 
 import { firebaseApp } from "../firebase/init";
 import { createNewUser, loginInUser } from "../firebase/authApi";
-import { getAdminData } from "../firebase/adminApi";
+import { getAdminData, setHospitalData } from "../firebase/adminApi";
+import { getHospitalDetails } from "../firebase/doctorApi";
 
 const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
@@ -84,8 +86,8 @@ const Login = ({
                                             "Logged in as " + loginAs + "!",
                                         type: "SUCCESS"
                                     });
-                                    setFirebaseUser(user);
-                                    setLoggedIn(true);
+                                    // setFirebaseUser(user);
+                                    // setLoggedIn(true);
                                 }
                             },
                             (err) => {
@@ -97,6 +99,31 @@ const Login = ({
                                 });
                             }
                         );
+                    } else {
+                        if (!firebaseApp.auth().currentUser) {
+                            // getHospitalDetails(
+                            //     user,
+                            //     (data, adminId) => {
+                            //         setHospitalData(data);
+                            //         setAdminId(adminId);
+                            //         setSnackbarConfig({
+                            //             content:
+                            //                 "Logged in as " + loginAs + "!",
+                            //             type: "SUCCESS"
+                            //         });
+                            //         setFirebaseUser(user);
+                            //         // setLoggedIn(true);
+                            //     },
+                            //     (err) => {
+                            //         console.error(err);
+                            //         setSnackbarConfig({
+                            //             content:
+                            //                 "An error occurred. Please check your internet connection!",
+                            //             type: "ERROR"
+                            //         });
+                            //     }
+                            // );
+                        }
                     }
                 }
             },

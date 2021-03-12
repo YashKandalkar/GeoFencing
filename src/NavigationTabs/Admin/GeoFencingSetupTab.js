@@ -293,6 +293,7 @@ const GeoFencingSetupTab = ({
                 setButtonLoading({ ...buttonLoading, mapClear: true });
                 let newRouterArr = [...routers];
                 newRouterArr.splice(ind, 1);
+
                 setFirebaseGeofencingData(
                     firebaseUser,
                     { ...geofencingData, routers: newRouterArr },
@@ -528,7 +529,7 @@ const GeoFencingSetupTab = ({
                                 </OutlinedContainer>
                             </View>
 
-                            {true ? (
+                            {loadComponents ? (
                                 <View
                                     style={{
                                         margin: 8
@@ -558,6 +559,7 @@ const GeoFencingSetupTab = ({
                                             value={router}
                                             maxValue={geofenceActualDimensions}
                                             onDelete={onRouterDelete}
+                                            name={router.name}
                                             onChange={(value) =>
                                                 routerInfoHandler(value, index)
                                             }

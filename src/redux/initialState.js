@@ -6,6 +6,8 @@ export default {
     hospitalData: {},
     geofencingData: {},
     doctorList: [],
+    patientList: [{ name: "Yash Kandalkar" }],
+    adminId: null,
     accessPoints: [],
     firebaseUser: null,
     snackbarConfig: {

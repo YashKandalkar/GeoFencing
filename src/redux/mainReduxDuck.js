@@ -12,6 +12,8 @@ const SET_DOCTOR_LIST = "SET_DOCTOR_LIST";
 const RESET_STATE = "RESET_STATE";
 const SET_ADMIN_DATA = "SET_ADMIN_DATA";
 const SET_ACCESS_POINTS = "SET_ACCESS_POINTS";
+const SET_ADMIN_ID = "SET_ADMIN_ID";
+const SET_PATIENT_LIST = "SET_PATIENT_LIST";
 
 export const setLoginAs = (loginAs) => ({
     type: SET_LOGIN_AS,
@@ -66,6 +68,16 @@ export const setAdminData = (data) => ({
 export const setAccessPoints = (data) => ({
     type: SET_ACCESS_POINTS,
     accessPoints: data
+});
+
+export const setAdminId = (id) => ({
+    type: SET_ADMIN_ID,
+    id
+});
+
+export const setPatientList = (data) => ({
+    type: SET_PATIENT_LIST,
+    data
 });
 
 export const resetState = () => ({
@@ -192,6 +204,18 @@ export default (state = initialState, action) => {
             return {
                 ...state,
                 accessPoints: action.accessPoints
+            };
+
+        case SET_ADMIN_ID:
+            return {
+                ...state,
+                adminId: action.id
+            };
+
+        case SET_PATIENT_LIST:
+            return {
+                ...state,
+                patientList: action.data
             };
 
         case RESET_STATE:

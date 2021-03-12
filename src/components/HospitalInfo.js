@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { ImageBackground, StyleSheet, View } from "react-native";
-import { Subheading, Surface, Text, Title } from "react-native-paper";
+import { Caption, Subheading, Surface, Text, Title } from "react-native-paper";
 import OutlinedContainer from "./OutlinedContainer";
 
 const HospitalInfo = ({ hospitalData, doctorList }) => {
@@ -17,6 +17,11 @@ const HospitalInfo = ({ hospitalData, doctorList }) => {
                     <Subheading style={{ color: "#eee" }}>
                         {hospitalData.address}
                     </Subheading>
+                    {hospitalData.state && (
+                        <Caption style={{ color: "#eee" }}>
+                            {hospitalData.state.label}
+                        </Caption>
+                    )}
                     <Subheading style={{ color: "#eee" }}>
                         {hospitalData.phoneNumber}
                     </Subheading>
@@ -56,7 +61,7 @@ const styles = StyleSheet.create({
         justifyContent: "center"
     },
     childContainer: {
-        backgroundColor: "rgba(0,0,0,0.5)",
+        backgroundColor: "rgba(0,0,0,0.6)",
         padding: 16,
         color: "#eee",
         borderRadius: 8

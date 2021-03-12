@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { IconButton, Button } from "react-native-paper";
 import DropDownPicker from "react-native-dropdown-picker";
 import { View, StyleSheet } from "react-native";
@@ -40,21 +40,39 @@ const GeoFencingRouter = ({
     value,
     onChange,
     maxValue,
-    onDelete
+    onDelete,
+    name
 }) => {
     const [wifiList, setWifiList] = useState(
-        value.name
+        name
             ? {
-                  [value.name]: {
-                      label: value.name,
-                      value: value.name,
+                  [name]: {
+                      label: name,
+                      value: name,
                       icon: () => {}
                   }
               }
             : {}
     );
-    const [selectedWifi, setSelectedWifi] = useState(value.name ?? null);
+    const [selectedWifi, setSelectedWifi] = useState(name ?? null);
     const [searchText, setSearchText] = useState("");
+
+    useEffect(() => {
+        if (value?.name && !wifiList[name]) {
+            setWifiList({
+                ...wifiList,
+                [name]: {
+                    label: name,
+                    value: name,
+                    icon: () => {}
+                }
+            });
+            setSelectedWifi(name);
+        }
+        return () => {
+            setWifiList({});
+        };
+    }, [name]);
 
     let controller;
 
@@ -179,6 +197,19 @@ const GeoFencingRouter = ({
                 helperText={"(Operating Channel)"}
                 labelStyle={{ fontSize: 16 }}
                 value={Math.round(value.channel)}
+            />
+
+            <NumericFormItem
+                labelText={"Unit Signal:"}
+                inputProps={{
+                    ...channelInputProps,
+                    minValue: undefined,
+                    maxValue: undefined
+                }}
+                onChange={(val) => onChange({ unitSignal: val })}
+                helperText={"(Signal at 1m)"}
+                labelStyle={{ fontSize: 16 }}
+                value={Math.round(value.unitSignal)}
             />
         </OutlinedContainer>
     );

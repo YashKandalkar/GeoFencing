@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { PermissionsAndroid, View } from "react-native";
 import { connect } from "react-redux";
 import { NavigationContainer } from "@react-navigation/native";
@@ -17,10 +17,13 @@ import {
     setFirebaseUser,
     setLoggedIn,
     setSnackbarConfig,
-    setAdminData
+    setAdminData,
+    setHospitalData,
+    setAdminId
 } from "./redux/mainReduxDuck";
 import { firebaseApp } from "./firebase/init";
 import { getAdminData } from "./firebase/adminApi";
+import { getHospitalDetails } from "./firebase/doctorApi";
 
 const Stack = createStackNavigator();
 
@@ -48,6 +51,8 @@ function App({
     setFirebaseUser,
     setSnackbarConfig,
     setAdminData,
+    setHospitalData,
+    setAdminId,
     resetState
 }) {
     const { colors } = theme;
@@ -57,6 +62,91 @@ function App({
         },
         headerTintColor: "#fff"
     };
+
+    const authListenerCallback = useCallback(
+        (user) => {
+            if (user?.emailVerified) {
+                setSnackbarConfig({
+                    content: "Fetching data...",
+                    type: "INFO"
+                });
+                if (loginAs === "ADMIN") {
+                    console.log("getting admin data");
+                    getAdminData(
+                        user,
+                        (data) => {
+                            if (data) {
+                                setAdminData(data);
+                            }
+
+                            if (user?.emailVerified) {
+                                setSnackbarConfig({
+                                    content: "Logged in as " + loginAs + "!",
+                                    type: "SUCCESS"
+                                });
+                                setFirebaseUser(user);
+                                setLoggedIn(true);
+                            }
+                        },
+                        (err) => {
+                            console.error(err);
+                            setSnackbarConfig({
+                                content:
+                                    "An error occurred. Please check your internet connection!",
+                                type: "ERROR"
+                            });
+                        }
+                    );
+                } else {
+                    getHospitalDetails(
+                        user,
+                        (data, adminId) => {
+                            if (adminId) {
+                                getAdminData(
+                                    { uid: adminId },
+                                    (adminData) => {
+                                        setAdminId(adminId);
+                                        if (adminData) {
+                                            setAdminData(adminData);
+                                            setSnackbarConfig({
+                                                content:
+                                                    "Logged in as " +
+                                                    loginAs +
+                                                    "!",
+                                                type: "SUCCESS"
+                                            });
+                                            setFirebaseUser(user);
+                                            setLoggedIn(true);
+                                        }
+                                    },
+                                    (err) => {
+                                        console.error(err);
+                                        setSnackbarConfig({
+                                            content:
+                                                "An error occurred. Please check your internet connection!",
+                                            type: "ERROR"
+                                        });
+                                    }
+                                );
+                            }
+                        },
+                        (err) => {
+                            console.error(err);
+                            setSnackbarConfig({
+                                content:
+                                    "An error occurred. Please check your internet connection!",
+                                type: "ERROR"
+                            });
+                        }
+                    );
+                }
+            } else {
+                setFirebaseUser(null);
+                setLoggedIn(false);
+            }
+        },
+        [loginAs]
+    );
 
     useEffect(() => {
         PermissionsAndroid.request(
@@ -83,58 +173,11 @@ function App({
 
         let unsubAuthListener = firebaseApp
             .auth()
-            .onAuthStateChanged((user) => {
-                if (user?.emailVerified) {
-                    setSnackbarConfig({
-                        content: "Fetching data...",
-                        type: "INFO"
-                    });
-                    if (loginAs === "ADMIN") {
-                        getAdminData(
-                            user,
-                            (data) => {
-                                if (data) {
-                                    setAdminData(data);
-                                }
-
-                                if (user?.emailVerified) {
-                                    setSnackbarConfig({
-                                        content:
-                                            "Logged in as " + loginAs + "!",
-                                        type: "SUCCESS"
-                                    });
-                                    setFirebaseUser(user);
-                                    setLoggedIn(true);
-                                }
-                            },
-                            (err) => {
-                                console.error(err);
-                                setSnackbarConfig({
-                                    content:
-                                        "An error occurred. Please check your internet connection!",
-                                    type: "ERROR"
-                                });
-                            }
-                        );
-                    } else {
-                        if (!firebaseApp.auth().currentUser) {
-                            setSnackbarConfig({
-                                content: "Logged in as " + loginAs + "!",
-                                type: "SUCCESS"
-                            });
-                            setFirebaseUser(user);
-                            setLoggedIn(true);
-                        }
-                    }
-                } else {
-                    setFirebaseUser(null);
-                    setLoggedIn(false);
-                }
-            });
+            .onAuthStateChanged(authListenerCallback);
         return () => {
             unsubAuthListener();
         };
-    }, []);
+    }, [loginAs]);
 
     const onSignOut = () => {
         firebaseApp
@@ -149,7 +192,6 @@ function App({
             })
             .catch((err) => err && console.error);
     };
-
     return (
         <NavigationContainer>
             <Stack.Navigator>
@@ -212,6 +254,8 @@ const mapDispatchToProps = (dispatch) => {
         setFirebaseUser: (user) => dispatch(setFirebaseUser(user)),
         setSnackbarConfig: (config) => dispatch(setSnackbarConfig(config)),
         setAdminData: (data) => dispatch(setAdminData(data)),
+        setHospitalData: (data) => dispatch(setHospitalData(data)),
+        setAdminId: (id) => dispatch(setAdminId(id)),
         resetState: () => dispatch(resetState())
     };
 };

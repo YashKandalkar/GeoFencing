@@ -54,8 +54,9 @@ const AccessPoint = ({
 
     let controller;
     let maxValue = {
-        horizontal: geofencingData.geofenceActualDimensions.horizontal,
-        vertical: geofencingData.geofenceActualDimensions.vertical
+        horizontal:
+            geofencingData?.geofenceActualDimensions?.horizontal ?? 1000,
+        vertical: geofencingData?.geofenceActualDimensions?.vertical ?? 1000
     };
 
     const addRouterSignalRow = () => {
@@ -96,7 +97,11 @@ const AccessPoint = ({
 
             <NumericFormItem
                 labelText={"Horizontal Distance:"}
-                inputProps={{ ...inputProps, maxValue: maxValue.horizontal }}
+                inputProps={{
+                    ...inputProps,
+                    maxValue: undefined,
+                    minValue: undefined
+                }}
                 onChange={(val) =>
                     onChange(ind, { position: { ...position, x: val } })
                 }
@@ -106,7 +111,11 @@ const AccessPoint = ({
             />
             <NumericFormItem
                 labelText={"Vertical Distance:"}
-                inputProps={{ ...inputProps, maxValue: maxValue.vertical }}
+                inputProps={{
+                    ...inputProps,
+                    maxValue: undefined,
+                    minValue: undefined
+                }}
                 onChange={(val) =>
                     onChange(ind, { position: { ...position, y: val } })
                 }
@@ -116,7 +125,11 @@ const AccessPoint = ({
             />
             <NumericFormItem
                 labelText={"Height:"}
-                inputProps={inputProps}
+                inputProps={{
+                    ...inputProps,
+                    maxValue: undefined,
+                    minValue: undefined
+                }}
                 onChange={(val) =>
                     onChange(ind, { position: { ...position, z: val } })
                 }

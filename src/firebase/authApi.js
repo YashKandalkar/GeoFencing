@@ -16,21 +16,36 @@ export const createNewUser = (
         .then((userCredential) => {
             // Signed in
             let user = userCredential.user;
-            firebaseApp
-                .database()
-                .ref(
-                    type +
-                        "/" +
-                        encodeURI(email.replace(/\./g, "-").replace(/\//g, "-"))
-                )
-                .set(true)
-                .then((r) => {
-                    console.log(r);
-                    user.sendEmailVerification()
-                        .then(() => {
-                            successCallback(user);
-                        })
-                        .catch((err) => failureCallback(err.message));
+            user.sendEmailVerification()
+                .then(() => {
+                    if (type === "DOCTOR") {
+                        firebaseApp
+                            .database()
+                            .ref(
+                                "DOCTOR/" +
+                                    encodeURI(
+                                        email
+                                            .replace(/\./g, "-")
+                                            .replace(/\//g, "-")
+                                    ) +
+                                    "/adminID"
+                            )
+                            .once(
+                                "value",
+                                (snap) => {
+                                    const adminId = snap.val();
+                                    firebaseApp
+                                        .database()
+                                        .ref("users/" + user.uid + "/adminId")
+                                        .set(adminId)
+                                        .then(successCallback)
+                                        .catch(console.error);
+                                },
+                                (err) => console.error(err)
+                            )
+                            .catch(failureCallback);
+                    }
+                    successCallback(user);
                 })
                 .catch((err) => failureCallback(err.message));
         })
@@ -61,6 +76,7 @@ export const loginInUser = (
         .then((snapshot) => {
             const userType = snapshot.val();
             if (userType === null) {
+                console.log(type);
                 return failureCallback("NotAllowedError");
             }
             firebaseApp
