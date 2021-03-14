@@ -197,6 +197,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => ({
     geofencingData: state.geofencingData,
     firebaseUser: state.firebaseUser,
+    hospitalData: state.hospitalData,
     patientList: state.patientList,
     adminId: state.adminId
 });
