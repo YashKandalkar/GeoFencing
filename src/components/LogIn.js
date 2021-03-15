@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import { SafeAreaView, StyleSheet, View } from "react-native";
+import Animated, { Easing } from "react-native-reanimated";
 import {
     Button,
     HelperText,
-    Snackbar,
     Subheading,
     Surface,
     Text,
@@ -25,7 +25,6 @@ import Scroll from "./Scroll";
 
 import OutlinedContainer from "./OutlinedContainer";
 
-import { firebaseApp } from "../firebase/init";
 import { createNewUser, loginInUser } from "../firebase/authApi";
 import { getAdminData, setHospitalData } from "../firebase/adminApi";
 import { getHospitalDetails } from "../firebase/doctorApi";
@@ -48,13 +47,44 @@ const Login = ({
         text: null
     });
 
+    const docOpacity = useState(
+        new Animated.Value(loginAs === "DOCTOR" ? 1 : 0)
+    )[0];
+    const adminOpacity = useState(
+        new Animated.Value(loginAs === "ADMIN" ? 1 : 0)
+    )[0];
+
     const isAdmin = loginAs === "ADMIN";
 
     const onLoginAsClick = () => {
         if (isAdmin) {
             setLoginAs("DOCTOR");
+            Animated.timing(docOpacity, {
+                toValue: 1,
+                duration: 200,
+                easing: Easing.ease,
+                useNativeDriver: true
+            }).start();
+            Animated.timing(adminOpacity, {
+                toValue: 0,
+                duration: 200,
+                easing: Easing.ease,
+                useNativeDriver: true
+            }).start();
         } else {
             setLoginAs("ADMIN");
+            Animated.timing(docOpacity, {
+                toValue: 0,
+                duration: 200,
+                useNativeDriver: true,
+                easing: Easing.ease
+            }).start();
+            Animated.timing(adminOpacity, {
+                toValue: 1,
+                duration: 200,
+                useNativeDriver: true,
+                easing: Easing.ease
+            }).start();
         }
     };
 
@@ -72,59 +102,59 @@ const Login = ({
                             "A verification email has been sent on your email address! Please click on the link provided in the email and sign in again"
                     });
                 } else {
-                    if (loginAs === "ADMIN") {
-                        getAdminData(
-                            user,
-                            (data) => {
-                                if (data) {
-                                    setAdminData(data);
-                                }
-
-                                if (!firebaseApp.auth().currentUser) {
-                                    setSnackbarConfig({
-                                        content:
-                                            "Logged in as " + loginAs + "!",
-                                        type: "SUCCESS"
-                                    });
-                                    // setFirebaseUser(user);
-                                    // setLoggedIn(true);
-                                }
-                            },
-                            (err) => {
-                                console.error(err);
-                                setSnackbarConfig({
-                                    content:
-                                        "An error occurred. Please check your internet connection!",
-                                    type: "ERROR"
-                                });
-                            }
-                        );
-                    } else {
-                        if (!firebaseApp.auth().currentUser) {
-                            // getHospitalDetails(
-                            //     user,
-                            //     (data, adminId) => {
-                            //         setHospitalData(data);
-                            //         setAdminId(adminId);
-                            //         setSnackbarConfig({
-                            //             content:
-                            //                 "Logged in as " + loginAs + "!",
-                            //             type: "SUCCESS"
-                            //         });
-                            //         setFirebaseUser(user);
-                            //         // setLoggedIn(true);
-                            //     },
-                            //     (err) => {
-                            //         console.error(err);
-                            //         setSnackbarConfig({
-                            //             content:
-                            //                 "An error occurred. Please check your internet connection!",
-                            //             type: "ERROR"
-                            //         });
-                            //     }
-                            // );
-                        }
-                    }
+                    // if (loginAs === "ADMIN") {
+                    //     getAdminData(
+                    //         user,
+                    //         (data) => {
+                    //             if (data) {
+                    //                 setAdminData(data);
+                    //             }
+                    //
+                    //             if (!firebaseApp.auth().currentUser) {
+                    //                 setSnackbarConfig({
+                    //                     content:
+                    //                         "Logged in as " + loginAs + "!",
+                    //                     type: "SUCCESS"
+                    //                 });
+                    //                 // setFirebaseUser(user);
+                    //                 // setLoggedIn(true);
+                    //             }
+                    //         },
+                    //         (err) => {
+                    //             console.error(err);
+                    //             setSnackbarConfig({
+                    //                 content:
+                    //                     "An error occurred. Please check your internet connection!",
+                    //                 type: "ERROR"
+                    //             });
+                    //         }
+                    //     );
+                    // } else {
+                    //     if (!firebaseApp.auth().currentUser) {
+                    //         // getHospitalDetails(
+                    //         //     user,
+                    //         //     (data, adminId) => {
+                    //         //         setHospitalData(data);
+                    //         //         setAdminId(adminId);
+                    //         //         setSnackbarConfig({
+                    //         //             content:
+                    //         //                 "Logged in as " + loginAs + "!",
+                    //         //             type: "SUCCESS"
+                    //         //         });
+                    //         //         setFirebaseUser(user);
+                    //         //         // setLoggedIn(true);
+                    //         //     },
+                    //         //     (err) => {
+                    //         //         console.error(err);
+                    //         //         setSnackbarConfig({
+                    //         //             content:
+                    //         //                 "An error occurred. Please check your internet connection!",
+                    //         //             type: "ERROR"
+                    //         //         });
+                    //         //     }
+                    //         // );
+                    //     }
+                    // }
                 }
             },
             (err) => {
@@ -173,11 +203,57 @@ const Login = ({
 
     return (
         <SafeAreaView style={styles.container}>
-            <Scroll contentStyles={{ alignItems: "center" }}>
-                <Title style={styles.title}>
-                    {isAdmin ? "Sign in as Admin" : "Sign in as Doctor"}
-                </Title>
-                <Surface style={styles.loginComponent}>
+            <Scroll
+                contentStyles={{ padding: 0, margin: 0, alignItems: "center" }}
+            >
+                <Animated.Image
+                    source={require("../assets/doctor.jpg")}
+                    style={{
+                        resizeMode: "cover",
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        bottom: 0,
+                        right: 0,
+                        height: "100%",
+                        width: "100%",
+                        opacity: docOpacity
+                    }}
+                />
+                <Animated.Image
+                    source={require("../assets/admin.jpg")}
+                    style={{
+                        resizeMode: "cover",
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        bottom: 0,
+                        right: 0,
+                        height: "100%",
+                        width: "100%",
+                        opacity: adminOpacity
+                    }}
+                />
+                <OutlinedContainer
+                    containerStyle={{
+                        backgroundColor: "rgba(255, 255, 255, 0.9)",
+                        borderColor: isAdmin ? "#008834" : "#155cf8",
+                        marginBottom: 110,
+                        marginTop: 50,
+                        padding: 12
+                    }}
+                >
+                    <Title style={styles.title}>
+                        {isAdmin ? "Sign in as Admin" : "Sign in as Doctor"}
+                    </Title>
+                </OutlinedContainer>
+
+                <Surface
+                    style={{
+                        ...styles.loginComponent,
+                        marginBottom: loginAs === "DOCTOR" ? 50 : 0
+                    }}
+                >
                     <View style={styles.formItem}>
                         <Text style={styles.textFieldHeading}>
                             Email address
@@ -255,17 +331,6 @@ const Login = ({
                         )}
                     </View>
 
-                    <Subheading
-                        style={{
-                            textAlign: "right",
-                            fontSize: 14,
-                            color: "#0366d6",
-                            fontFamily: "sans-serif-medium"
-                        }}
-                    >
-                        {"Forgot password?"}
-                    </Subheading>
-
                     {helperText.text && (
                         <HelperText visible type={helperText.type}>
                             {helperText.text}
@@ -306,7 +371,13 @@ const Login = ({
                         </Button>
                     )}
                 </Surface>
-                <OutlinedContainer containerStyle={styles.outlinedContainer}>
+
+                <OutlinedContainer
+                    containerStyle={{
+                        ...styles.outlinedContainer,
+                        borderColor: isAdmin ? "#008834" : "#155cf8"
+                    }}
+                >
                     <Subheading style={{ fontFamily: "sans-serif-light" }}>
                         {"Check our guidelines for patients"}
                     </Subheading>
@@ -318,9 +389,8 @@ const Login = ({
 
 const styles = StyleSheet.create({
     title: {
-        marginBottom: 48,
         fontFamily: "sans-serif-light",
-        fontSize: 30
+        fontSize: 28
     },
     container: {
         flex: 1
@@ -338,7 +408,9 @@ const styles = StyleSheet.create({
         width: "80%",
         maxWidth: 400,
         elevation: 1,
-        borderRadius: 6
+        borderRadius: 6,
+        backgroundColor: "rgba(255,255,255,0.9)"
+        // marginTop: 20
     },
     textFieldHeading: {
         fontFamily: "sans-serif-light",
@@ -351,11 +423,12 @@ const styles = StyleSheet.create({
     outlinedContainer: {
         width: "80%",
         maxWidth: 400,
-        marginTop: 75,
+        marginTop: 30,
         marginBottom: 16,
         alignItems: "center",
         borderColor: "#ddd",
-        paddingVertical: 16
+        paddingVertical: 16,
+        backgroundColor: "rgba(255,255,255,0.9)"
     }
 });
 

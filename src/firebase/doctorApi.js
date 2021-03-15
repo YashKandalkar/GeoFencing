@@ -7,7 +7,6 @@ export const getHospitalDetails = (user, onSuccess, onError) => {
         .once("value")
         .then((snap) => {
             const adminId = snap.val();
-            console.log({ adminId });
             firebaseApp
                 .database()
                 .ref("users/" + adminId + "/hospitalData")
@@ -58,4 +57,11 @@ export const getDeviceLocation = (user, deviceId, onSuccess, onError) => {
             },
             onError
         );
+};
+
+export const stopLocationListener = () => {
+    firebaseApp
+        .database()
+        .ref("devices/" + "100000" + "/location")
+        .off();
 };

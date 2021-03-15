@@ -1,10 +1,13 @@
 {
-  "name": "GeoFencing",
-  "displayName": "GeoFencing",
   "expo": {
     "name": "GeoFencing",
     "slug": "GeoFencing",
     "version": "1.0.0",
+    "splash": {
+      "image": "./src/assets/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#0070c0"
+    },
     "assetBundlePatterns": [
       "**/*"
     ],

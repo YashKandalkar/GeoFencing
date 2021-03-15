@@ -1,6 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { View, ImageBackground, StyleSheet, Linking } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import {
+    View,
+    ImageBackground,
+    StyleSheet,
+    Linking,
+    Vibration,
+    AppState
+} from "react-native";
 import OutlinedContainer from "./OutlinedContainer";
+import Sound from "react-native-sound";
 import {
     Subheading,
     Headline,
@@ -13,9 +21,45 @@ import {
 } from "react-native-paper";
 import Divider from "./Divider";
 
-const PatientItem = ({ name, mapImage, location, actualToPixelFactor }) => {
+Sound.setCategory("Playback");
+
+const PatientItem = ({
+    name,
+    mapImage,
+    location,
+    actualToPixelFactor,
+    securityNumber
+}) => {
     const [mapBounds, setMapBounds] = useState({});
     const [visible, setVisible] = React.useState(false);
+    const [alertSound, setAlertSound] = useState(null);
+    const appState = useRef(AppState.currentState);
+
+    const onStateChange = (nextState) => {
+        if (
+            appState.current.match(/inactive|background/) &&
+            nextState === "active"
+        ) {
+            if (visible) {
+                alertSound.play();
+                Vibration.vibrate([500, 1000], true);
+            }
+        } else {
+            console.log("App has come to the bakground!");
+            alertSound && alertSound.stop();
+            Vibration.cancel();
+        }
+
+        appState.current = nextState;
+    };
+
+    useEffect(() => {
+        AppState.addEventListener("change", onStateChange);
+
+        return () => {
+            AppState.removeEventListener("change", onStateChange);
+        };
+    }, [alertSound]);
 
     useEffect(() => {
         if (
@@ -25,18 +69,40 @@ const PatientItem = ({ name, mapImage, location, actualToPixelFactor }) => {
             location.y * actualToPixelFactor.vertical > mapBounds.height + 1
         ) {
             setVisible(true);
+            let aS = new Sound("alert.mp3", Sound.MAIN_BUNDLE, (error) => {
+                if (error) {
+                    console.error("failed to load the sound", error);
+                } else {
+                    aS.play();
+                }
+            });
+            aS.setNumberOfLoops(-1);
+            setAlertSound(aS);
+            Vibration.vibrate([500, 1000], true);
+        } else {
+            setVisible(false);
+            alertSound && alertSound.stop();
+            Vibration.cancel();
         }
-        return () => {};
+        return () => {
+            alertSound && alertSound.release();
+        };
     }, [location.x, location.y]);
 
     const openDialer = () => {
         let number;
         if (Platform.OS === "ios") {
-            number = "telprompt:${091123456789}";
+            number = "telprompt:${" + securityNumber + "}";
         } else {
-            number = "tel:${091123456789}";
+            number = "tel:${" + securityNumber + "}";
         }
         Linking.openURL(number);
+    };
+
+    const onDismiss = () => {
+        setVisible(false);
+        alertSound && alertSound.stop();
+        Vibration.cancel();
     };
 
     return (
@@ -79,47 +145,50 @@ const PatientItem = ({ name, mapImage, location, actualToPixelFactor }) => {
                     }}
                 />
                 <View style={{ width: "100%", alignItems: "center" }}>
-                    <ImageBackground
-                        source={mapImage}
-                        onLayout={({ nativeEvent: { layout } }) => {
-                            setMapBounds(layout);
-                        }}
-                        style={{
-                            height:
-                                mapImage.height >= mapImage.width
-                                    ? "100%"
-                                    : undefined,
-                            aspectRatio: mapImage.width / mapImage.height,
-                            width:
-                                mapImage.width > mapImage.height
-                                    ? "100%"
-                                    : undefined,
-                            zIndex: -20,
-                            borderColor: "red",
-                            borderWidth: 4,
-                            marginHorizontal: "auto",
-                            maxHeight: 210,
-                            overflow: "hidden",
-                            display: "flex"
-                        }}
-                    >
-                        <View
-                            style={{
-                                backgroundColor: "#0349d0",
-                                borderRadius: 50,
-                                position: "absolute",
-                                left:
-                                    location.x *
-                                        actualToPixelFactor.horizontal -
-                                    10,
-                                top:
-                                    location.y * actualToPixelFactor.vertical -
-                                    10,
-                                width: 20,
-                                height: 20
+                    {mapImage && (
+                        <ImageBackground
+                            source={mapImage}
+                            onLayout={({ nativeEvent: { layout } }) => {
+                                setMapBounds(layout);
                             }}
-                        />
-                    </ImageBackground>
+                            style={{
+                                height:
+                                    mapImage.height >= mapImage.width
+                                        ? "100%"
+                                        : undefined,
+                                aspectRatio: mapImage.width / mapImage.height,
+                                width:
+                                    mapImage.width > mapImage.height
+                                        ? "100%"
+                                        : undefined,
+                                zIndex: -20,
+                                borderColor: "red",
+                                borderWidth: 4,
+                                marginHorizontal: "auto",
+                                maxHeight: 210,
+                                overflow: "hidden",
+                                display: "flex"
+                            }}
+                        >
+                            <View
+                                style={{
+                                    backgroundColor: "#0349d0",
+                                    borderRadius: 50,
+                                    position: "absolute",
+                                    left:
+                                        location.x *
+                                            actualToPixelFactor.horizontal -
+                                        10,
+                                    top:
+                                        location.y *
+                                            actualToPixelFactor.vertical -
+                                        10,
+                                    width: 20,
+                                    height: 20
+                                }}
+                            />
+                        </ImageBackground>
+                    )}
                 </View>
             </OutlinedContainer>
             <Portal>
@@ -183,10 +252,7 @@ const PatientItem = ({ name, mapImage, location, actualToPixelFactor }) => {
                             paddingRight: 16
                         }}
                     >
-                        <Button
-                            color={"#999"}
-                            onPress={() => setVisible(false)}
-                        >
+                        <Button color={"#999"} onPress={onDismiss}>
                             Dismiss
                         </Button>
                     </View>

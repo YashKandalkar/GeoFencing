@@ -4197,6 +4197,7 @@ __metadata:
     react-native-reanimated: ~1.13.0
     react-native-safe-area-context: 3.1.9
     react-native-screens: ~2.15.2
+    react-native-sound: ^0.11.0
     react-native-unimodules: ~0.12.0
     react-native-vector-icons: ^8.0.0
     react-native-web: ~0.13.12
@@ -16078,6 +16079,15 @@ fsevents@^1.2.7:
     react: "*"
     react-native: "*"
   checksum: 0279acda51aea9eb56b605f39b4895092fcefd74adc2d9f5e361929033fce65507193cc75895143999d1d6b2bcd6882d32a4d880e86946e13e8b7f1033f40ac9
+  languageName: node
+  linkType: hard
+
+"react-native-sound@npm:^0.11.0":
+  version: 0.11.0
+  resolution: "react-native-sound@npm:0.11.0"
+  peerDependencies:
+    react-native: ">=0.8.0"
+  checksum: 516d3ca90b4793aba8bc31c3c9188f18021d5588b4b3af3ebaadda12bbbb96b65ec71c1e24122890c558258e8d2e3af8695f42e397c4b8b1eff56bfea97c8661
   languageName: node
   linkType: hard
 

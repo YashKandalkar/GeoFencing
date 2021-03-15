@@ -36,7 +36,7 @@ const HospitalInfo = ({ hospitalData, doctorList }) => {
                                             : Object.values(doctorList).length
                                         : 0)}
                             </Text>
-                            <Text style={styles.label}>Patients: 0 </Text>
+                            <Text style={styles.label}>Patients: 1 </Text>
                         </View>
                         <View style={styles.itemStyle}>
                             <Text style={styles.label}>

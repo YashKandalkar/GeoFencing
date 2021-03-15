@@ -17,6 +17,8 @@ target 'GeoFencing' do
   use_flipper!
   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
 
+  pod 'RNSound', :path => '../node_modules/react-native-sound'
+
   post_install do |installer|
     flipper_post_install(installer)
   end

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { connect } from "react-redux";
 import {
     Surface,
@@ -15,14 +15,17 @@ import { setPatientList } from "../redux/mainReduxDuck";
 import {
     getDeviceLocation,
     getPatientList,
+    stopLocationListener,
     setPatientList as setPatientListFirebase
 } from "../firebase/doctorApi";
 import PatientItem from "./PatientItem";
+import { firebaseApp } from "../firebase/init";
 
 const PatientList = ({
     containerStyle,
     setPatientList,
     geofencingData,
+    hospitalData,
     firebaseUser,
     patientList,
     adminId,
@@ -31,6 +34,7 @@ const PatientList = ({
     const { colors } = theme;
     const [loading, setLoading] = useState(false);
     const [deviceLocation, setDeviceLocation] = useState({ x: 0, y: 0, z: 0 });
+    const mounted = useRef(false);
     const [dialog, setDialog] = useState({
         title: null,
         content: null,
@@ -38,9 +42,10 @@ const PatientList = ({
     });
 
     useEffect(() => {
-        let mounted = true;
+        mounted.current = true;
 
-        if (mounted) {
+        if (mounted.current && firebaseApp.auth().currentUser) {
+            console.log("fetching data");
             getPatientList(
                 firebaseUser,
                 adminId,
@@ -64,9 +69,10 @@ const PatientList = ({
         }
 
         return () => {
-            mounted = false;
+            stopLocationListener();
+            mounted.current = false;
         };
-    }, []);
+    }, [firebaseApp.auth().currentUser]);
 
     const onAddClick = () => {
         // TODO: implement on patient add
@@ -120,6 +126,7 @@ const PatientList = ({
                         <PatientItem
                             key={ind}
                             name={el.name}
+                            securityNumber={hospitalData.phoneNumber}
                             mapImage={geofencingData.image}
                             actualToPixelFactor={
                                 geofencingData.actualToPixelFactor
