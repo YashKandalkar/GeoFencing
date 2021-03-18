@@ -198,7 +198,6 @@ const GeoFencingRouter = ({
                 labelStyle={{ fontSize: 16 }}
                 value={Math.round(value.channel)}
             />
-
             <NumericFormItem
                 labelText={"Unit Signal:"}
                 inputProps={{
@@ -210,6 +209,18 @@ const GeoFencingRouter = ({
                 helperText={"(Signal at 1m)"}
                 labelStyle={{ fontSize: 16 }}
                 value={Math.round(value.unitSignal)}
+            />
+            <NumericFormItem
+                labelText={"Floor:"}
+                inputProps={{
+                    ...channelInputProps,
+                    maxValue: undefined,
+                    minValue: 0
+                }}
+                onChange={(val) => onChange({ floor: val })}
+                helperText={"(Router Floor)"}
+                labelStyle={{ fontSize: 16 }}
+                value={value.floor ?? 0}
             />
         </OutlinedContainer>
     );

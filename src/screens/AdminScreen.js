@@ -8,7 +8,7 @@ import {
     DoctorListTab
 } from "../NavigationTabs/Admin";
 
-const AdminScreen = () => {
+const AdminScreen = ({ navigation }) => {
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([
         {
@@ -23,16 +23,21 @@ const AdminScreen = () => {
         },
         {
             key: "accessPointSetup",
-            title: "Access Points",
+            title: "Reference Points",
             icon: "map-marker-multiple"
         },
-        { key: "doctorTab", title: "Doctors", icon: "doctor" }
+        {
+            key: "doctorTab",
+            title: "Doctors",
+            icon: "doctor",
+            navigation
+        }
     ]);
 
     const renderScene = BottomNavigation.SceneMap({
         hospitalSetup: HospitalSetupTab,
         geofencingSetup: GeoFencingSetupTab,
-        accessPointSetup: AccessPointSetup,
+        accessPointSetup: () => <AccessPointSetup currIndex={index} />,
         doctorTab: DoctorListTab
     });
 

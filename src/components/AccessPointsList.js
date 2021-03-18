@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { connect } from "react-redux";
 import { StyleSheet, View } from "react-native";
 import {
@@ -11,17 +11,19 @@ import {
     Title,
     withTheme,
     Modal,
-    ActivityIndicator
+    ActivityIndicator,
+    FAB
 } from "react-native-paper";
 import { setAccessPoints, setSnackbarConfig } from "../redux/mainReduxDuck";
 import WifiManager from "react-native-wifi-reborn";
 import AccessPoint from "./AccessPoint";
-import Divider from "./Divider";
 
 import {
     setAccessPoints as setFirebaseAccessPoints,
-    getAccessPoints
+    getAccessPoints,
+    stopAccessPointsListener
 } from "../firebase/adminApi";
+import { firebaseApp } from "../firebase/init";
 
 const AccessPointsList = ({
     setAccessPointsRedux,
@@ -30,6 +32,7 @@ const AccessPointsList = ({
     containerStyle,
     geofencingData,
     firebaseUser,
+    currIndex,
     jumpTo,
     theme
 }) => {
@@ -40,11 +43,14 @@ const AccessPointsList = ({
     const [nextButtonLoading, setNextButtonLoading] = useState(false);
     const [rescan, setRescan] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
+    const [showFab, setShowFab] = useState(false);
     const [dialog, setDialog] = useState({
         title: null,
         content: null,
         onAction: null
     });
+
+    const mounted = useRef(false);
 
     const getNearbySignals = async () => {
         let nearbyRoutersSignals = {};
@@ -89,6 +95,7 @@ const AccessPointsList = ({
 
     const onAddClick = async () => {
         let { routerSignalLevels, routersNotFound } = await getNearbySignals();
+        setShowFab(true);
         setAccessPoints([
             ...accessPoints,
             {
@@ -98,24 +105,30 @@ const AccessPointsList = ({
             }
         ]);
         setSnackbarConfig({
-            content: "Unsaved Changes! Don't forget to click SAVE!",
+            content: "Unsaved Changes! Don't forget to click the Tick icon!",
             type: "WARNING"
         });
     };
 
     useEffect(() => {
-        getAccessPoints(
-            firebaseUser,
-            (d) => {
-                if (d) {
-                    setAccessPoints(Object.values(d));
-                    setAccessPointsRedux(Object.values(d));
-                }
-            },
-            console.error
-        );
-        return () => {};
-    }, []);
+        mounted.current = true;
+        if (mounted.current && firebaseApp.auth().currentUser) {
+            getAccessPoints(
+                firebaseApp.auth().currentUser,
+                (d) => {
+                    if (d) {
+                        setAccessPoints(Object.values(d));
+                        setAccessPointsRedux(Object.values(d));
+                    }
+                },
+                console.error
+            );
+        }
+        return () => {
+            stopAccessPointsListener(firebaseUser);
+            mounted.current = false;
+        };
+    }, [firebaseApp.auth().currentUser]);
 
     const onAPRemove = (ind, onSuccess) => {
         let newArr = accessPoints.filter((_, index) => index !== ind);
@@ -126,8 +139,8 @@ const AccessPointsList = ({
 
     const onRemoveClick = (ind) => {
         setDialog({
-            title: "Remove Access Point",
-            content: `Are you sure you want to remove this Access Point?`,
+            title: "Remove Reference Point",
+            content: `Are you sure you want to remove this Reference Point?`,
             onAction: () => {
                 setLoading(true);
                 let newArr = accessPoints.filter((_, index) => index !== ind);
@@ -138,6 +151,7 @@ const AccessPointsList = ({
                         onAPRemove(ind, () => {
                             setLoading(false);
                             setDialog({ title: null });
+                            setShowFab(false);
                         });
                     },
                     console.error
@@ -154,13 +168,14 @@ const AccessPointsList = ({
 
     const onNextClick = () => {
         setNextButtonLoading(true);
+
         setFirebaseAccessPoints(
             firebaseUser,
             accessPoints,
             () => {
                 setAccessPointsRedux(accessPoints);
                 setNextButtonLoading(false);
-                jumpTo("doctorTab");
+                setShowFab(false);
             },
             console.error
         );
@@ -180,7 +195,7 @@ const AccessPointsList = ({
                         backgroundColor: colors.primary
                     }}
                 >
-                    <Title style={{ color: "#fff" }}>Access Points</Title>
+                    <Title style={{ color: "#fff" }}>Reference Points</Title>
                     <Button
                         compact
                         icon={"plus"}
@@ -209,7 +224,7 @@ const AccessPointsList = ({
                         <Subheading
                             style={{ textAlign: "center", marginBottom: 16 }}
                         >
-                            Click the add button to add Access Points!
+                            Click the add button to add Reference Points!
                         </Subheading>
                         <Button
                             compact
@@ -240,19 +255,19 @@ const AccessPointsList = ({
                                 Add RP
                             </Button>
                         </View>
-                        <Divider dividerStyle={{ margin: 16 }} />
-                        <View style={styles.formButtonsContainer}>
-                            <Button
-                                compact
-                                style={styles.formButton}
-                                mode={"contained"}
-                                onPress={onNextClick}
-                                disabled={false}
-                                loading={nextButtonLoading}
-                            >
-                                Save and Next
-                            </Button>
-                        </View>
+                        {/*<Divider dividerStyle={{ margin: 16 }} />*/}
+                        {/*<View style={styles.formButtonsContainer}>*/}
+                        {/*    <Button*/}
+                        {/*        compact*/}
+                        {/*        style={styles.formButton}*/}
+                        {/*        mode={"contained"}*/}
+                        {/*        onPress={onNextClick}*/}
+                        {/*        disabled={false}*/}
+                        {/*        loading={nextButtonLoading}*/}
+                        {/*    >*/}
+                        {/*        Save and Next*/}
+                        {/*    </Button>*/}
+                        {/*</View>*/}
                     </>
                 )}
             </Surface>
@@ -294,9 +309,32 @@ const AccessPointsList = ({
                         borderLeftWidth: 6
                     }}
                 >
-                    <Subheading>Adding Access Point</Subheading>
+                    <Subheading>Adding Reference Point</Subheading>
                     <ActivityIndicator />
                 </Modal>
+            </Portal>
+            <Portal>
+                {currIndex === 2 &&
+                    (showFab ? (
+                        <FAB
+                            style={styles.fab}
+                            small={false}
+                            icon="check"
+                            loading={nextButtonLoading}
+                            onPress={onNextClick}
+                        />
+                    ) : (
+                        <FAB
+                            style={{
+                                ...styles.fab,
+                                backgroundColor: colors.primary
+                            }}
+                            small={false}
+                            icon="plus"
+                            loading={false}
+                            onPress={onAddClick}
+                        />
+                    ))}
             </Portal>
         </>
     );
@@ -334,8 +372,13 @@ const styles = StyleSheet.create({
     },
     formButton: {
         marginRight: 16
-        // marginTop: 8,
-        // marginBottom: 8
+    },
+    fab: {
+        position: "absolute",
+        backgroundColor: "#00ae00",
+        margin: 16,
+        right: 0,
+        bottom: 60
     }
 });
 

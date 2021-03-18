@@ -16,10 +16,24 @@ import {
     getDeviceLocation,
     getPatientList,
     stopLocationListener,
-    setPatientList as setPatientListFirebase
+    setPatientList as setPatientListFirebase,
+    stopSosListener,
+    stopStrapDisconnectListener,
+    getSos,
+    getStrapDisconnect,
+    getPulse,
+    stopPulseListener,
+    getBatteryLevel,
+    stopBatteryLevelListener
 } from "../firebase/doctorApi";
 import PatientItem from "./PatientItem";
 import { firebaseApp } from "../firebase/init";
+
+const emergencies = {
+    SOS: "SOS",
+    STRAP_DISCONNECT: "STRAP_DISCONNECT",
+    BREACH: "BREACH"
+};
 
 const PatientList = ({
     containerStyle,
@@ -34,6 +48,13 @@ const PatientList = ({
     const { colors } = theme;
     const [loading, setLoading] = useState(false);
     const [deviceLocation, setDeviceLocation] = useState({ x: 0, y: 0, z: 0 });
+    const [sos, setSos] = useState({});
+    const [strapDisconnect, setStrapDisconnect] = useState({});
+    const [currModal, setCurrModal] = useState(null);
+    const [newEmergency, setNewEmergency] = useState(0);
+    const [pulse, setPulse] = useState(0);
+    const [batteryLevel, setBatteryLevel] = useState(0);
+
     const mounted = useRef(false);
     const [dialog, setDialog] = useState({
         title: null,
@@ -45,19 +66,18 @@ const PatientList = ({
         mounted.current = true;
 
         if (mounted.current && firebaseApp.auth().currentUser) {
-            console.log("fetching data");
-            getPatientList(
-                firebaseUser,
-                adminId,
-                (data) => {
-                    if (data) {
-                    }
-                    setPatientList(data ? Object.values(data) : []);
-                },
-                (err) => {
-                    console.error(err);
-                }
-            );
+            // getPatientList(
+            //     firebaseUser,
+            //     adminId,
+            //     (data) => {
+            //         if (data) {
+            //         }
+            //         setPatientList(data ? Object.values(data) : []);
+            //     },
+            //     (err) => {
+            //         console.error(err);
+            //     }
+            // );
             getDeviceLocation(
                 firebaseUser,
                 "100000",
@@ -66,10 +86,73 @@ const PatientList = ({
                 },
                 (err) => console.error(err)
             );
+            getSos(
+                firebaseUser,
+                "100000",
+                (data) => {
+                    if (data) {
+                        console.log(
+                            Math.abs(Date.now() - new Date(data.time).valueOf())
+                        );
+                        if (
+                            Math.abs(
+                                Date.now() - new Date(data.time).valueOf()
+                            ) < 10000
+                        ) {
+                            setCurrModal(emergencies.SOS);
+                            setNewEmergency((e) => e + 1);
+                        }
+                        setSos(data);
+                    }
+                },
+                (err) => console.error(err)
+            );
+            getStrapDisconnect(
+                firebaseUser,
+                "100000",
+                (data) => {
+                    if (data) {
+                        if (
+                            Math.abs(
+                                Date.now() - new Date(data.time).valueOf()
+                            ) < 10000
+                        ) {
+                            setCurrModal(emergencies.STRAP_DISCONNECT);
+                            setNewEmergency((e) => e + 1);
+                        }
+                        setStrapDisconnect(data);
+                    }
+                },
+                (err) => console.error(err)
+            );
+            getPulse(
+                firebaseUser,
+                "100000",
+                (data) => {
+                    if (data) {
+                        setPulse(data);
+                    }
+                },
+                (err) => console.error(err)
+            );
+            getBatteryLevel(
+                firebaseUser,
+                "100000",
+                (data) => {
+                    if (data) {
+                        setBatteryLevel(data);
+                    }
+                },
+                (err) => console.error(err)
+            );
         }
 
         return () => {
             stopLocationListener();
+            stopSosListener();
+            stopStrapDisconnectListener();
+            stopPulseListener();
+            stopBatteryLevelListener();
             mounted.current = false;
         };
     }, [firebaseApp.auth().currentUser]);
@@ -126,12 +209,18 @@ const PatientList = ({
                         <PatientItem
                             key={ind}
                             name={el.name}
+                            pulse={pulse}
+                            batteryLevel={batteryLevel}
                             securityNumber={hospitalData.phoneNumber}
                             mapImage={geofencingData.image}
                             actualToPixelFactor={
                                 geofencingData.actualToPixelFactor
                             }
                             location={deviceLocation}
+                            currModal={currModal}
+                            sos={sos}
+                            strapDisconnect={strapDisconnect}
+                            newEmergency={newEmergency}
                         />
                     ))
                 ) : (

@@ -26,7 +26,7 @@ const HospitalSetupTab = ({
     setHospitalData,
     jumpTo
 }) => {
-    const [bannerVisible, setBannerVisible] = useState(false);
+    const [bannerVisible, setBannerVisible] = useState(true);
 
     const onSubmit = (data, onFinish) => {
         setFirebaseHospitalData(
@@ -75,8 +75,9 @@ const HospitalSetupTab = ({
                     <View>
                         <Title>Welcome to GeoFencer!</Title>
                         <Paragraph style={{ maxWidth: 280 }}>
-                            Please fill out the hospital information and
-                            GeoFencing details in the following section.
+                            Please fill out the hospital information, GeoFencing
+                            details and Reference Points in the following
+                            sections.
                         </Paragraph>
                     </View>
                 </Banner>

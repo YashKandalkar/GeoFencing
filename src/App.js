@@ -24,6 +24,7 @@ import {
 import { firebaseApp } from "./firebase/init";
 import { getAdminData } from "./firebase/adminApi";
 import { getHospitalDetails } from "./firebase/doctorApi";
+import AdminPatientScreen from "./screens/AdminPatientScreen";
 
 const Stack = createStackNavigator();
 
@@ -222,6 +223,14 @@ function App({
                         }}
                     />
                 )}
+                <Stack.Screen
+                    name="AdminPatientScreen"
+                    component={AdminPatientScreen}
+                    options={{
+                        ...screenOptions,
+                        title: "Patient List"
+                    }}
+                />
             </Stack.Navigator>
             {!!snackbarConfig.content && (
                 <Snackbar

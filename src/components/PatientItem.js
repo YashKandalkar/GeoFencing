@@ -24,15 +24,22 @@ import Divider from "./Divider";
 Sound.setCategory("Playback");
 
 const PatientItem = ({
+    sos,
     name,
     mapImage,
     location,
-    actualToPixelFactor,
-    securityNumber
+    pulse,
+    batteryLevel,
+    currModal,
+    securityNumber,
+    strapDisconnect,
+    newEmergency,
+    actualToPixelFactor
 }) => {
     const [mapBounds, setMapBounds] = useState({});
     const [visible, setVisible] = React.useState(false);
     const [alertSound, setAlertSound] = useState(null);
+    const [breach, setBreach] = useState(false);
     const appState = useRef(AppState.currentState);
 
     const onStateChange = (nextState) => {
@@ -45,7 +52,6 @@ const PatientItem = ({
                 Vibration.vibrate([500, 1000], true);
             }
         } else {
-            console.log("App has come to the bakground!");
             alertSound && alertSound.stop();
             Vibration.cancel();
         }
@@ -62,6 +68,13 @@ const PatientItem = ({
     }, [alertSound]);
 
     useEffect(() => {
+        if (currModal) {
+            setVisible(true);
+        }
+        return () => {};
+    }, [newEmergency]);
+
+    useEffect(() => {
         if (
             location.x < 0 ||
             location.y < 0 ||
@@ -69,6 +82,7 @@ const PatientItem = ({
             location.y * actualToPixelFactor.vertical > mapBounds.height + 1
         ) {
             setVisible(true);
+            setBreach(true);
             let aS = new Sound("alert.mp3", Sound.MAIN_BUNDLE, (error) => {
                 if (error) {
                     console.error("failed to load the sound", error);
@@ -83,6 +97,7 @@ const PatientItem = ({
             setVisible(false);
             alertSound && alertSound.stop();
             Vibration.cancel();
+            setBreach(false);
         }
         return () => {
             alertSound && alertSound.release();
@@ -101,9 +116,21 @@ const PatientItem = ({
 
     const onDismiss = () => {
         setVisible(false);
+        setBreach(false);
         alertSound && alertSound.stop();
         Vibration.cancel();
     };
+
+    let batteryIcon;
+    if (batteryLevel >= 80) {
+        batteryIcon = "battery";
+    } else if (batteryLevel >= 50) {
+        batteryIcon = "battery-60";
+    } else if (batteryLevel >= 20) {
+        batteryIcon = "battery-20";
+    } else {
+        batteryIcon = "battery-alert";
+    }
 
     return (
         <>
@@ -123,10 +150,14 @@ const PatientItem = ({
                         flexDirection: "row"
                     }}
                 >
-                    <Headline style={{ fontSize: 20 }}>{name}</Headline>
-                    <Caption>+91 9969778699</Caption>
+                    <Headline style={{ fontSize: 20, fontWeight: "bold" }}>
+                        {name}
+                    </Headline>
+                    <Caption>{securityNumber}</Caption>
                 </View>
-                <Subheading>Location:</Subheading>
+                <Subheading style={{ fontWeight: "bold" }}>
+                    Location:
+                </Subheading>
                 <View
                     style={{
                         flexDirection: "row",
@@ -136,6 +167,45 @@ const PatientItem = ({
                     <Subheading>X: {location.x.toFixed(2)}</Subheading>
                     <Subheading>Y: {location.y.toFixed(2)}</Subheading>
                     <Subheading>Floor: 0</Subheading>
+                </View>
+
+                <View
+                    style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        marginVertical: 8
+                    }}
+                >
+                    <View style={{ flexDirection: "row" }}>
+                        <Subheading style={{ fontWeight: "bold" }}>
+                            Pulse:&nbsp;
+                        </Subheading>
+                        <Subheading>{pulse + " bpm"}</Subheading>
+                    </View>
+                    <View
+                        style={{
+                            flexDirection: "row",
+                            alignItems: "center"
+                        }}
+                    >
+                        <Subheading style={{ fontWeight: "bold" }}>
+                            Battery:&nbsp;
+                        </Subheading>
+                        <Subheading>{batteryLevel.toFixed(0) + "%"}</Subheading>
+                        <Avatar.Icon
+                            icon={batteryIcon}
+                            style={{ backgroundColor: "#fff" }}
+                            color={
+                                batteryIcon === "battery"
+                                    ? "#00B232"
+                                    : batteryIcon === "battery-alert"
+                                    ? "#BC0000"
+                                    : undefined
+                            }
+                            size={38}
+                        />
+                    </View>
                 </View>
                 <Divider
                     width={"100%"}
@@ -210,7 +280,13 @@ const PatientItem = ({
                         />
                     </View>
                     <View style={styles.body}>
-                        <Title>GeoFencing Breach!</Title>
+                        <Title style={{ fontSize: 24 }}>
+                            {breach
+                                ? "GeoFencing Breach!"
+                                : currModal === "SOS"
+                                ? "SOS!"
+                                : "Strap Disconnected!"}
+                        </Title>
                         <Divider width={"50%"} />
                         <View style={{ flexDirection: "row", marginTop: 16 }}>
                             <Subheading style={{ fontWeight: "bold" }}>
@@ -218,24 +294,91 @@ const PatientItem = ({
                             </Subheading>
                             <Subheading>{name}</Subheading>
                         </View>
+                        <View style={{ flexDirection: "row", marginTop: 16 }}>
+                            <Subheading style={{ fontWeight: "bold" }}>
+                                Device ID:&nbsp;
+                            </Subheading>
+                            <Subheading>{"100000"}</Subheading>
+                        </View>
                         <View style={{ flexDirection: "row", marginTop: 8 }}>
                             <Subheading style={{ fontWeight: "bold" }}>
                                 Location:&nbsp;
                             </Subheading>
                             <Subheading>
                                 ({location.x.toFixed(2)},{" "}
-                                {location.y.toFixed(2)}, {location.z.toFixed(2)}
-                                )
+                                {location.y.toFixed(2)}, 0.5)
                             </Subheading>
                         </View>
+
+                        {(currModal === "SOS" ||
+                            currModal === "STRAP_DISCONNECT") && (
+                            <>
+                                <View
+                                    style={{
+                                        flexDirection: "row",
+                                        marginTop: 8
+                                    }}
+                                >
+                                    <Subheading style={{ fontWeight: "bold" }}>
+                                        Time:&nbsp;
+                                    </Subheading>
+                                    <Subheading>
+                                        {new Date(
+                                            currModal === "SOS"
+                                                ? sos.time
+                                                : strapDisconnect.time
+                                        ).toLocaleTimeString()}
+                                        {", "}
+                                        {new Date(
+                                            currModal === "SOS"
+                                                ? sos.time
+                                                : strapDisconnect.time
+                                        ).toLocaleDateString()}
+                                    </Subheading>
+                                </View>
+                                <View
+                                    style={{
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                        marginTop: 8
+                                    }}
+                                >
+                                    {currModal === "SOS" ? (
+                                        <Subheading
+                                            style={{ fontWeight: "bold" }}
+                                        >
+                                            Last SOS Time:&nbsp;
+                                        </Subheading>
+                                    ) : (
+                                        <Subheading
+                                            style={{ fontWeight: "bold" }}
+                                        >
+                                            Last Strap {"\n"}
+                                            Disconnect Time:&nbsp;
+                                        </Subheading>
+                                    )}
+                                    <Subheading>
+                                        {new Date(
+                                            currModal === "SOS"
+                                                ? sos.prevTime
+                                                : strapDisconnect.prevTime
+                                        ).toLocaleTimeString()}
+                                        {", "}
+                                        {new Date(
+                                            currModal === "SOS"
+                                                ? sos.prevTime
+                                                : strapDisconnect.prevTime
+                                        ).toLocaleDateString()}
+                                    </Subheading>
+                                </View>
+                            </>
+                        )}
 
                         <Button
                             icon={"phone"}
                             mode={"contained"}
                             style={{
-                                marginTop: 24,
-                                paddingHorizontal: 16,
-                                paddingVertical: 14
+                                marginVertical: 24
                             }}
                             labelStyle={{ fontSize: 16 }}
                             onPress={openDialer}
@@ -276,7 +419,7 @@ const styles = StyleSheet.create({
         height: "30%"
     },
     body: {
-        height: "40%",
+        // height: "40%",
         backgroundColor: "white",
         alignItems: "center",
         paddingTop: 8

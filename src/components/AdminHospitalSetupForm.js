@@ -202,7 +202,7 @@ const AdminHospitalSetupForm = ({
                     )}
                 />
                 <FormItem
-                    labelText={"Phone Number:"}
+                    labelText={"Security Number:"}
                     control={control}
                     errors={errors}
                     required={true}

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { connect } from "react-redux";
 import { View } from "react-native";
 import {
     Button,
@@ -45,19 +44,13 @@ const AccessPoint = ({
     routersNotFound,
     routerSignalLevels,
     position,
-    onChange,
-    geofencingData
+    onChange
 }) => {
     const [visible, setVisible] = useState(false);
     const [selectedWifi, setSelectedWifi] = useState(null);
     const hideModal = () => setVisible(false);
 
     let controller;
-    let maxValue = {
-        horizontal:
-            geofencingData?.geofenceActualDimensions?.horizontal ?? 1000,
-        vertical: geofencingData?.geofenceActualDimensions?.vertical ?? 1000
-    };
 
     const addRouterSignalRow = () => {
         onChange(ind, {
@@ -144,14 +137,13 @@ const AccessPoint = ({
                         name={el}
                         key={el}
                         signal={routerSignalLevels[el]}
-                        onChange={(val) =>
+                        onChange={(val) => {
+                            let t = { ...routerSignalLevels };
+                            t[el] = val[el];
                             onChange(ind, {
-                                routerSignalLevels: {
-                                    ...routerSignalLevels,
-                                    ...val
-                                }
-                            })
-                        }
+                                routerSignalLevels: t
+                            });
+                        }}
                     />
                 ))}
             {routersNotFound?.length > 0 && (
@@ -176,7 +168,7 @@ const AccessPoint = ({
                                 type={"error"}
                             >
                                 Could not find the signals of 3 routers at this
-                                access point!
+                                reference point!
                             </HelperText>
                         ))}
                     <Button
@@ -271,8 +263,4 @@ const RouterSignalRow = ({ name, signal, onChange }) => {
     );
 };
 
-const mapStateToProps = (state) => ({
-    geofencingData: state.geofencingData
-});
-
-export default connect(mapStateToProps)(AccessPoint);
+export default AccessPoint;

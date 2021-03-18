@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { connect } from "react-redux";
-import { Subheading, Surface, withTheme } from "react-native-paper";
+import { Button, Subheading, Surface, withTheme } from "react-native-paper";
 import { AddDoctor, DoctorList, HospitalInfo, Scroll } from "../../components";
 import { setDoctorList } from "../../redux/mainReduxDuck";
 import {
@@ -13,6 +13,7 @@ const DoctorListTab = ({
     geofencingSetupDone,
     doctorList,
     setDoctorList,
+    route,
     firebaseUser
 }) => {
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -67,6 +68,20 @@ const DoctorListTab = ({
                 ) : (
                     <>
                         <HospitalInfo />
+                        <View
+                            style={{ alignItems: "center", marginVertical: 8 }}
+                        >
+                            <Button
+                                mode={"contained"}
+                                onPress={() =>
+                                    route.navigation.navigate(
+                                        "AdminPatientScreen"
+                                    )
+                                }
+                            >
+                                Open Patient Screen
+                            </Button>
+                        </View>
                         <DoctorList
                             containerStyle={{ flex: 1, marginVertical: 8 }}
                             onDoctorRemove={onDoctorRemove}

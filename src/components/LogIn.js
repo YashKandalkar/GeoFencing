@@ -10,6 +10,7 @@ import {
     Text,
     TextInput,
     Title,
+    TouchableRipple,
     withTheme
 } from "react-native-paper";
 import { Controller, useForm } from "react-hook-form";
@@ -371,17 +372,22 @@ const Login = ({
                         </Button>
                     )}
                 </Surface>
-
-                <OutlinedContainer
-                    containerStyle={{
-                        ...styles.outlinedContainer,
-                        borderColor: isAdmin ? "#008834" : "#155cf8"
-                    }}
+                <TouchableRipple
+                    style={{ marginTop: 30, marginBottom: 16, borderRadius: 8 }}
+                    onPress={() => console.log("press")}
+                    borderless
                 >
-                    <Subheading style={{ fontFamily: "sans-serif-light" }}>
-                        {"Check our guidelines for patients"}
-                    </Subheading>
-                </OutlinedContainer>
+                    <OutlinedContainer
+                        containerStyle={{
+                            ...styles.outlinedContainer,
+                            borderColor: isAdmin ? "#008834" : "#155cf8"
+                        }}
+                    >
+                        <Subheading style={{ fontFamily: "sans-serif-light" }}>
+                            {"Check our guidelines for patients"}
+                        </Subheading>
+                    </OutlinedContainer>
+                </TouchableRipple>
             </Scroll>
         </SafeAreaView>
     );
@@ -423,8 +429,6 @@ const styles = StyleSheet.create({
     outlinedContainer: {
         width: "80%",
         maxWidth: 400,
-        marginTop: 30,
-        marginBottom: 16,
         alignItems: "center",
         borderColor: "#ddd",
         paddingVertical: 16,

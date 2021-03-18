@@ -5,7 +5,7 @@ import { Surface } from "react-native-paper";
 import { HospitalInfo, Scroll } from "../components";
 import PatientList from "../components/PatientList";
 
-const DoctorScreen = ({ navigation }) => {
+const AdminPatientScreen = ({ navigation }) => {
     return (
         <>
             <Scroll>
@@ -21,4 +21,4 @@ const DoctorScreen = ({ navigation }) => {
     );
 };
 
-export default connect()(DoctorScreen);
+export default connect()(AdminPatientScreen);

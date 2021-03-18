@@ -6,7 +6,7 @@ import { Surface, Subheading, Headline, Paragraph } from "react-native-paper";
 import { Scroll, Divider } from "../../components";
 import AccessPointsList from "../../components/AccessPointsList";
 
-const AccessPointSetup = ({ geofencingSetupDone, jumpTo }) => {
+const AccessPointSetup = ({ geofencingSetupDone, jumpTo, currIndex }) => {
     return (
         <Scroll>
             <View style={{ flex: 1 }}>
@@ -25,7 +25,7 @@ const AccessPointSetup = ({ geofencingSetupDone, jumpTo }) => {
                             }}
                         >
                             <Headline style={{ marginLeft: 8 }}>
-                                Access Points
+                                Reference Points
                             </Headline>
                             <Divider
                                 style={{
@@ -37,7 +37,7 @@ const AccessPointSetup = ({ geofencingSetupDone, jumpTo }) => {
                             <Paragraph
                                 style={{ marginHorizontal: 8, marginTop: 8 }}
                             >
-                                Access points are imaginary points in your
+                                Reference points are imaginary points in your
                                 hospital required to get accurate signal to
                                 distance value from routers.
                             </Paragraph>
@@ -51,12 +51,14 @@ const AccessPointSetup = ({ geofencingSetupDone, jumpTo }) => {
                                     fontWeight: "bold"
                                 }}
                             >
-                                The more Access Points, the better!
+                                Choose Reference Points wisely. Not too close,
+                                not too far!
                             </Paragraph>
                         </Surface>
                         <AccessPointsList
                             containerStyle={{ flex: 1, marginVertical: 8 }}
                             jumpTo={jumpTo}
+                            currIndex={currIndex}
                         />
                     </Surface>
                 )}

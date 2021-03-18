@@ -65,3 +65,83 @@ export const stopLocationListener = () => {
         .ref("devices/" + "100000" + "/location")
         .off();
 };
+
+export const getSos = (user, deviceId, onSuccess, onError) => {
+    firebaseApp
+        .database()
+        .ref("devices/" + "100000" + "/SOS")
+        .on(
+            "value",
+            (snap) => {
+                onSuccess(snap.val());
+            },
+            onError
+        );
+};
+
+export const stopSosListener = () => {
+    firebaseApp
+        .database()
+        .ref("devices/" + "100000" + "/SOS")
+        .off();
+};
+
+export const getStrapDisconnect = (user, deviceId, onSuccess, onError) => {
+    firebaseApp
+        .database()
+        .ref("devices/" + "100000" + "/strapRemove")
+        .on(
+            "value",
+            (snap) => {
+                onSuccess(snap.val());
+            },
+            onError
+        );
+};
+
+export const stopStrapDisconnectListener = () => {
+    firebaseApp
+        .database()
+        .ref("devices/" + "100000" + "/strapRemove")
+        .off();
+};
+
+export const getPulse = (user, deviceId, onSuccess, onError) => {
+    firebaseApp
+        .database()
+        .ref("devices/" + "100000" + "/pulse")
+        .on(
+            "value",
+            (snap) => {
+                onSuccess(snap.val());
+            },
+            onError
+        );
+};
+
+export const stopPulseListener = () => {
+    firebaseApp
+        .database()
+        .ref("devices/" + "100000" + "/pulse")
+        .off();
+};
+
+export const getBatteryLevel = (user, deviceId, onSuccess, onError) => {
+    firebaseApp
+        .database()
+        .ref("devices/" + "100000" + "/batteryLevel")
+        .on(
+            "value",
+            (snap) => {
+                onSuccess(snap.val());
+            },
+            onError
+        );
+};
+
+export const stopBatteryLevelListener = () => {
+    firebaseApp
+        .database()
+        .ref("devices/" + "100000" + "/batteryLevel")
+        .off();
+};

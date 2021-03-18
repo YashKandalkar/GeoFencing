@@ -74,6 +74,13 @@ export const getAccessPoints = (user, onSuccess, onError) => {
         );
 };
 
+export const stopAccessPointsListener = (user) => {
+    firebaseApp
+        .database()
+        .ref("users/" + user.uid + "/accessPoints")
+        .off();
+};
+
 export const uploadHospitalMap = async (
     user,
     image,
