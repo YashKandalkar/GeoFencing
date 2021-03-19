@@ -52,6 +52,12 @@ This paper proposes the following algorithms to get an accurate position of the 
     2. WebSocket
     3. Firebase
 
+
+## Team members:
+1. Raj Jadhav
+2. Manas Buchade
+3. Dhruv Bhanushali
+
 <a name="reference-points"></a>
 ### Reference Point
 - In the offline phase of the GeoFencing, the location and signal strengths received by each router at a reference point is stored inside the database.
