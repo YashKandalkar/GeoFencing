@@ -3,7 +3,7 @@ A React Native app for [Mastek's Deep Blue hackathon](https://deepblue.co.in/).
 
 This app is used to create a GeoFencing around a certain area.
 
-[<p align="center"><a href="https://ibb.co/nD6HT9D"><img src="https://i.ibb.co/jLbcdmL/splashscreen-image.png" alt="splashscreen-image" height="400" border="0"></a></p>](https://drive.google.com/file/d/19P3E2Z0wyfItREbyR8Z9XXHUpwJ0yiRb/view?usp=sharing)
+<p align="center"><a href="https://drive.google.com/file/d/19P3E2Z0wyfItREbyR8Z9XXHUpwJ0yiRb/view?usp=sharing"><img src="https://i.ibb.co/jLbcdmL/splashscreen-image.png" alt="splashscreen-image" height="400" border="0"></a></p>
 
 ## Steps to create a GeoFence:
 1. Create an admin account inside the app
