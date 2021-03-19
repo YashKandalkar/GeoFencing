@@ -48,9 +48,9 @@ This paper proposes the following algorithms to get an accurate position of the 
     4. React Native Paper, many other open source libraries!
     5. Expo (ejected)
 2. Server -
-  1. NodeJS
-  2. WebSocket
-  3. Firebase
+    1. NodeJS
+    2. WebSocket
+    3. Firebase
 
 <a name="reference-points"></a>
 ### Reference Point
