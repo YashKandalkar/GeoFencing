@@ -20,27 +20,31 @@ import {
     Button
 } from "react-native-paper";
 import Divider from "./Divider";
+import { connect } from "react-redux";
 
 Sound.setCategory("Playback");
 
 const PatientItem = ({
     sos,
     name,
+    pulse,
     mapImage,
     location,
-    pulse,
-    batteryLevel,
     currModal,
-    securityNumber,
-    strapDisconnect,
+    batteryLevel,
     newEmergency,
-    actualToPixelFactor
+    geofencingData,
+    securityNumber,
+    strapDisconnect
 }) => {
-    const [mapBounds, setMapBounds] = useState({});
     const [visible, setVisible] = React.useState(false);
     const [alertSound, setAlertSound] = useState(null);
     const [breach, setBreach] = useState(false);
     const appState = useRef(AppState.currentState);
+    const [actualToPF, setActualToPF] = useState({
+        horizontal: 0,
+        vertical: 0
+    });
 
     const onStateChange = (nextState) => {
         if (
@@ -75,11 +79,28 @@ const PatientItem = ({
     }, [newEmergency]);
 
     useEffect(() => {
+        let geofenceW =
+            (geofencingData?.geofence?.width /
+                geofencingData.actualToPixelFactor.horizontal) *
+            actualToPF.horizontal;
+        let geofenceH =
+            (geofencingData?.geofence?.height /
+                geofencingData.actualToPixelFactor.vertical) *
+            actualToPF.vertical;
+        let geofenceX =
+            ((geofencingData?.geofence?.x - geofencingData.routerLimits.x) /
+                geofencingData.actualToPixelFactor.horizontal) *
+            actualToPF.horizontal;
+
+        let geofenceY =
+            ((geofencingData?.geofence?.y - geofencingData.routerLimits.y) /
+                geofencingData.actualToPixelFactor.vertical) *
+            actualToPF.vertical;
         if (
-            location.x < 0 ||
-            location.y < 0 ||
-            location.x * actualToPixelFactor.horizontal > mapBounds.width + 1 ||
-            location.y * actualToPixelFactor.vertical > mapBounds.height + 1
+            location.x * actualToPF.horizontal < geofenceX - 1 ||
+            location.y * actualToPF.vertical < geofenceY - 1 ||
+            location.x * actualToPF.horizontal > geofenceW + 1 ||
+            location.y * actualToPF.vertical > geofenceH + 1
         ) {
             setVisible(true);
             setBreach(true);
@@ -100,7 +121,11 @@ const PatientItem = ({
             setBreach(false);
         }
         return () => {
+            alertSound && alertSound.stop();
             alertSound && alertSound.release();
+            setVisible(false);
+            Vibration.cancel();
+            setBreach(false);
         };
     }, [location.x, location.y]);
 
@@ -219,7 +244,16 @@ const PatientItem = ({
                         <ImageBackground
                             source={mapImage}
                             onLayout={({ nativeEvent: { layout } }) => {
-                                setMapBounds(layout);
+                                setActualToPF({
+                                    horizontal:
+                                        layout.width /
+                                        geofencingData.geofenceActualDimensions
+                                            .horizontal,
+                                    vertical:
+                                        layout.height /
+                                        geofencingData.geofenceActualDimensions
+                                            .vertical
+                                });
                             }}
                             style={{
                                 height:
@@ -242,17 +276,29 @@ const PatientItem = ({
                         >
                             <View
                                 style={{
+                                    width:
+                                        (geofencingData?.geofence?.width /
+                                            geofencingData.actualToPixelFactor
+                                                .horizontal) *
+                                            actualToPF.horizontal ?? "100%",
+                                    height:
+                                        (geofencingData?.geofence?.height /
+                                            geofencingData.actualToPixelFactor
+                                                .vertical) *
+                                            actualToPF.vertical ?? "100%",
+                                    borderWidth: 4,
+                                    borderColor: "purple",
+                                    backgroundColor: "rgba(114,0,221, 0.3)"
+                                }}
+                            />
+                            <View
+                                style={{
                                     backgroundColor: "#0349d0",
                                     borderRadius: 50,
                                     position: "absolute",
                                     left:
-                                        location.x *
-                                            actualToPixelFactor.horizontal -
-                                        10,
-                                    top:
-                                        location.y *
-                                            actualToPixelFactor.vertical -
-                                        10,
+                                        location.x * actualToPF.horizontal - 10,
+                                    top: location.y * actualToPF.vertical - 10,
                                     width: 20,
                                     height: 20
                                 }}
@@ -425,5 +471,8 @@ const styles = StyleSheet.create({
         paddingTop: 8
     }
 });
+const mapStateToProps = (state) => ({
+    geofencingData: state.geofencingData
+});
 
-export default PatientItem;
+export default connect(mapStateToProps)(PatientItem);

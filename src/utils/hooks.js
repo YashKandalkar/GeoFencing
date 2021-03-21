@@ -1,9 +1,14 @@
+import { useRef } from "react";
+
 function useDebounce(debounceTime, callback) {
-    let debounceTimer = null;
+    const debounceTimer = useRef(null);
 
     return (...args) => {
-        debounceTimer && clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => callback(...args), debounceTime);
+        debounceTimer && clearTimeout(debounceTimer.current);
+        debounceTimer.current = setTimeout(
+            () => callback(...args),
+            debounceTime
+        );
     };
 }
 

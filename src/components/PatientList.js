@@ -213,9 +213,6 @@ const PatientList = ({
                             batteryLevel={batteryLevel}
                             securityNumber={hospitalData.phoneNumber}
                             mapImage={geofencingData.image}
-                            actualToPixelFactor={
-                                geofencingData.actualToPixelFactor
-                            }
                             location={deviceLocation}
                             currModal={currModal}
                             sos={sos}

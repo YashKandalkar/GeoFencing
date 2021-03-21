@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { ImageBackground } from "react-native";
+import { ImageBackground, View } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
 import DraggableRouter from "./DraggableRouter";
+import { DragResizeBlock } from "react-native-drag-resize";
+import { useDebounce } from "../utils/hooks";
 
 const GeoFencingMap = ({
     image,
@@ -10,10 +12,36 @@ const GeoFencingMap = ({
     routerInfoHandler,
     geoFencePixelDimensionsHandler,
     routerLimits,
-    setRouterLimits
+    setRouterLimits,
+    geofenceProps,
+    setGeofenceProps,
+    setSnackbarConfig
 }) => {
     const [loadComponents, setLoadComponents] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [firstLayout, setFirstLayout] = useState(true);
+    const unsaved = useDebounce(1000, () => {
+        setSnackbarConfig({
+            content: "Unsaved Changes! Don't forget to click SAVE GEOFENCE!",
+            type: "WARNING"
+        });
+    });
+    const positionChange = useDebounce(500, (x, y) => {
+        setGeofenceProps({
+            ...geofenceProps,
+            x,
+            y
+        });
+        unsaved();
+    });
+    const dimensionChange = useDebounce(500, (w, h) => {
+        setGeofenceProps({
+            ...geofenceProps,
+            width: w,
+            height: h
+        });
+        unsaved();
+    });
     useEffect(() => {
         let timer = setTimeout(() => {
             setLoadComponents(true);
@@ -23,6 +51,7 @@ const GeoFencingMap = ({
             clearTimeout(timer);
         };
     }, []);
+
     return loadComponents || !loading ? (
         <ImageBackground
             source={image}
@@ -87,6 +116,36 @@ const GeoFencingMap = ({
                     }}
                 />
             ))}
+            <DragResizeBlock
+                x={geofenceProps?.x ?? routerLimits.x}
+                y={geofenceProps?.y ?? routerLimits.y}
+                w={
+                    geofenceProps?.width + 14 ??
+                    routerLimits.w + Math.abs(routerLimits.x)
+                }
+                h={
+                    geofenceProps?.height + 14 ??
+                    routerLimits.h + Math.abs(routerLimits.y)
+                }
+                limitation={routerLimits}
+                onDragEnd={(xy) => positionChange(...xy)}
+                onResizeEnd={(xy) => positionChange(...xy)}
+            >
+                <View
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                        borderWidth: 4,
+                        borderColor: "purple",
+                        backgroundColor: "rgba(114,0,221, 0.3)"
+                    }}
+                    onLayout={({ nativeEvent: { layout } }) => {
+                        firstLayout
+                            ? setFirstLayout(false)
+                            : dimensionChange(layout.width, layout.height);
+                    }}
+                />
+            </DragResizeBlock>
         </ImageBackground>
     ) : (
         <ActivityIndicator />

@@ -58,7 +58,8 @@ const GeoFencingSetupTab = ({
     const [routers, setRouters] = useState(geofencingData?.routers ?? []);
     const [buttonLoading, setButtonLoading] = useState({
         mapClear: false,
-        saveAndNext: false
+        saveAndNext: false,
+        geofenceSave: false
     });
     const [routerLimits, setRouterLimits] = useState(
         geofencingData?.routerLimits ?? {
@@ -68,6 +69,16 @@ const GeoFencingSetupTab = ({
             h: 0
         }
     );
+    const [geofenceProps, setGeofenceProps] = useState({
+        x: geofencingData?.geofence?.x ?? routerLimits.x,
+        y: geofencingData?.geofence?.y ?? routerLimits.y,
+        width:
+            geofencingData?.geofence?.width ??
+            routerLimits.w + Math.abs(routerLimits.x),
+        height:
+            geofencingData?.geofence?.height ??
+            routerLimits.h + Math.abs(routerLimits.y)
+    });
     const [actualToPixelFactor, setActualToPixelFactor] = useState(
         geofencingData?.actualToPixelFactor ?? {
             horizontal: 0,
@@ -323,6 +334,36 @@ const GeoFencingSetupTab = ({
         });
     };
 
+    const onGeoFenceSave = () => {
+        setButtonLoading({ ...buttonLoading, geofenceSave: true });
+        let newGeoFence = {
+            ...geofencingData,
+            geofence: geofenceProps
+        };
+
+        setFirebaseGeofencingData(
+            firebaseUser,
+            newGeoFence,
+            () => {
+                setGeofencingData(newGeoFence);
+                console.log({ newGeoFence });
+                setButtonLoading({ ...buttonLoading, geofenceSave: false });
+                setSnackbarConfig({
+                    content: "Updated GeoFence successfully!",
+                    type: "SUCCESS"
+                });
+            },
+            (err) => {
+                console.error(err);
+                setSnackbarConfig({
+                    content: "Error updating GeoFence!",
+                    type: "ERROR"
+                });
+                setButtonLoading({ ...buttonLoading, geofenceSave: false });
+            }
+        );
+    };
+
     const onNextClick = () => {
         setButtonLoading({ ...buttonLoading, saveAndNext: true });
         const data = {
@@ -409,6 +450,9 @@ const GeoFencingSetupTab = ({
                                         routers={routers}
                                         routerLimits={routerLimits}
                                         setRouterLimits={setRouterLimits}
+                                        setGeofenceProps={setGeofenceProps}
+                                        geofenceProps={geofenceProps}
+                                        setSnackbarConfig={setSnackbarConfig}
                                     />
                                 ) : imageUploading.value !== null ? (
                                     <View
@@ -450,6 +494,18 @@ const GeoFencingSetupTab = ({
                                     Pick an image
                                 </Button>
                             </View>
+                            <Button
+                                compact
+                                mode={"contained"}
+                                loading={buttonLoading.geofenceSave}
+                                onPress={onGeoFenceSave}
+                                color={"purple"}
+                                style={{
+                                    alignSelf: "center"
+                                }}
+                            >
+                                Save GeoFence
+                            </Button>
                             <View
                                 style={{
                                     margin: 8
