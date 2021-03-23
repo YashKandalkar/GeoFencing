@@ -156,7 +156,11 @@ const PatientItem = ({
     } else {
         batteryIcon = "battery-alert";
     }
-
+    console.log(
+        (geofencingData?.geofence?.height /
+            geofencingData.actualToPixelFactor.vertical) *
+            actualToPF.vertical
+    );
     return (
         <>
             <OutlinedContainer
@@ -244,6 +248,7 @@ const PatientItem = ({
                         <ImageBackground
                             source={mapImage}
                             onLayout={({ nativeEvent: { layout } }) => {
+                                console.log(layout);
                                 setActualToPF({
                                     horizontal:
                                         layout.width /
@@ -276,6 +281,19 @@ const PatientItem = ({
                         >
                             <View
                                 style={{
+                                    position: "absolute",
+                                    left:
+                                        ((geofencingData?.geofence?.x -
+                                            geofencingData.routerLimits.x) /
+                                            geofencingData.actualToPixelFactor
+                                                .horizontal) *
+                                        actualToPF.horizontal,
+                                    top:
+                                        ((geofencingData?.geofence?.y -
+                                            geofencingData.routerLimits.y) /
+                                            geofencingData.actualToPixelFactor
+                                                .vertical) *
+                                        actualToPF.vertical,
                                     width:
                                         (geofencingData?.geofence?.width /
                                             geofencingData.actualToPixelFactor

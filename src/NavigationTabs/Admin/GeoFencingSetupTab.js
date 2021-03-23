@@ -371,6 +371,7 @@ const GeoFencingSetupTab = ({
             routers,
             routerLimits,
             actualToPixelFactor,
+            geofence: geofenceProps,
             geoFencePixelDimensions,
             geofenceActualDimensions
         };

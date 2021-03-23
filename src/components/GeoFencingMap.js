@@ -20,13 +20,13 @@ const GeoFencingMap = ({
     const [loadComponents, setLoadComponents] = useState(false);
     const [loading, setLoading] = useState(true);
     const [firstLayout, setFirstLayout] = useState(true);
-    const unsaved = useDebounce(1000, () => {
+    const unsaved = useDebounce(50, () => {
         setSnackbarConfig({
             content: "Unsaved Changes! Don't forget to click SAVE GEOFENCE!",
             type: "WARNING"
         });
     });
-    const positionChange = useDebounce(500, (x, y) => {
+    const positionChange = useDebounce(50, (x, y) => {
         setGeofenceProps({
             ...geofenceProps,
             x,
