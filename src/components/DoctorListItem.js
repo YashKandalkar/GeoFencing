@@ -2,8 +2,8 @@ import React from "react";
 import {
     Avatar,
     Caption,
-    IconButton,
     Paragraph,
+    IconButton,
     Subheading
 } from "react-native-paper";
 import { StyleSheet, View } from "react-native";

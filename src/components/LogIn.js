@@ -2,45 +2,32 @@ import React, { useState } from "react";
 import { connect } from "react-redux";
 import { SafeAreaView, StyleSheet, View } from "react-native";
 import Animated, { Easing } from "react-native-reanimated";
+import { Controller, useForm } from "react-hook-form";
 import {
+    Text,
     Button,
+    Title,
+    Surface,
+    withTheme,
+    TextInput,
     HelperText,
     Subheading,
-    Surface,
-    Text,
-    TextInput,
-    Title,
-    TouchableRipple,
-    withTheme
+    TouchableRipple
 } from "react-native-paper";
-import { Controller, useForm } from "react-hook-form";
 
 import {
-    setAdminData,
-    setAdminId,
-    setFirebaseUser,
     setLoggedIn,
+    setAdminData,
+    setFirebaseUser,
     setSnackbarConfig
 } from "../redux/mainReduxDuck";
 import Scroll from "./Scroll";
-
 import OutlinedContainer from "./OutlinedContainer";
-
 import { createNewUser, loginInUser } from "../firebase/authApi";
-import { getAdminData, setHospitalData } from "../firebase/adminApi";
-import { getHospitalDetails } from "../firebase/doctorApi";
 
 const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-const Login = ({
-    navigation,
-    loginAs,
-    setLoginAs,
-    setLoggedIn,
-    setSnackbarConfig,
-    setFirebaseUser,
-    setAdminData
-}) => {
+const Login = ({ loginAs, setLoginAs, setLoggedIn, setSnackbarConfig }) => {
     const { control, handleSubmit, errors } = useForm();
     const [loading, setLoading] = useState(false);
     const [helperText, setHelperText] = useState({
@@ -102,60 +89,6 @@ const Login = ({
                         text:
                             "A verification email has been sent on your email address! Please click on the link provided in the email and sign in again"
                     });
-                } else {
-                    // if (loginAs === "ADMIN") {
-                    //     getAdminData(
-                    //         user,
-                    //         (data) => {
-                    //             if (data) {
-                    //                 setAdminData(data);
-                    //             }
-                    //
-                    //             if (!firebaseApp.auth().currentUser) {
-                    //                 setSnackbarConfig({
-                    //                     content:
-                    //                         "Logged in as " + loginAs + "!",
-                    //                     type: "SUCCESS"
-                    //                 });
-                    //                 // setFirebaseUser(user);
-                    //                 // setLoggedIn(true);
-                    //             }
-                    //         },
-                    //         (err) => {
-                    //             console.error(err);
-                    //             setSnackbarConfig({
-                    //                 content:
-                    //                     "An error occurred. Please check your internet connection!",
-                    //                 type: "ERROR"
-                    //             });
-                    //         }
-                    //     );
-                    // } else {
-                    //     if (!firebaseApp.auth().currentUser) {
-                    //         // getHospitalDetails(
-                    //         //     user,
-                    //         //     (data, adminId) => {
-                    //         //         setHospitalData(data);
-                    //         //         setAdminId(adminId);
-                    //         //         setSnackbarConfig({
-                    //         //             content:
-                    //         //                 "Logged in as " + loginAs + "!",
-                    //         //             type: "SUCCESS"
-                    //         //         });
-                    //         //         setFirebaseUser(user);
-                    //         //         // setLoggedIn(true);
-                    //         //     },
-                    //         //     (err) => {
-                    //         //         console.error(err);
-                    //         //         setSnackbarConfig({
-                    //         //             content:
-                    //         //                 "An error occurred. Please check your internet connection!",
-                    //         //             type: "ERROR"
-                    //         //         });
-                    //         //     }
-                    //         // );
-                    //     }
-                    // }
                 }
             },
             (err) => {
@@ -210,28 +143,14 @@ const Login = ({
                 <Animated.Image
                     source={require("../assets/doctor.jpg")}
                     style={{
-                        resizeMode: "cover",
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        bottom: 0,
-                        right: 0,
-                        height: "100%",
-                        width: "100%",
+                        ...styles.imageStyle,
                         opacity: docOpacity
                     }}
                 />
                 <Animated.Image
                     source={require("../assets/admin.jpg")}
                     style={{
-                        resizeMode: "cover",
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        bottom: 0,
-                        right: 0,
-                        height: "100%",
-                        width: "100%",
+                        ...styles.imageStyle,
                         opacity: adminOpacity
                     }}
                 />
@@ -416,14 +335,12 @@ const styles = StyleSheet.create({
         elevation: 1,
         borderRadius: 6,
         backgroundColor: "rgba(255,255,255,0.9)"
-        // marginTop: 20
     },
     textFieldHeading: {
         fontFamily: "sans-serif-light",
         fontSize: 16
     },
     formItem: {
-        // marginTop: 10,
         marginBottom: 15
     },
     outlinedContainer: {
@@ -433,6 +350,16 @@ const styles = StyleSheet.create({
         borderColor: "#ddd",
         paddingVertical: 16,
         backgroundColor: "rgba(255,255,255,0.9)"
+    },
+    imageStyle: {
+        resizeMode: "cover",
+        position: "absolute",
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
+        height: "100%",
+        width: "100%"
     }
 });
 

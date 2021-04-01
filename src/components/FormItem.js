@@ -4,15 +4,15 @@ import { Text, TextInput, HelperText } from "react-native-paper";
 import { Controller } from "react-hook-form";
 
 const FormItem = ({
-    labelText,
-    control,
-    errors,
     name,
-    required,
-    placeholder,
-    inputProps,
-    textContentType,
+    errors,
     render,
+    control,
+    required,
+    labelText,
+    inputProps,
+    placeholder,
+    textContentType,
     inputStyle = {},
     otherRules = {}
 }) => {

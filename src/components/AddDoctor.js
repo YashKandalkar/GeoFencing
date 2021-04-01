@@ -1,17 +1,18 @@
 import React, { useState } from "react";
+import { View } from "react-native";
 import { connect } from "react-redux";
+import { useForm } from "react-hook-form";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import {
-    Portal,
-    Modal,
-    Button,
     Title,
+    Modal,
+    Portal,
+    Button,
     Avatar,
     Subheading,
     IconButton
 } from "react-native-paper";
-import { View } from "react-native";
-import { useForm } from "react-hook-form";
-import DateTimePicker from "@react-native-community/datetimepicker";
+
 import Divider from "./Divider";
 import FormItem from "./FormItem";
 import { addDoctor } from "../firebase/adminApi";
@@ -24,7 +25,7 @@ const AddDoctor = ({ open, setOpen, onDoctorAdd, firebaseUser }) => {
 
     const { control, handleSubmit, errors, reset } = useForm({});
 
-    const onDateChange = (event, selectedDate) => {
+    const onDateChange = (_, selectedDate) => {
         setShowDatePicker(Platform.OS === "ios");
         setDate(selectedDate || date);
     };
@@ -178,18 +179,17 @@ const AddDoctor = ({ open, setOpen, onDoctorAdd, firebaseUser }) => {
 };
 
 const containerStyle = {
-    backgroundColor: "white",
-    padding: 20,
-    margin: 16,
     flex: 1,
-    maxHeight: 500,
-    paddingHorizontal: 18,
+    margin: 16,
+    padding: 20,
     minWidth: 300,
-    // maxWidth: 350,
     alignSelf: "center",
-    justifyContent: "center",
+    maxHeight: 500,
+    alignItems: "center",
     justifyItems: "center",
-    alignItems: "center"
+    justifyContent: "center",
+    backgroundColor: "white",
+    paddingHorizontal: 18
 };
 
 const mapStateToProps = (state) => ({

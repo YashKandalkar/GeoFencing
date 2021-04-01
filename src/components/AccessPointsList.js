@@ -1,21 +1,22 @@
 import React, { useState, useEffect, useRef } from "react";
 import { connect } from "react-redux";
 import { StyleSheet, View } from "react-native";
+import WifiManager from "react-native-wifi-reborn";
 import {
+    FAB,
+    Title,
+    Modal,
     Button,
     Dialog,
-    Paragraph,
     Portal,
-    Subheading,
     Surface,
-    Title,
+    Paragraph,
     withTheme,
-    Modal,
-    ActivityIndicator,
-    FAB
+    Subheading,
+    ActivityIndicator
 } from "react-native-paper";
+
 import { setAccessPoints, setSnackbarConfig } from "../redux/mainReduxDuck";
-import WifiManager from "react-native-wifi-reborn";
 import AccessPoint from "./AccessPoint";
 
 import {
@@ -33,7 +34,6 @@ const AccessPointsList = ({
     geofencingData,
     firebaseUser,
     currIndex,
-    jumpTo,
     theme
 }) => {
     const { colors } = theme;
@@ -117,7 +117,22 @@ const AccessPointsList = ({
                 firebaseApp.auth().currentUser,
                 (d) => {
                     if (d) {
-                        setAccessPoints(Object.values(d));
+                        let newArr = Object.values(d);
+
+                        newArr.forEach((RP) => {
+                            if (RP.routersNotFound) {
+                                RP.routersNotFound = Object.values(
+                                    RP.routersNotFound
+                                ).filter(
+                                    (rName) =>
+                                        !Object.keys(
+                                            RP.routerSignalLevels
+                                        ).includes(rName)
+                                );
+                            }
+                        });
+
+                        setAccessPoints(newArr);
                         setAccessPointsRedux(Object.values(d));
                     }
                 },
@@ -255,19 +270,6 @@ const AccessPointsList = ({
                                 Add RP
                             </Button>
                         </View>
-                        {/*<Divider dividerStyle={{ margin: 16 }} />*/}
-                        {/*<View style={styles.formButtonsContainer}>*/}
-                        {/*    <Button*/}
-                        {/*        compact*/}
-                        {/*        style={styles.formButton}*/}
-                        {/*        mode={"contained"}*/}
-                        {/*        onPress={onNextClick}*/}
-                        {/*        disabled={false}*/}
-                        {/*        loading={nextButtonLoading}*/}
-                        {/*    >*/}
-                        {/*        Save and Next*/}
-                        {/*    </Button>*/}
-                        {/*</View>*/}
                     </>
                 )}
             </Surface>
@@ -343,42 +345,42 @@ const AccessPointsList = ({
 const styles = StyleSheet.create({
     container: {
         elevation: 2,
-        marginHorizontal: 6,
         borderRadius: 8,
-        paddingBottom: 16
+        paddingBottom: 16,
+        marginHorizontal: 6
     },
     topBar: {
         display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
         padding: 16,
+        alignItems: "center",
+        marginBottom: 16,
+        flexDirection: "row",
+        justifyContent: "space-between",
         paddingVertical: 8,
         borderTopLeftRadius: 8,
-        borderTopRightRadius: 8,
-        marginBottom: 16
+        borderTopRightRadius: 8
     },
     addDoctorsMessage: {
         flex: 1,
-        justifyContent: "center",
+        textAlign: "center",
         alignItems: "center",
-        marginHorizontal: 32,
-        textAlign: "center"
+        justifyContent: "center",
+        marginHorizontal: 32
     },
     formButtonsContainer: {
-        flexDirection: "row",
         alignItems: "center",
+        flexDirection: "row",
         justifyContent: "flex-end"
     },
     formButton: {
         marginRight: 16
     },
     fab: {
-        position: "absolute",
-        backgroundColor: "#00ae00",
-        margin: 16,
         right: 0,
-        bottom: 60
+        margin: 16,
+        bottom: 60,
+        position: "absolute",
+        backgroundColor: "#00ae00"
     }
 });
 

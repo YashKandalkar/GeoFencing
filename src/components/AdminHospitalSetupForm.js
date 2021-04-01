@@ -1,12 +1,12 @@
 import React, { useState } from "react";
+import { connect } from "react-redux";
 import { Button, Divider, TextInput, Title } from "react-native-paper";
 import { View, StyleSheet, Alert } from "react-native";
+import { useForm } from "react-hook-form";
 import DropDownPicker from "react-native-dropdown-picker";
 import FormItem from "./FormItem";
 import NumericFormItem from "./NumericFormItem";
-import { useForm } from "react-hook-form";
 import indianStates from "../utils/IndianStateNames";
-import { connect } from "react-redux";
 import {
     setAdminHospitalSetupDone,
     setHospitalData,
@@ -290,12 +290,12 @@ const AdminHospitalSetupForm = ({
 const styles = StyleSheet.create({
     hospitalInformationForm: {
         flex: 3,
-        marginTop: 8,
-        padding: 8
+        padding: 8,
+        marginTop: 8
     },
     formButtonsContainer: {
-        flexDirection: "row",
         alignItems: "center",
+        flexDirection: "row",
         justifyContent: "flex-end"
     },
     formButton: {

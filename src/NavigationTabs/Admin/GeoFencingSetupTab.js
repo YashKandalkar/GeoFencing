@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Alert } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { connect } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
-import { useDebounce } from "../../utils/hooks";
 import {
     setGeofencingData,
     setGeofencingSetupDone,
@@ -244,26 +243,9 @@ const GeoFencingSetupTab = ({
             () => {
                 setImage(null);
                 setButtonLoading({ ...buttonLoading, mapClear: false });
-                // setGeoFencePixelDimensions({
-                //     horizontal: 0,
-                //     vertical: 0
-                // });
-                // setRouterLimits({
-                //     x: 0,
-                //     y: 0,
-                //     w: 0,
-                //     h: 0
-                // });
-                // setActualToPixelFactor({
-                //     horizontal: 0,
-                //     vertical: 0
-                // });
                 setGeofencingData({
                     ...geofencingData,
                     image: null
-                    // geoFencePixelDimensions: null,
-                    // routerLimits: null,
-                    // actualToPixelFactor: null
                 });
                 setGeofencingSetupDone(false);
                 setImageUploading({ value: null });
@@ -753,13 +735,11 @@ const styles = StyleSheet.create({
     mainContainer: {
         elevation: 1,
         flex: 1,
-        // margin: 8,
         padding: 8,
         borderRadius: 8
     },
     setupWarningContainer: {
         flex: 1,
-        // elevation: 1,
         margin: 8,
         justifyContent: "center",
         alignItems: "center",

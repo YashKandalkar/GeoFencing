@@ -10,11 +10,11 @@ import {
 } from "../../firebase/adminApi";
 
 const DoctorListTab = ({
-    geofencingSetupDone,
-    doctorList,
-    setDoctorList,
     route,
-    firebaseUser
+    doctorList,
+    firebaseUser,
+    setDoctorList,
+    geofencingSetupDone
 }) => {
     const [dialogOpen, setDialogOpen] = useState(false);
 

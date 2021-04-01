@@ -1,22 +1,23 @@
 import React, { useState } from "react";
-import DoctorListItem from "./DoctorListItem";
+import { StyleSheet, View } from "react-native";
 import {
+    Title,
+    Button,
+    Dialog,
+    Portal,
     Surface,
     withTheme,
-    Button,
-    Title,
     Subheading,
-    Dialog,
-    Paragraph,
-    Portal
+    Paragraph
 } from "react-native-paper";
-import { StyleSheet, View } from "react-native";
+
+import DoctorListItem from "./DoctorListItem";
 
 const DoctorList = ({
-    containerStyle,
-    onAddClick,
     theme,
     doctors,
+    onAddClick,
+    containerStyle,
     onDoctorRemove
 }) => {
     const { colors } = theme;

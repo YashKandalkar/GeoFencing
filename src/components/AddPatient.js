@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
-import {
-    Portal,
-    Modal,
-    Button,
-    Title,
-    Avatar,
-    Subheading,
-    IconButton
-} from "react-native-paper";
 import { View } from "react-native";
 import { useForm } from "react-hook-form";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import {
+    Title,
+    Modal,
+    Portal,
+    Button,
+    Subheading,
+    IconButton
+} from "react-native-paper";
+
 import Divider from "./Divider";
 import FormItem from "./FormItem";
 import { addDoctor } from "../firebase/adminApi";
@@ -24,7 +24,7 @@ const AddDoctor = ({ open, setOpen, onPatientAdd, firebaseUser }) => {
 
     const { control, handleSubmit, errors, reset } = useForm({});
 
-    const onDateChange = (event, selectedDate) => {
+    const onDateChange = (_, selectedDate) => {
         setShowDatePicker(Platform.OS === "ios");
         setDate(selectedDate || date);
     };

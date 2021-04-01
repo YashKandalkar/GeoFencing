@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { connect } from "react-redux";
 import {
     View,
     ImageBackground,
@@ -7,7 +8,6 @@ import {
     Vibration,
     AppState
 } from "react-native";
-import OutlinedContainer from "./OutlinedContainer";
 import Sound from "react-native-sound";
 import {
     Subheading,
@@ -19,8 +19,9 @@ import {
     Title,
     Button
 } from "react-native-paper";
+
 import Divider from "./Divider";
-import { connect } from "react-redux";
+import OutlinedContainer from "./OutlinedContainer";
 
 Sound.setCategory("Playback");
 
@@ -156,11 +157,7 @@ const PatientItem = ({
     } else {
         batteryIcon = "battery-alert";
     }
-    console.log(
-        (geofencingData?.geofence?.height /
-            geofencingData.actualToPixelFactor.vertical) *
-            actualToPF.vertical
-    );
+
     return (
         <>
             <OutlinedContainer
@@ -483,7 +480,6 @@ const styles = StyleSheet.create({
         height: "30%"
     },
     body: {
-        // height: "40%",
         backgroundColor: "white",
         alignItems: "center",
         paddingTop: 8

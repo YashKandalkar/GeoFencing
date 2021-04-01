@@ -1,18 +1,19 @@
 import React, { useState } from "react";
-import { View } from "react-native";
+import { View, StyleSheet } from "react-native";
+import DropDownPicker from "react-native-dropdown-picker";
 import {
+    Title,
+    Modal,
+    Portal,
     Button,
     HelperText,
     IconButton,
-    Modal,
-    Portal,
-    Subheading,
-    Title
+    Subheading
 } from "react-native-paper";
+
 import NumericFormItem from "./NumericFormItem";
 import OutlinedContainer from "./OutlinedContainer";
 import Divider from "./Divider";
-import DropDownPicker from "react-native-dropdown-picker";
 
 const inputProps = {
     minValue: 0.0,
@@ -26,25 +27,13 @@ const inputProps = {
     totalHeight: 40
 };
 
-const modalContainerStyle = {
-    padding: 16,
-    zIndex: 999,
-    marginHorizontal: 16,
-    justifyContent: "space-between",
-    alignItems: "center",
-    height: "50%",
-    backgroundColor: "white",
-    paddingTop: 32,
-    borderRadius: 16
-};
-
 const AccessPoint = ({
     ind,
     onDelete,
-    routersNotFound,
-    routerSignalLevels,
     position,
-    onChange
+    onChange,
+    routersNotFound,
+    routerSignalLevels
 }) => {
     const [visible, setVisible] = useState(false);
     const [selectedWifi, setSelectedWifi] = useState(null);
@@ -186,7 +175,7 @@ const AccessPoint = ({
                 <Modal
                     visible={visible}
                     onDismiss={hideModal}
-                    contentContainerStyle={modalContainerStyle}
+                    contentContainerStyle={styles.modalContainerStyle}
                 >
                     <View style={{ width: "100%", alignItems: "center" }}>
                         <Title>Add Router Signal</Title>
@@ -262,5 +251,19 @@ const RouterSignalRow = ({ name, signal, onChange }) => {
         />
     );
 };
+
+const styles = StyleSheet.create({
+    modalContainerStyle: {
+        padding: 16,
+        zIndex: 999,
+        marginHorizontal: 16,
+        justifyContent: "space-between",
+        alignItems: "center",
+        height: "50%",
+        backgroundColor: "white",
+        paddingTop: 32,
+        borderRadius: 16
+    }
+});
 
 export default AccessPoint;

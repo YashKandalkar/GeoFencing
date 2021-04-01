@@ -3,10 +3,10 @@ import { IconButton, Button } from "react-native-paper";
 import DropDownPicker from "react-native-dropdown-picker";
 import { View, StyleSheet } from "react-native";
 import WifiManager from "react-native-wifi-reborn";
+import PropTypes from "prop-types";
 
 import OutlinedContainer from "./OutlinedContainer";
 import NumericFormItem from "./NumericFormItem";
-import PropTypes from "prop-types";
 
 const inputProps = {
     minValue: 0.0,
@@ -36,12 +36,12 @@ const channelInputProps = {
 };
 
 const GeoFencingRouter = ({
-    routerNumber,
+    name,
     value,
     onChange,
     maxValue,
     onDelete,
-    name
+    routerNumber
 }) => {
     const [wifiList, setWifiList] = useState(
         name

@@ -51,26 +51,26 @@ export const setDoctorList = (user, data, successCallback, failureCallback) => {
         .catch((err) => failureCallback(err));
 };
 
-export const getAdminData = (user, onSuccess, onError) => {
+export const getAdminData = (user, successCallback, failureCallback) => {
     let adminDataRef = firebaseApp.database().ref("users/" + user.uid);
     adminDataRef
         .once("value")
         .then((snapshot) => {
-            onSuccess(snapshot.val());
+            successCallback(snapshot.val());
         })
-        .catch(onError);
+        .catch(failureCallback);
 };
 
-export const getAccessPoints = (user, onSuccess, onError) => {
+export const getAccessPoints = (user, successCallback, failureCallback) => {
     firebaseApp
         .database()
         .ref("users/" + user.uid + "/accessPoints")
         .on(
             "value",
             (snapshot) => {
-                onSuccess(snapshot.val());
+                successCallback(snapshot.val());
             },
-            onError
+            failureCallback
         );
 };
 
@@ -85,8 +85,8 @@ export const uploadHospitalMap = async (
     user,
     image,
     onProgress,
-    onError,
-    onSuccess
+    failureCallback,
+    successCallback
 ) => {
     const response = await fetch(image.uri);
     const blob = await response.blob();
@@ -95,22 +95,22 @@ export const uploadHospitalMap = async (
     uploadTask.on(
         "state_changed",
         (snap) => onProgress(snap.bytesTransferred / snap.totalBytes),
-        onError,
+        failureCallback,
         () => {
             uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
                 firebaseApp
                     .database()
                     .ref("users/" + user.uid + "/hospitalFloorMap")
                     .set({ ...image, uri: downloadURL })
-                    .then(() => onSuccess(downloadURL))
-                    .catch((err) => onError(err));
+                    .then(() => successCallback(downloadURL))
+                    .catch((err) => failureCallback(err));
             });
         }
     );
     return uploadTask;
 };
 
-export const deleteHospitalMap = (user, onSuccess, onError) => {
+export const deleteHospitalMap = (user, successCallback, failureCallback) => {
     firebaseApp
         .storage()
         .ref(user.uid)
@@ -121,22 +121,28 @@ export const deleteHospitalMap = (user, onSuccess, onError) => {
                 .database()
                 .ref("users/" + user.uid + "/hospitalFloorMap")
                 .remove()
-                .then(onSuccess)
-                .catch(onError);
+                .then(successCallback)
+                .catch(failureCallback);
         })
-        .catch(onError);
+        .catch(failureCallback);
 };
 
-export const deleteHospitalData = (user, onSuccess, onError) => {
+export const deleteHospitalData = (user, successCallback, failureCallback) => {
     firebaseApp
         .database()
         .ref("users/" + user.uid + "/hospitalData")
         .remove()
-        .then(onSuccess)
-        .catch(onError);
+        .then(successCallback)
+        .catch(failureCallback);
 };
 
-export const addDoctor = (user, email, data, onSuccess, onError) => {
+export const addDoctor = (
+    user,
+    email,
+    data,
+    successCallback,
+    failureCallback
+) => {
     const formattedData = {};
     for (let key of Object.keys(data)) {
         formattedData[key] = encodeURIComponent(data[key]).replace(
@@ -155,12 +161,18 @@ export const addDoctor = (user, email, data, onSuccess, onError) => {
         )
         .set(formattedData)
         .then(() => {
-            onSuccess();
+            successCallback();
         })
-        .catch((err) => onError(err.message));
+        .catch((err) => failureCallback(err.message));
 };
 
-export const deleteDoctor = (user, email, data, onSuccess, onError) => {
+export const deleteDoctor = (
+    user,
+    email,
+    data,
+    successCallback,
+    failureCallback
+) => {
     firebaseApp
         .database()
         .ref(
@@ -170,7 +182,7 @@ export const deleteDoctor = (user, email, data, onSuccess, onError) => {
         )
         .remove()
         .then(() => {
-            setDoctorList(user, data, onSuccess, onError);
+            setDoctorList(user, data, successCallback, failureCallback);
         })
-        .catch(onError);
+        .catch(failureCallback);
 };

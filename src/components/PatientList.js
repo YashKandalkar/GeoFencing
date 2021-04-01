@@ -1,30 +1,29 @@
 import React, { useState, useEffect, useRef } from "react";
 import { connect } from "react-redux";
+import { StyleSheet, View } from "react-native";
 import {
+    Title,
+    Button,
+    Dialog,
+    Portal,
     Surface,
     withTheme,
-    Button,
-    Title,
     Subheading,
-    Dialog,
-    Paragraph,
-    Portal
+    Paragraph
 } from "react-native-paper";
-import { StyleSheet, View } from "react-native";
+
 import { setPatientList } from "../redux/mainReduxDuck";
 import {
-    getDeviceLocation,
-    getPatientList,
-    stopLocationListener,
-    setPatientList as setPatientListFirebase,
-    stopSosListener,
-    stopStrapDisconnectListener,
     getSos,
-    getStrapDisconnect,
     getPulse,
-    stopPulseListener,
+    stopSosListener,
     getBatteryLevel,
-    stopBatteryLevelListener
+    getDeviceLocation,
+    stopPulseListener,
+    getStrapDisconnect,
+    stopLocationListener,
+    stopBatteryLevelListener,
+    stopStrapDisconnectListener
 } from "../firebase/doctorApi";
 import PatientItem from "./PatientItem";
 import { firebaseApp } from "../firebase/init";
@@ -37,12 +36,10 @@ const emergencies = {
 
 const PatientList = ({
     containerStyle,
-    setPatientList,
     geofencingData,
     hospitalData,
     firebaseUser,
     patientList,
-    adminId,
     theme
 }) => {
     const { colors } = theme;
@@ -66,18 +63,6 @@ const PatientList = ({
         mounted.current = true;
 
         if (mounted.current && firebaseApp.auth().currentUser) {
-            // getPatientList(
-            //     firebaseUser,
-            //     adminId,
-            //     (data) => {
-            //         if (data) {
-            //         }
-            //         setPatientList(data ? Object.values(data) : []);
-            //     },
-            //     (err) => {
-            //         console.error(err);
-            //     }
-            // );
             getDeviceLocation(
                 firebaseUser,
                 "100000",
@@ -158,24 +143,10 @@ const PatientList = ({
     }, [firebaseApp.auth().currentUser]);
 
     const onAddClick = () => {
-        // TODO: implement on patient add
+        // TODO: implement on patient add, when we have (hardware) support for multiple patients.
     };
-    const onPatientRemove = (ind, func) => {
-        // TODO: implement on patient remove
-    };
-
-    const onRemoveClick = (ind) => {
-        setDialog({
-            title: "Remove Doctor",
-            content: `Are you sure you want to remove ${patientList[ind].name}?`,
-            onAction: () => {
-                setLoading(true);
-                onPatientRemove(ind, () => {
-                    setLoading(false);
-                    setDialog({ title: null });
-                });
-            }
-        });
+    const onPatientRemove = () => {
+        // TODO: implement on patient remove, when we have (hardware) support for multiple patients.
     };
 
     return (

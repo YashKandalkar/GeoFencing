@@ -4,10 +4,10 @@ import { Text, HelperText } from "react-native-paper";
 import NumericInput from "react-native-numeric-input";
 
 const NumericFormItem = ({
-    labelText,
-    inputProps,
     value,
     onChange,
+    labelText,
+    inputProps,
     labelStyle,
     helperText
 }) => {

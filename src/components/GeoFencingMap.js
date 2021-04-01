@@ -8,14 +8,14 @@ import { useDebounce } from "../utils/hooks";
 const GeoFencingMap = ({
     image,
     routers,
-    actualToPixelFactor,
-    routerInfoHandler,
-    geoFencePixelDimensionsHandler,
     routerLimits,
-    setRouterLimits,
     geofenceProps,
+    setRouterLimits,
     setGeofenceProps,
-    setSnackbarConfig
+    routerInfoHandler,
+    setSnackbarConfig,
+    actualToPixelFactor,
+    geoFencePixelDimensionsHandler
 }) => {
     const [loadComponents, setLoadComponents] = useState(false);
     const [loading, setLoading] = useState(true);
